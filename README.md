@@ -1,0 +1,73 @@
+# ShellRS for iOS
+
+ShellRS 的 iPhone / iPad 版：SSH 主机管理和终端。连接、主机库、同步都在 Rust 核心里（[shell-rs](https://github.com/since2006/shell-rs) 的 `crates/shellrs-mobile`，经 UniFFI 生成 Swift 接口），和电脑上的 ShellRS 共用同一套逻辑和数据格式；终端模拟用 [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)。
+
+最低 iOS 17，Bundle ID `com.shellrs.ios`（钥匙串跟它绑定，发布后不能改）。
+
+## 构建
+
+要有 Xcode（16 以上）和 shell-rs 那边的 Rust 工具链，外加：
+
+```sh
+rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+```
+
+1. 把 shell-rs 检出在本仓库旁边（`../shell-rs`），或用 `SHELLRS_DIR` 指过去。
+2. 编核心：`scripts/build-core.sh`。它跑 shell-rs 的 `scripts/build-ios.sh`，把 `ShellRSCore.xcframework` 和生成的 `ShellRSCore.swift` 拷进 `Packages/ShellRSCore`（这两样不进库）。检出的提交和 `Packages/ShellRSCore/core-revision` 不同、或 crates 有没提交的改动时会提醒。
+3. 打开 `ShellRS.xcodeproj`。第一次构建 Xcode 会问是否信任 SwiftTerm 的构建插件 `SwiftTermBuildInfoPlugin`（只生成版本信息），选「Trust & Enable」。
+4. 真机运行要签名：新建 `Config/Local.xcconfig`（不进库），写一行 `DEVELOPMENT_TEAM = 你的 Team ID`。
+
+模拟器只编了 Apple 芯片的（`aarch64-apple-ios-sim`）。
+
+命令行：
+
+```sh
+xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
+  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5' \
+  -skipPackagePluginValidation test
+```
+
+模拟器换成本机装了的（`xcrun simctl list devices available`）；不写 `OS=` 时 xcodebuild 找最新 SDK 的运行时，没装就报找不到设备。
+
+## 测试
+
+`ShellRSTests` 用 Swift Testing，宿主是 App 本身：
+
+- 钥匙串（`AppKeychain`）在模拟器的钥匙串里用测试自己的 service 存取删；
+- 主机库和终端会话用真的 `Core`，数据在临时文件夹、钥匙串在内存（`MemoryKeychain`），查密码只进钥匙串、数据文件夹里找不到；
+- 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句。
+
+`ServerTests` 连真的 SSH 服务器（信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、断开后 Enter 重连），只在给了服务器时跑。用 Docker 起一台：
+
+```sh
+docker run -d --rm --name shellrs-ios-sshd -p 127.0.0.1:2222:22 alpine:3 sh -c '
+  apk add --no-cache openssh >/dev/null && ssh-keygen -A >/dev/null &&
+  echo root:shellrs-test | chpasswd &&
+  sed -i "s/^#\?PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config &&
+  exec /usr/sbin/sshd -D -e'
+
+TEST_RUNNER_SHELLRS_TEST_SSH=127.0.0.1:2222 \
+TEST_RUNNER_SHELLRS_TEST_SSH_PASSWORD=shellrs-test \
+xcodebuild … test
+```
+
+（`xcodebuild` 把 `TEST_RUNNER_` 开头的变量去掉前缀交给测试；用户名用 `SHELLRS_TEST_SSH_USER`，默认 root。）
+
+## 目录
+
+- `ShellRS/App`：入口、`AppModel`（核心、主机、打开的终端）、`AppKeychain`、标签页。
+- `ShellRS/Hosts`：主机列表、主机表单、`HostsModel`。
+- `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、终端页、问答、打开的终端列表。
+- `ShellRS/Describe`：核心的错误和失败翻成文案。
+- `ShellRS/Localizable.xcstrings`：全部文案。
+- `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
+
+## 约定
+
+- **核心不产出文案。** 失败是一串类型化的环节（`Failure.links`），`Describe` 逐节翻译、用「: 」连起来，措辞照电脑版的 `locales/*.yml`；`switch` 写全，核心加了变体这里就编不过，要补上文案。
+- **文案**：中文是源语言，代码里直接写中文（`Text("主机")`、`String(localized:)`），英文在 `Localizable.xcstrings`；用词照 shell-rs 的 `CLAUDE.md` 用词表。插值先转成 `String`，占位符都是 `%@`。
+- **秘密只进钥匙串**：密码、口令经核心写进 `AppKeychain`（`AfterFirstUnlockThisDeviceOnly`，不随备份去别的设备，靠 ShellRS 自己的同步走），数据库里没有秘密。
+- **事件只拉不推**：每个核心对象一个 `Task` 循环 `nextEvent()` 到 `nil`，在主 actor 上更新模型。
+- **标签各自记着打开时的主机**（同电脑版）：编辑、删除主机不碰已打开的终端；重新连接时按保存的主机再连。
+- 断开的终端按 Enter 重连、按 Space 关闭（同电脑版），也有按钮。
+- 核心接口缺东西就改 shell-rs 的 `crates/shellrs-mobile`（单独提交、照那边的规矩测），再更新 `core-revision`、重跑 `scripts/build-core.sh`。

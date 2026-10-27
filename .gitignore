@@ -1,0 +1,14 @@
+# What scripts/build-core.sh builds from shell-rs.
+/Packages/ShellRSCore/ShellRSCore.xcframework/
+/Packages/ShellRSCore/Sources/ShellRSCore/ShellRSCore.swift
+
+# Each developer's signing team.
+/Config/Local.xcconfig
+
+# Xcode.
+xcuserdata/
+*.xcuserstate
+/build/
+DerivedData/
+.swiftpm/
+.DS_Store

@@ -1,0 +1,2116 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "%@ ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ms"
+          }
+        }
+      }
+    },
+    "SSH Agent 中没有密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH agent has no keys"
+          }
+        }
+      }
+    },
+    "SSH Agent 拒绝了签名请求": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SSH agent refused to sign"
+          }
+        }
+      }
+    },
+    "SSH 登录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH login"
+          }
+        }
+      }
+    },
+    "ShellRS 无法启动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ShellRS can’t start"
+          }
+        }
+      }
+    },
+    "、": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", "
+          }
+        }
+      }
+    },
+    "主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hosts"
+          }
+        }
+      }
+    },
+    "主机不可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "host unreachable"
+          }
+        }
+      }
+    },
+    "主机不能经由自己连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A host can’t connect through itself"
+          }
+        }
+      }
+    },
+    "主机信任文件已损坏或无法读取：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The known hosts file is damaged or unreadable: %@"
+          }
+        }
+      }
+    },
+    "主机信任文件已损坏：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The known hosts file is damaged: %@"
+          }
+        }
+      }
+    },
+    "主机名太长，SOCKS5 最多 255 个字节": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The hostname is too long. SOCKS5 allows at most 255 bytes"
+          }
+        }
+      }
+    },
+    "主机名或 IP 地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hostname or IP address"
+          }
+        }
+      }
+    },
+    "交互式认证失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard-interactive authentication failed"
+          }
+        }
+      }
+    },
+    "交互式认证已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keyboard-interactive authentication cancelled"
+          }
+        }
+      }
+    },
+    "代理服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy"
+          }
+        }
+      }
+    },
+    "代理服务器不允许连接到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy doesn’t allow connections to %@"
+          }
+        }
+      }
+    },
+    "代理服务器不接受用户名和密码认证": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy doesn’t accept username and password authentication"
+          }
+        }
+      }
+    },
+    "代理服务器不支持 CONNECT 命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy doesn’t support the CONNECT command"
+          }
+        }
+      }
+    },
+    "代理服务器不支持这种地址类型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy doesn’t support this type of address"
+          }
+        }
+      }
+    },
+    "代理服务器拒绝了用户名或密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy rejected the username or password"
+          }
+        }
+      }
+    },
+    "代理服务器拒绝了连接：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy refused the connection: %@"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：主机不可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: host unreachable"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：代理服务器内部错误": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: internal proxy error"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：网络不可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: network unreachable"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：连接失败（HTTP 502）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: connection failed (HTTP 502)"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：连接被拒绝": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: connection refused"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：连接超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: timed out"
+          }
+        }
+      }
+    },
+    "代理服务器无法连接到 %@：连接超时（HTTP 504）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy couldn’t connect to %@: timed out (HTTP 504)"
+          }
+        }
+      }
+    },
+    "代理服务器没有回复就关闭了连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy closed the connection without replying"
+          }
+        }
+      }
+    },
+    "代理服务器的回复无法识别，请确认它是 HTTP 代理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy’s reply wasn’t understood. Check that it’s an HTTP proxy"
+          }
+        }
+      }
+    },
+    "代理服务器的回复无法识别，请确认它是 SOCKS5 代理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy’s reply wasn’t understood. Check that it’s a SOCKS5 proxy"
+          }
+        }
+      }
+    },
+    "代理服务器的回复过长": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy’s reply is too long"
+          }
+        }
+      }
+    },
+    "代理服务器的规则不允许连接到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy’s rules don’t allow connections to %@"
+          }
+        }
+      }
+    },
+    "代理服务器要求认证，请填写代理的用户名和密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy requires authentication. Enter a username and password for it"
+          }
+        }
+      }
+    },
+    "代理的用户名或密码太长，SOCKS5 最多 255 个字节": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy username or password is too long. SOCKS5 allows at most 255 bytes"
+          }
+        }
+      }
+    },
+    "代理端口必须是 1 到 65535 之间的数字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy port must be a number from 1 to 65535"
+          }
+        }
+      }
+    },
+    "使用凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credential"
+          }
+        }
+      }
+    },
+    "保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "保存主机密钥时发现信任文件已发生变化": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The known hosts file changed while the host key was being saved"
+          }
+        }
+      }
+    },
+    "保存主机未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the host’s changes to the local database: %@"
+          }
+        }
+      }
+    },
+    "保存凭据未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the credential’s changes to the local database: %@"
+          }
+        }
+      }
+    },
+    "保存分组展开状态未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save whether the group is expanded to the local database: %@"
+          }
+        }
+      }
+    },
+    "保存分组未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the group’s changes to the local database: %@"
+          }
+        }
+      }
+    },
+    "信任并连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust and connect"
+          }
+        }
+      }
+    },
+    "关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "凭据已被删除，请重新选择": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The credential was deleted. Choose another one"
+          }
+        }
+      }
+    },
+    "出错了": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong"
+          }
+        }
+      }
+    },
+    "分组不能移到自己或自己的子分组里": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A group can’t go into itself or one of its subgroups"
+          }
+        }
+      }
+    },
+    "分组已被删除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The group was deleted"
+          }
+        }
+      }
+    },
+    "创建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create"
+          }
+        }
+      }
+    },
+    "删除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "删除「%@」？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%@”?"
+          }
+        }
+      }
+    },
+    "删除主机未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete the host from the local database: %@"
+          }
+        }
+      }
+    },
+    "删除凭据未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete the credential from the local database: %@"
+          }
+        }
+      }
+    },
+    "删除分组未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete the group from the local database: %@"
+          }
+        }
+      }
+    },
+    "取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passphrase"
+          }
+        }
+      }
+    },
+    "只尝试服务器免认证，不询问密码；要用私钥请改用「使用凭据」。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tries logging in without authentication and doesn’t ask for a password. To log in with a private key, choose “Credential”."
+          }
+        }
+      }
+    },
+    "可选，默认用地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional; the address if left empty"
+          }
+        }
+      }
+    },
+    "同步来的密码未能存进钥匙串：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t keep a synced password in the keychain: %@"
+          }
+        }
+      }
+    },
+    "名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "向远程终端写入失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t write to the remote terminal"
+          }
+        }
+      }
+    },
+    "命令超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The command timed out"
+          }
+        }
+      }
+    },
+    "在「主机」里点一台主机连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a host in Hosts to connect."
+          }
+        }
+      }
+    },
+    "地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        }
+      }
+    },
+    "复制主机未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the host’s copy to the local database: %@"
+          }
+        }
+      }
+    },
+    "好": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "存储空间已满": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "storage is full"
+          }
+        }
+      }
+    },
+    "密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        }
+      }
+    },
+    "密码保存在系统钥匙串，不会写入 ShellRS 的数据库。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwords are kept in the system keychain, never in ShellRS’s database."
+          }
+        }
+      }
+    },
+    "密码未能存进钥匙串：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t keep the password in the keychain: %@"
+          }
+        }
+      }
+    },
+    "密码认证失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password authentication failed"
+          }
+        }
+      }
+    },
+    "对方关闭了连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the other side closed the connection"
+          }
+        }
+      }
+    },
+    "已保存指纹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved fingerprints"
+          }
+        }
+      }
+    },
+    "已保存的口令无法解开 %@，请重新输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved passphrase doesn’t unlock %@. Enter it again"
+          }
+        }
+      }
+    },
+    "已保存的密码被服务器拒绝，请重新输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server rejected the saved password. Enter it again"
+          }
+        }
+      }
+    },
+    "已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closed"
+          }
+        }
+      }
+    },
+    "已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        }
+      }
+    },
+    "已存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "already exists"
+          }
+        }
+      }
+    },
+    "已打开的终端不受影响。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open terminals stay as they are."
+          }
+        }
+      }
+    },
+    "已打开的连接不受影响，下次连接时使用新的设置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open connections stay as they are; the new settings apply the next time you connect."
+          }
+        }
+      }
+    },
+    "已断开连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected"
+          }
+        }
+      }
+    },
+    "已断开连接。按 Enter 重新连接，按 Space 关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected. Press Enter to reconnect or Space to close"
+          }
+        }
+      }
+    },
+    "已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        }
+      }
+    },
+    "已连接 · %@ ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected · %@ ms"
+          }
+        }
+      }
+    },
+    "手机上没有 SSH Agent，请改用密钥凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There’s no SSH agent on a phone. Use a key credential instead"
+          }
+        }
+      }
+    },
+    "打开 SFTP 超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening SFTP timed out"
+          }
+        }
+      }
+    },
+    "找不到": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not found"
+          }
+        }
+      }
+    },
+    "找不到这项，可能已被删除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "It isn’t there any more; it may have been deleted"
+          }
+        }
+      }
+    },
+    "收起": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide"
+          }
+        }
+      }
+    },
+    "数据库由早期开发版写入，无法打开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An early development build wrote the database, so it can’t be opened"
+          }
+        }
+      }
+    },
+    "数据库由更新版本的 ShellRS 写入，请先更新 ShellRS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A newer ShellRS wrote the database. Update ShellRS first"
+          }
+        }
+      }
+    },
+    "数据文件夹正被另一个 ShellRS 使用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another ShellRS is using the data folder"
+          }
+        }
+      }
+    },
+    "断开连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect"
+          }
+        }
+      }
+    },
+    "新建一台主机，或在设置里加入电脑上的云同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a host, or join your computer’s cloud sync in Settings."
+          }
+        }
+      }
+    },
+    "新建主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New host"
+          }
+        }
+      }
+    },
+    "新建主机未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the new host to the local database: %@"
+          }
+        }
+      }
+    },
+    "新建凭据未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the new credential to the local database: %@"
+          }
+        }
+      }
+    },
+    "新建分组未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the new group to the local database: %@"
+          }
+        }
+      }
+    },
+    "无密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password"
+          }
+        }
+      }
+    },
+    "无法从钥匙串读取密码：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the password from the keychain: %@"
+          }
+        }
+      }
+    },
+    "无法保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save"
+          }
+        }
+      }
+    },
+    "无法写入主机信任文件：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t write to the known hosts file: %@"
+          }
+        }
+      }
+    },
+    "无法创建 SSH 会话通道": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t open an SSH session channel"
+          }
+        }
+      }
+    },
+    "无法创建数据文件夹：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t create the data folder: %@"
+          }
+        }
+      }
+    },
+    "无法协商 RSA 签名算法": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t agree on an RSA signature algorithm with the server"
+          }
+        }
+      }
+    },
+    "无法协商 SSH Agent 签名算法": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t agree on a signature algorithm for the SSH agent"
+          }
+        }
+      }
+    },
+    "无法发送命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t send the command"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接，请检查地址、端口和主机密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection (check the address, port and host key)"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接：和服务器没有共同的主机密钥算法，服务器支持的是 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection: no host key algorithm in common with the server, which supports %@"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接：和服务器没有共同的加密算法，服务器支持的是 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection: no cipher in common with the server, which supports %@"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接：和服务器没有共同的压缩算法，服务器支持的是 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection: no compression algorithm in common with the server, which supports %@"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接：和服务器没有共同的密钥交换算法，服务器支持的是 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection: no key exchange algorithm in common with the server, which supports %@"
+          }
+        }
+      }
+    },
+    "无法建立 SSH 连接：和服务器没有共同的消息校验（MAC）算法，服务器支持的是 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t establish an SSH connection: no MAC algorithm in common with the server, which supports %@"
+          }
+        }
+      }
+    },
+    "无法开始交互式认证": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t start keyboard-interactive authentication"
+          }
+        }
+      }
+    },
+    "无法打开 SSH 通道": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t open an SSH channel"
+          }
+        }
+      }
+    },
+    "无法打开数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t open the database: %@"
+          }
+        }
+      }
+    },
+    "无法查询服务器支持的认证方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t ask the server which authentication methods it supports"
+          }
+        }
+      }
+    },
+    "无法识别这段私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This private key isn’t recognized"
+          }
+        }
+      }
+    },
+    "无法读取主机信任文件：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the known hosts file: %@"
+          }
+        }
+      }
+    },
+    "无法读取私钥文件：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the private key file: %@"
+          }
+        }
+      }
+    },
+    "无法连接代理服务器 %@:%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t connect to the proxy %@:%@"
+          }
+        }
+      }
+    },
+    "无法连接到 %@:%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t connect to %@:%@"
+          }
+        }
+      }
+    },
+    "更多": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "更新并连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update and connect"
+          }
+        }
+      }
+    },
+    "最近连接未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the recent connections to the local database: %@"
+          }
+        }
+      }
+    },
+    "有主机把它用作跳板主机或有端口转发经由它，只能是 SSH 主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hosts use it as a jump host or port forwards go through it, so it stays an SSH host"
+          }
+        }
+      }
+    },
+    "服务器不接受公钥登录，无法使用 SSH Agent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server doesn’t accept public key logins, so the SSH agent can’t be used"
+          }
+        }
+      }
+    },
+    "服务器主机密钥已变更": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server host key changed"
+          }
+        }
+      }
+    },
+    "服务器当前指纹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server’s fingerprint now"
+          }
+        }
+      }
+    },
+    "服务器拒绝创建终端": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server refused to create a terminal"
+          }
+        }
+      }
+    },
+    "服务器拒绝启动 Shell": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server refused to start a shell"
+          }
+        }
+      }
+    },
+    "服务器拒绝执行命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server refused to run the command"
+          }
+        }
+      }
+    },
+    "服务器未接受 SSH Agent 中的密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server didn’t accept the keys in the SSH agent"
+          }
+        }
+      }
+    },
+    "服务器未接受任何私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server accepted none of the private keys"
+          }
+        }
+      }
+    },
+    "服务器未接受指定的私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server didn’t accept the private key"
+          }
+        }
+      }
+    },
+    "服务器没有开启 SFTP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server doesn’t offer SFTP"
+          }
+        }
+      }
+    },
+    "服务器要求密码，「无密码」不会询问；请改用「密码」或「使用凭据」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server wants a password, and “No password” doesn’t ask for one. Choose “Password” or “Credential” instead"
+          }
+        }
+      }
+    },
+    "服务器要求键盘交互式认证，这里无法完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server wants keyboard-interactive authentication, which can’t be done here"
+          }
+        }
+      }
+    },
+    "服务器重装过或换过密钥时，更新后即可连接。否则可能有人在冒充这台服务器，请先核实。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If the server was reinstalled or its keys were replaced, update the saved key to connect. Otherwise someone may be posing as the server, so verify it first."
+          }
+        }
+      }
+    },
+    "未填写密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password entered"
+          }
+        }
+      }
+    },
+    "未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save to the local database: %@"
+          }
+        }
+      }
+    },
+    "未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        }
+      }
+    },
+    "正在连接…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting…"
+          }
+        }
+      }
+    },
+    "没有可用的跳板主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No jump hosts to connect through"
+          }
+        }
+      }
+    },
+    "没有打开的终端": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No open terminals"
+          }
+        }
+      }
+    },
+    "没有权限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "permission denied"
+          }
+        }
+      }
+    },
+    "版本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "用保存的凭据登录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs in with the saved credential."
+          }
+        }
+      }
+    },
+    "用户名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        }
+      }
+    },
+    "用户名或密码错误": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect username or password"
+          }
+        }
+      }
+    },
+    "留空则每次连接时询问": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asked at each connection if left empty"
+          }
+        }
+      }
+    },
+    "登录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log in"
+          }
+        }
+      }
+    },
+    "确认指纹和服务器的一致后再信任。信任后保存在 ShellRS 里，下次不再询问。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trust it once the fingerprint matches the server’s. ShellRS keeps it and won’t ask again."
+          }
+        }
+      }
+    },
+    "私钥口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private key passphrase"
+          }
+        }
+      }
+    },
+    "私钥口令错误": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect private key passphrase"
+          }
+        }
+      }
+    },
+    "私钥口令错误次数过多": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many incorrect passphrases"
+          }
+        }
+      }
+    },
+    "私钥已加密，未填写口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private key is encrypted and no passphrase was entered"
+          }
+        }
+      }
+    },
+    "私钥文件未能删除：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete the private key file: %@"
+          }
+        }
+      }
+    },
+    "私钥未能保存：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The private key wasn’t saved: %@"
+          }
+        }
+      }
+    },
+    "私钥认证失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private key authentication failed"
+          }
+        }
+      }
+    },
+    "私钥认证需要选择私钥文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a private key file to log in with a key"
+          }
+        }
+      }
+    },
+    "端口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        }
+      }
+    },
+    "端口必须是 1 到 65535 之间的数字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The port must be a number from 1 to 65535"
+          }
+        }
+      }
+    },
+    "第 %@ 台跳板主机已被删除，请编辑这台主机的连接方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host %@ was deleted. Edit how this host connects"
+          }
+        }
+      }
+    },
+    "算法": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Algorithm"
+          }
+        }
+      }
+    },
+    "终端": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminals"
+          }
+        }
+      }
+    },
+    "编辑": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "编辑主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit host"
+          }
+        }
+      }
+    },
+    "网络不可达": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "network unreachable"
+          }
+        }
+      }
+    },
+    "认证回复无效": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid authentication reply"
+          }
+        }
+      }
+    },
+    "认证失败：服务器未接受可用的认证方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed: the server accepted none of the available methods"
+          }
+        }
+      }
+    },
+    "认证已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication cancelled"
+          }
+        }
+      }
+    },
+    "认证方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication"
+          }
+        }
+      }
+    },
+    "认证请求已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication request cancelled"
+          }
+        }
+      }
+    },
+    "设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "请添加跳板主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a jump host"
+          }
+        }
+      }
+    },
+    "请移除已删除的跳板主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the deleted jump host"
+          }
+        }
+      }
+    },
+    "请粘贴私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste a private key"
+          }
+        }
+      }
+    },
+    "请输入 %@ 的口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the passphrase for %@"
+          }
+        }
+      }
+    },
+    "请输入代理地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the proxy address"
+          }
+        }
+      }
+    },
+    "请输入凭据名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a credential name"
+          }
+        }
+      }
+    },
+    "请输入分组名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a group name"
+          }
+        }
+      }
+    },
+    "请输入地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter an address"
+          }
+        }
+      }
+    },
+    "请输入登录密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the password to log in"
+          }
+        }
+      }
+    },
+    "请选择或粘贴私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose or paste a private key"
+          }
+        }
+      }
+    },
+    "调整主机顺序未能保存到本地数据库：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the rearranged host list to the local database: %@"
+          }
+        }
+      }
+    },
+    "调整远程终端尺寸失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t resize the remote terminal"
+          }
+        }
+      }
+    },
+    "跳板主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host"
+          }
+        }
+      }
+    },
+    "跳板主机「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host “%@”"
+          }
+        }
+      }
+    },
+    "跳板主机「%@」无法连接到 %@：无法打开转发通道": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host “%@” couldn’t connect to %@: couldn’t open a forwarding channel"
+          }
+        }
+      }
+    },
+    "跳板主机「%@」无法连接到 %@：服务器不允许端口转发": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host “%@” couldn’t connect to %@: the server doesn’t allow port forwarding"
+          }
+        }
+      }
+    },
+    "跳板主机「%@」无法连接到 %@：连接失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host “%@” couldn’t connect to %@: connection failed"
+          }
+        }
+      }
+    },
+    "跳板主机「%@」无法连接到 %@：连接超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump host “%@” couldn’t connect to %@: timed out"
+          }
+        }
+      }
+    },
+    "输出太快，跳过了 %@ 字节": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output came too fast; %@ bytes were skipped"
+          }
+        }
+      }
+    },
+    "还没有主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No hosts yet"
+          }
+        }
+      }
+    },
+    "这个终端经由堡垒机打开，只能使用终端本身，不能另外打开文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This terminal was opened by a bastion host and can’t open files beside the shell"
+          }
+        }
+      }
+    },
+    "这个终端经由堡垒机打开，只能使用终端本身，不能另外执行命令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This terminal was opened by a bastion host and can’t run commands beside the shell"
+          }
+        }
+      }
+    },
+    "这台主机不是 SSH 主机，暂时只能在电脑上连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This isn’t an SSH host. For now it connects only on a computer"
+          }
+        }
+      }
+    },
+    "这是公钥，请粘贴私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a public key. Paste the private key"
+          }
+        }
+      }
+    },
+    "连接已取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection cancelled"
+          }
+        }
+      }
+    },
+    "连接已断开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the connection was lost"
+          }
+        }
+      }
+    },
+    "连接被中止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "connection aborted"
+          }
+        }
+      }
+    },
+    "连接被对方重置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "connection reset by the other side"
+          }
+        }
+      }
+    },
+    "连接被拒绝，该端口上没有服务在监听": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "connection refused, as nothing is listening on that port"
+          }
+        }
+      }
+    },
+    "连接视图已关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The tab for this connection was closed"
+          }
+        }
+      }
+    },
+    "连接超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the connection timed out"
+          }
+        }
+      }
+    },
+    "重新连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnect"
+          }
+        }
+      }
+    },
+    "钥匙串现在不可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the keychain isn’t available now"
+          }
+        }
+      }
+    },
+    "首次连接此主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First connection to this host"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -1,0 +1,11 @@
+// The app's identity and the oldest iOS it runs on.
+//
+// PRODUCT_BUNDLE_IDENTIFIER must never change once the app is out: the
+// keychain keeps the passwords under it.
+PRODUCT_BUNDLE_IDENTIFIER = com.shellrs.ios
+IPHONEOS_DEPLOYMENT_TARGET = 17.0
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+
+// DEVELOPMENT_TEAM = <your team id>, to run on an iPhone; not committed.
+#include? "Local.xcconfig"
