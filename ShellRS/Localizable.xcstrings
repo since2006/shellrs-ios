@@ -53,6 +53,16 @@
         }
       }
     },
+    "%@，修改时间 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@, modified %@"
+          }
+        }
+      }
+    },
     "%lld 个子分组": {
       "localizations": {
         "en": {
@@ -68,6 +78,28 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld subgroups"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld 个项目": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items"
                 }
               }
             }
@@ -103,6 +135,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "HTTP proxy"
+          }
+        }
+      }
+    },
+    "SFTP 已断开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP disconnected"
+          }
+        }
+      }
+    },
+    "SFTP 未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP isn’t connected"
+          }
+        }
+      }
+    },
+    "SFTP 未连接，请重新连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP isn’t connected. Reconnect to continue"
+          }
+        }
+      }
+    },
+    "SFTP 连接中断，请重新连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SFTP connection dropped. Reconnect to continue"
+          }
+        }
+      }
+    },
+    "SFTP 连接已断开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SFTP connection was lost"
           }
         }
       }
@@ -197,6 +279,46 @@
         }
       }
     },
+    "「文件」App 的 ShellRS 文件夹里也能看到下载的文件。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads are also in the ShellRS folder of the Files app."
+          }
+        }
+      }
+    },
+    "上传写入流水线意外结束": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The upload stopped writing unexpectedly"
+          }
+        }
+      }
+    },
+    "上传到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload to %@"
+          }
+        }
+      }
+    },
+    "上传文件…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload files…"
+          }
+        }
+      }
+    },
     "上移": {
       "localizations": {
         "en": {
@@ -223,6 +345,116 @@
           "stringUnit": {
             "state": "translated",
             "value": "Move down"
+          }
+        }
+      }
+    },
+    "下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        }
+      }
+    },
+    "下载到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download to %@"
+          }
+        }
+      }
+    },
+    "下载目标必须是绝对路径": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The download destination must be an absolute path"
+          }
+        }
+      }
+    },
+    "下载读取流水线意外结束": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The download stopped reading unexpectedly"
+          }
+        }
+      }
+    },
+    "不支持上传设备、套接字或其他特殊文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devices, sockets and other special files can’t be uploaded"
+          }
+        }
+      }
+    },
+    "不支持下载设备、套接字或其他特殊文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Devices, sockets and other special files can’t be downloaded"
+          }
+        }
+      }
+    },
+    "不能同步到根目录 /": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t sync to the root folder /"
+          }
+        }
+      }
+    },
+    "丢弃续传进度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard partial transfer"
+          }
+        }
+      }
+    },
+    "临时文件 %@ 不是普通文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The temporary file %@ isn’t a regular file"
+          }
+        }
+      }
+    },
+    "临时文件大小或类型已变化，未替换目标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The temporary file’s size or type changed, so the destination wasn’t replaced"
+          }
+        }
+      }
+    },
+    "临时链接已变化，无法继续上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The temporary link changed, so the upload can’t resume"
           }
         }
       }
@@ -293,6 +525,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hostname or IP address"
+          }
+        }
+      }
+    },
+    "主目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
           }
         }
       }
@@ -597,6 +839,36 @@
         }
       }
     },
+    "传输出错": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer problem"
+          }
+        }
+      }
+    },
+    "传输已停止，进度已保留": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer stopped. Its progress is kept"
+          }
+        }
+      }
+    },
+    "传输队列": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfers"
+          }
+        }
+      }
+    },
     "使用凭据": {
       "localizations": {
         "en": {
@@ -717,6 +989,16 @@
         }
       }
     },
+    "保存后找不到文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file is gone after saving"
+          }
+        }
+      }
+    },
     "保持不变": {
       "localizations": {
         "en": {
@@ -737,12 +1019,52 @@
         }
       }
     },
+    "停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
     "全部主机": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "All hosts"
+          }
+        }
+      }
+    },
+    "全部继续": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume all"
+          }
+        }
+      }
+    },
+    "全部覆盖": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overwrite all"
+          }
+        }
+      }
+    },
+    "全部跳过": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip all"
           }
         }
       }
@@ -889,7 +1211,39 @@
         }
       }
     },
+    "删除 %lld 个项目？": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld item?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld items?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "删除“%@”？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%@”?"
+          }
+        }
+      }
+    },
+    "删除「%@」？": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -939,12 +1293,92 @@
         }
       }
     },
+    "删除后无法恢复。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This can’t be undone."
+          }
+        }
+      }
+    },
+    "删除失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete"
+          }
+        }
+      }
+    },
+    "剩余 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ left"
+          }
+        }
+      }
+    },
     "协议": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Protocol"
+          }
+        }
+      }
+    },
+    "原目标在上传期间已被删除或移走。是否继续发布此文件？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The original destination was deleted or moved during the upload. Put this file in its place anyway?"
+          }
+        }
+      }
+    },
+    "发现未完成的 .filepart 文件。续传会按它的现有大小跳过本地文件前缀，请确认本地文件仍是同一版本。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found an unfinished .filepart file. Resuming skips as much of the local file as it already holds, so make sure the local file is the same version."
+          }
+        }
+      }
+    },
+    "发现未完成的 .filepart 文件。续传会按它的现有大小跳过远程文件前缀，请确认远程文件仍是同一版本。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found an unfinished .filepart file. Resuming skips as much of the remote file as it already holds, so make sure the remote file is the same version."
+          }
+        }
+      }
+    },
+    "发现未完成的上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unfinished upload found"
+          }
+        }
+      }
+    },
+    "发现未完成的下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unfinished download found"
           }
         }
       }
@@ -959,12 +1393,52 @@
         }
       }
     },
+    "取消上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel upload"
+          }
+        }
+      }
+    },
+    "取消下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel download"
+          }
+        }
+      }
+    },
     "口令": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Passphrase"
+          }
+        }
+      }
+    },
+    "另一个传输正在上传同一目标，请稍后继续上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another transfer is uploading to the same destination. Resume this upload later"
+          }
+        }
+      }
+    },
+    "另一个传输正在下载到同一位置，请稍后继续下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another transfer is downloading to the same place. Resume this download later"
           }
         }
       }
@@ -985,6 +1459,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tries logging in without authentication and doesn’t ask for a password. To log in with a private key, choose “Credential”."
+          }
+        }
+      }
+    },
+    "只有隐藏文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only hidden files"
           }
         }
       }
@@ -1019,6 +1503,16 @@
         }
       }
     },
+    "同名文件已存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A file with this name already exists"
+          }
+        }
+      }
+    },
     "同步来的密码未能存进钥匙串：%@": {
       "localizations": {
         "en": {
@@ -1039,12 +1533,62 @@
         }
       }
     },
+    "名称「%@」在本机无效": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name “%@” isn’t valid on this device"
+          }
+        }
+      }
+    },
+    "名称不能为空": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name can’t be empty"
+          }
+        }
+      }
+    },
+    "名称不能包含「/」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name can’t contain “/”"
+          }
+        }
+      }
+    },
+    "名称不能是「.」或「..」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name can’t be “.” or “..”"
+          }
+        }
+      }
+    },
     "向远程终端写入失败": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t write to the remote terminal"
+          }
+        }
+      }
+    },
+    "启动 SFTP 超时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP took too long to start"
           }
         }
       }
@@ -1089,6 +1633,16 @@
         }
       }
     },
+    "备份已变化，未清理；上传的目标文件已发布": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The backup changed, so it wasn’t cleaned up. The uploaded file is in place"
+          }
+        }
+      }
+    },
     "备注": {
       "localizations": {
         "en": {
@@ -1119,6 +1673,26 @@
         }
       }
     },
+    "复制路径": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy path"
+          }
+        }
+      }
+    },
+    "失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed"
+          }
+        }
+      }
+    },
     "好": {
       "localizations": {
         "en": {
@@ -1135,6 +1709,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "storage is full"
+          }
+        }
+      }
+    },
+    "存在恢复备份和目标文件，请先检查远端目录；未删除任何文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Both a recovery backup and the destination file exist. Check the remote folder first; nothing was deleted"
           }
         }
       }
@@ -1281,6 +1865,36 @@
         }
       }
     },
+    "将在 %lld 秒后重连（%lld/3）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting in %lld s (%lld/3)"
+          }
+        }
+      }
+    },
+    "已下载的文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads"
+          }
+        }
+      }
+    },
+    "已丢弃续传进度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partial transfer discarded"
+          }
+        }
+      }
+    },
     "已保存指纹": {
       "localizations": {
         "en": {
@@ -1311,6 +1925,16 @@
         }
       }
     },
+    "已停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopped"
+          }
+        }
+      }
+    },
     "已关闭": {
       "localizations": {
         "en": {
@@ -1331,16 +1955,6 @@
         }
       }
     },
-    "已取消": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelled"
-          }
-        }
-      }
-    },
     "已复制公钥": {
       "localizations": {
         "en": {
@@ -1357,6 +1971,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "already exists"
+          }
+        }
+      }
+    },
+    "已完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
           }
         }
       }
@@ -1401,6 +2025,56 @@
         }
       }
     },
+    "已有传输批次正在处理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A transfer batch is already running"
+          }
+        }
+      }
+    },
+    "已有名为「%@」的项目": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An item named “%@” already exists"
+          }
+        }
+      }
+    },
+    "已移出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removed"
+          }
+        }
+      }
+    },
+    "已读到文件末尾": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reached the end of the file"
+          }
+        }
+      }
+    },
+    "已跳过": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped"
+          }
+        }
+      }
+    },
     "已连接": {
       "localizations": {
         "en": {
@@ -1417,6 +2091,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Connected · %@ ms"
+          }
+        }
+      }
+    },
+    "已选择 %lld 项": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld selected"
+          }
+        }
+      }
+    },
+    "恢复备份已变化，停止替换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The recovery backup changed, so the replace stopped"
           }
         }
       }
@@ -1561,6 +2255,66 @@
         }
       }
     },
+    "整批": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole batch"
+          }
+        }
+      }
+    },
+    "文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files"
+          }
+        }
+      }
+    },
+    "文件不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file doesn’t exist"
+          }
+        }
+      }
+    },
+    "文件在读取时变短了，请重新打开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file got shorter while it was read. Open it again"
+          }
+        }
+      }
+    },
+    "文件夹会连同其中全部内容一起删除，无法恢复。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder is deleted with everything in it. This can’t be undone."
+          }
+        }
+      }
+    },
+    "文件或目录不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No such file or folder"
+          }
+        }
+      }
+    },
     "断开连接": {
       "localizations": {
         "en": {
@@ -1681,6 +2435,16 @@
         }
       }
     },
+    "新建失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t create"
+          }
+        }
+      }
+    },
     "新建子分组…": {
       "localizations": {
         "en": {
@@ -1691,12 +2455,112 @@
         }
       }
     },
+    "新建文件夹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New folder"
+          }
+        }
+      }
+    },
+    "新建文件夹…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New folder…"
+          }
+        }
+      }
+    },
     "无密码": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "No password"
+          }
+        }
+      }
+    },
+    "无效的下载目标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid download destination"
+          }
+        }
+      }
+    },
+    "无效的文件名：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid file name: %@"
+          }
+        }
+      }
+    },
+    "无效的续传临时路径": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid temporary path in the resume record"
+          }
+        }
+      }
+    },
+    "无法上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t upload"
+          }
+        }
+      }
+    },
+    "无法上传此项目": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t upload this item"
+          }
+        }
+      }
+    },
+    "无法上传：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t upload: %@"
+          }
+        }
+      }
+    },
+    "无法下载此项目": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t download this item"
+          }
+        }
+      }
+    },
+    "无法下载：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t download: %@"
           }
         }
       }
@@ -1717,6 +2581,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save"
+          }
+        }
+      }
+    },
+    "无法保存续传进度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the resume progress"
           }
         }
       }
@@ -1751,6 +2625,16 @@
         }
       }
     },
+    "无法删除：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t delete: %@"
+          }
+        }
+      }
+    },
     "无法协商 RSA 签名算法": {
       "localizations": {
         "en": {
@@ -1777,6 +2661,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t send the command"
+          }
+        }
+      }
+    },
+    "无法启动 SFTP：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t start SFTP: %@"
           }
         }
       }
@@ -1851,6 +2745,16 @@
         }
       }
     },
+    "无法开始：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t start: %@"
+          }
+        }
+      }
+    },
     "无法打开 SSH 通道": {
       "localizations": {
         "en": {
@@ -1881,6 +2785,26 @@
         }
       }
     },
+    "无法确认文件发布结果，已保留恢复文件；请检查远端目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t confirm the file was put in place. The recovery files are kept; check the remote folder"
+          }
+        }
+      }
+    },
+    "无法继续此文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t resume this file"
+          }
+        }
+      }
+    },
     "无法识别这段私钥": {
       "localizations": {
         "en": {
@@ -1901,6 +2825,26 @@
         }
       }
     },
+    "无法读取目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the folder"
+          }
+        }
+      }
+    },
+    "无法读取目录：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the folder: %@"
+          }
+        }
+      }
+    },
     "无法读取私钥文件：%@": {
       "localizations": {
         "en": {
@@ -1911,12 +2855,42 @@
         }
       }
     },
+    "无法读取续传记录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the resume record"
+          }
+        }
+      }
+    },
     "无法读取这个文件，请选择私钥文件": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t read this file. Choose a private key file."
+          }
+        }
+      }
+    },
+    "无法读取选择的文件：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the files you chose: %@"
+          }
+        }
+      }
+    },
+    "无法读取链接目标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the link target"
           }
         }
       }
@@ -1941,6 +2915,16 @@
         }
       }
     },
+    "显示隐藏文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show hidden files"
+          }
+        }
+      }
+    },
     "更多": {
       "localizations": {
         "en": {
@@ -1957,6 +2941,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Update and connect"
+          }
+        }
+      }
+    },
+    "替换期间目标被其他操作创建，已保留目标、备份和临时文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something else created the destination during the replace. The destination, backup and temporary file are kept"
           }
         }
       }
@@ -2089,6 +3083,16 @@
         }
       }
     },
+    "服务器不支持这个操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server doesn’t support this operation"
+          }
+        }
+      }
+    },
     "服务器主机密钥已变更": {
       "localizations": {
         "en": {
@@ -2099,12 +3103,32 @@
         }
       }
     },
+    "服务器主机指纹已改变，已停止续传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server’s host key changed, so resuming stopped"
+          }
+        }
+      }
+    },
     "服务器当前指纹": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Server’s fingerprint now"
+          }
+        }
+      }
+    },
+    "服务器报告操作失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server reported a failure"
           }
         }
       }
@@ -2139,6 +3163,16 @@
         }
       }
     },
+    "服务器无法识别这个请求": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server didn’t understand the request"
+          }
+        }
+      }
+    },
     "服务器未接受 SSH Agent 中的密钥": {
       "localizations": {
         "en": {
@@ -2165,6 +3199,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "The server didn’t accept the private key"
+          }
+        }
+      }
+    },
+    "服务器未提供 SFTP v3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server doesn’t offer SFTP v3"
+          }
+        }
+      }
+    },
+    "服务器未返回目录路径": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server didn’t return the folder’s path"
           }
         }
       }
@@ -2239,6 +3293,96 @@
         }
       }
     },
+    "本地 .filepart 文件比远程文件大，无法续传。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The local .filepart file is larger than the remote file, so the download can’t resume."
+          }
+        }
+      }
+    },
+    "本地已有同名文件，不会替换为目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A local file has this name, and it won’t be replaced by a folder"
+          }
+        }
+      }
+    },
+    "本地已有同名目录，不会删除它": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A local folder has this name, and it won’t be deleted"
+          }
+        }
+      }
+    },
+    "本地已有同名项目（%@）。覆盖会替换它。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A local item with this name exists (%@). Overwriting replaces it."
+          }
+        }
+      }
+    },
+    "本地来源已不再是普通文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The local source is no longer a regular file"
+          }
+        }
+      }
+    },
+    "本地目录 %@ 不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The local folder %@ doesn’t exist"
+          }
+        }
+      }
+    },
+    "来源已变为目录，请丢弃旧文件进度后重新上传，或跳过。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The source is now a folder. Discard the old file’s progress and upload again, or skip it."
+          }
+        }
+      }
+    },
+    "来源文件名不是有效的 UTF-8": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The source file name isn’t valid UTF-8"
+          }
+        }
+      }
+    },
+    "正在扫描": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scanning"
+          }
+        }
+      }
+    },
     "正在生成密钥…": {
       "localizations": {
         "en": {
@@ -2249,12 +3393,62 @@
         }
       }
     },
+    "正在读取目录…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading folder…"
+          }
+        }
+      }
+    },
+    "正在连接 SFTP…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting to SFTP…"
+          }
+        }
+      }
+    },
     "正在连接…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Connecting…"
+          }
+        }
+      }
+    },
+    "正在重连": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting"
+          }
+        }
+      }
+    },
+    "此系统不支持创建符号链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This system can’t create symbolic links"
+          }
+        }
+      }
+    },
+    "没有传输": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No transfers"
           }
         }
       }
@@ -2295,6 +3489,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add jump host"
+          }
+        }
+      }
+    },
+    "清除已完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear finished"
+          }
+        }
+      }
+    },
+    "父目录未创建，无法上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t upload because the parent folder wasn’t created"
+          }
+        }
+      }
+    },
+    "父目录未创建，无法下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can’t download because the parent folder wasn’t created"
           }
         }
       }
@@ -2409,12 +3633,62 @@
         }
       }
     },
+    "目录与文件类型冲突，不会删除远程目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A remote folder has this name, and it won’t be deleted to make way for a file"
+          }
+        }
+      }
+    },
+    "目录包含无法用 UTF-8 表示的文件名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder has a file name that isn’t valid UTF-8"
+          }
+        }
+      }
+    },
+    "目标在上传期间发生变化。远程项目已存在（%@）。覆盖会替换这个文件或链接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The destination changed during the upload. A remote item with this name exists (%@). Overwriting replaces this file or link."
+          }
+        }
+      }
+    },
+    "目标在下载期间发生变化。本地已有同名项目（%@）。覆盖会替换它。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The destination changed during the download. A local item with this name exists (%@). Overwriting replaces it."
+          }
+        }
+      }
+    },
     "目标地址由代理服务器解析；代理不需要认证时，用户名和密码留空。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The proxy server resolves the host’s address. Leave the username and password empty if the proxy doesn’t need them."
+          }
+        }
+      }
+    },
+    "目标已存在且不是目录，不会跟随或替换链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The destination exists and isn’t a folder. Links aren’t followed or replaced"
           }
         }
       }
@@ -2549,12 +3823,32 @@
         }
       }
     },
+    "移出队列": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from queue"
+          }
+        }
+      }
+    },
     "移除": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Remove"
+          }
+        }
+      }
+    },
+    "空目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty folder"
           }
         }
       }
@@ -2585,6 +3879,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Jump host %@ was deleted. Edit how this host connects"
+          }
+        }
+      }
+    },
+    "等待中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting"
+          }
+        }
+      }
+    },
+    "等待回答": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for an answer"
           }
         }
       }
@@ -2635,6 +3949,116 @@
           "stringUnit": {
             "state": "translated",
             "value": "Terminals"
+          }
+        }
+      }
+    },
+    "终端已断开，重新连接终端后继续": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The terminal disconnected. Reconnect it to continue"
+          }
+        }
+      }
+    },
+    "终端未连接，重新连接终端后才能浏览文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The terminal isn’t connected. Reconnect it to browse files"
+          }
+        }
+      }
+    },
+    "继续": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume"
+          }
+        }
+      }
+    },
+    "继续上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume upload"
+          }
+        }
+      }
+    },
+    "继续下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resume download"
+          }
+        }
+      }
+    },
+    "续传记录不能替换目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A resume record can’t replace a folder"
+          }
+        }
+      }
+    },
+    "续传记录与当前来源或服务器不匹配": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resume record doesn’t match this source or server"
+          }
+        }
+      }
+    },
+    "续传记录中缺少来源文件信息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resume record has no details of the source file"
+          }
+        }
+      }
+    },
+    "续传记录中缺少链接目标": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resume record has no link target"
+          }
+        }
+      }
+    },
+    "续传记录损坏，临时文件已保留": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resume record is damaged. The temporary file is kept"
+          }
+        }
+      }
+    },
+    "续传记录损坏，原文件和临时文件均已保留": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The resume record is damaged. The original and temporary files are both kept"
           }
         }
       }
@@ -2695,6 +4119,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "network unreachable"
+          }
+        }
+      }
+    },
+    "覆盖": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overwrite"
           }
         }
       }
@@ -2869,6 +4303,26 @@
         }
       }
     },
+    "请选择要上传的文件或目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose files or folders to upload"
+          }
+        }
+      }
+    },
+    "请选择要下载的文件或目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose files or folders to download"
+          }
+        }
+      }
+    },
     "调整主机顺序未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
@@ -2949,12 +4403,54 @@
         }
       }
     },
+    "跳过": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        }
+      }
+    },
     "输出太快，跳过了 %@ 字节": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Output came too fast; %@ bytes were skipped"
+          }
+        }
+      }
+    },
+    "还有 %lld 批": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more batch"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld more batches"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "还没有下载的文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No downloads yet"
           }
         }
       }
@@ -3091,12 +4587,132 @@
         }
       }
     },
+    "远程文件在上次下载后已变化，无法续传。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote file changed after the last download, so the download can’t resume."
+          }
+        }
+      }
+    },
+    "远程文件在下载期间变短，已停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote file got shorter during the download, so it stopped"
+          }
+        }
+      }
+    },
+    "远程文件无法恢复，目录会连同其中全部内容一起删除。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote files can’t be recovered. A folder is deleted with everything in it."
+          }
+        }
+      }
+    },
+    "远程目录 %@ 不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote folder %@ doesn’t exist"
+          }
+        }
+      }
+    },
+    "远程路径 %@ 不是目录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote path %@ isn’t a folder"
+          }
+        }
+      }
+    },
+    "远程路径不能为空或包含空字符": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A remote path can’t be empty or contain a null character"
+          }
+        }
+      }
+    },
+    "远程项目不存在": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote item doesn’t exist"
+          }
+        }
+      }
+    },
+    "远程项目已存在（%@）。覆盖会替换这个文件或链接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A remote item with this name exists (%@). Overwriting replaces this file or link."
+          }
+        }
+      }
+    },
+    "远端临时文件类型已变化": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote temporary file is no longer a file"
+          }
+        }
+      }
+    },
+    "远端名称包含无法可靠表示的字符，已停止操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A remote name has characters that can’t be shown reliably, so the operation stopped"
+          }
+        }
+      }
+    },
+    "远端续传偏移大于本地文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The remote partial file is larger than the local file"
+          }
+        }
+      }
+    },
     "连接": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Connect"
+          }
+        }
+      }
+    },
+    "连接中断，传输进度已保留": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The connection dropped. Transfer progress is kept"
           }
         }
       }
@@ -3181,6 +4797,78 @@
         }
       }
     },
+    "选择": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select"
+          }
+        }
+      }
+    },
+    "逐项结果": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Item results"
+          }
+        }
+      }
+    },
+    "部分失败（%lld 项）": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld item failed"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld items failed"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "重命名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        }
+      }
+    },
+    "重命名…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename…"
+          }
+        }
+      }
+    },
+    "重命名「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename “%@”"
+          }
+        }
+      }
+    },
     "重命名分组": {
       "localizations": {
         "en": {
@@ -3201,6 +4889,36 @@
         }
       }
     },
+    "重命名失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t rename"
+          }
+        }
+      }
+    },
+    "重新上传": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload again"
+          }
+        }
+      }
+    },
+    "重新下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download again"
+          }
+        }
+      }
+    },
     "重新连接": {
       "localizations": {
         "en": {
@@ -3211,12 +4929,52 @@
         }
       }
     },
+    "重试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        }
+      }
+    },
     "钥匙串现在不可用": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "the keychain isn’t available now"
+          }
+        }
+      }
+    },
+    "链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link"
+          }
+        }
+      }
+    },
+    "链接目标不是有效的 UTF-8": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The link target isn’t valid UTF-8"
+          }
+        }
+      }
+    },
+    "预览": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
           }
         }
       }

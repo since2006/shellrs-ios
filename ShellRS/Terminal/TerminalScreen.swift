@@ -6,6 +6,7 @@ import SwiftUI
 struct TerminalScreen: View {
     let session: TerminalSession
     @Environment(AppModel.self) private var model
+    @State private var showingFiles = false
 
     var body: some View {
         NavigationStack {
@@ -46,6 +47,12 @@ struct TerminalScreen: View {
                         }
                     }
                     ToolbarItem(placement: .primaryAction) {
+                        Button("文件", systemImage: "folder") {
+                            showingFiles = true
+                        }
+                        .disabled(session.files == nil && session.isClosed)
+                    }
+                    ToolbarItem(placement: .primaryAction) {
                         Menu("更多", systemImage: "ellipsis.circle") {
                             if session.isClosed {
                                 Button("重新连接", systemImage: "arrow.clockwise") {
@@ -65,6 +72,9 @@ struct TerminalScreen: View {
         }
         // The terminal is dark whatever the system's appearance.
         .environment(\.colorScheme, .dark)
+        .sheet(isPresented: $showingFiles) {
+            FilesView(files: session.openFiles())
+        }
         .sheet(
             isPresented: Binding(
                 get: { session.prompt != nil },
@@ -84,6 +94,7 @@ struct TerminalScreen: View {
 private struct ClosedBar: View {
     let session: TerminalSession
     @Environment(AppModel.self) private var model
+    @State private var showingFiles = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {

@@ -22,6 +22,7 @@ final class AppModel {
 
     /// Opens the core on the app's data folder and keychain.
     static func open() throws -> AppModel {
+        LocalFolders.clearLeftovers()
         let config = CoreConfig(
             dataDir: DataFolder.url.path,
             deviceName: UIDevice.current.name,
@@ -47,6 +48,7 @@ final class AppModel {
 
     /// Ends `session` and forgets it.
     func close(_ session: TerminalSession) {
+        session.files?.end()
         session.disconnect()
         sessions.removeAll { $0 === session }
         if shownSession === session {

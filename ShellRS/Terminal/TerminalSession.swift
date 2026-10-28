@@ -24,6 +24,9 @@ final class TerminalSession: Identifiable {
     private(set) var latency: UInt64?
     /// What to do when the user closes the terminal from its own keys.
     @ObservationIgnored var onClose: () -> Void = {}
+    /// The host's files over SFTP on this terminal's connection, once
+    /// asked for; it outlives reconnecting, its transfers with it.
+    private(set) var files: FilesModel?
 
     @ObservationIgnored private let core: Core
     @ObservationIgnored private var connection: Connection?
@@ -83,6 +86,21 @@ final class TerminalSession: Identifiable {
         end(nil)
     }
 
+    /// The files on the host, opening on this terminal's connection.
+    func openFiles(downloadsFolder: URL = LocalFolders.downloads) -> FilesModel {
+        if let files {
+            return files
+        }
+        let files = FilesModel(downloadsFolder: downloadsFolder) { [weak self] in
+            guard let connection = self?.connection else {
+                throw SshError.NotConnected
+            }
+            return try await connection.openSftp()
+        }
+        self.files = files
+        return files
+    }
+
     func answer(_ reply: PromptReply) {
         guard let prompt else {
             return
@@ -120,6 +138,7 @@ final class TerminalSession: Identifiable {
             }
             self.terminal = terminal
             state = .connected
+            files?.terminalConnected()
             // The screen may have changed while the shell started.
             resize(surface.size)
             surface.focus()
@@ -164,6 +183,7 @@ final class TerminalSession: Identifiable {
         prompt = nil
         terminal = nil
         connection = nil
+        files?.terminalClosed()
         if let reason {
             surface.notice(reason)
         }

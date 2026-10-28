@@ -1,0 +1,509 @@
+import Foundation
+import Observation
+import ShellRSCore
+import UIKit
+
+/// Files on a terminal's host over SFTP, on the terminal's own connection:
+/// browsing, changing, and a queue of transfers that run one batch at a
+/// time, as the desktop's SFTP tab does.
+@MainActor
+@Observable
+final class FilesModel {
+    enum State: Equatable {
+        case connecting
+        case connected
+        /// A transfer's connection dropped; the engine reconnects on its own.
+        case reconnecting
+        /// Why, if something went wrong.
+        case disconnected(String?)
+    }
+
+    private(set) var state = State.disconnected(nil)
+    /// The user's home folder, where browsing starts.
+    private(set) var home = "/"
+    /// The folders shown above `/`, deepest last.
+    var path: [String] = []
+    private(set) var queue = TransferQueue()
+    /// What the running batch asks the user now.
+    private(set) var question: TransferQuestion?
+    /// A transfer's trouble outside any one file, to show once.
+    var notice: String?
+    /// A file brought down to look at.
+    var preview: URL?
+    /// Bumped when a folder's contents changed, so it is read again.
+    private(set) var revisions: [String: Int] = [:]
+    /// Bumped when a download into 已下载的文件 is done.
+    private(set) var downloads = 0
+
+    /// Opens a session on the terminal's connection.
+    @ObservationIgnored private let opener: @MainActor () async throws -> SftpSession
+    /// Where 下载 puts what it brings down.
+    @ObservationIgnored let downloadsFolder: URL
+    @ObservationIgnored private var session: SftpSession?
+    @ObservationIgnored private var ended = false
+    /// Whether the engine runs a batch: it takes no other till idle.
+    @ObservationIgnored private var engineBusy = false
+    /// Whether the engine has the stopped head, to resume it; one opened
+    /// since does not, and is handed the batch again.
+    @ObservationIgnored private var engineHasHead = false
+    /// 继续 waits for a session free to take it: asked for while there was
+    /// none or the engine was still busy, or a batch was cut short.
+    @ObservationIgnored private var pendingResume = false
+    /// The head was handed to an engine that did not have it: what it finds
+    /// done goes on without asking, as 继续 already said.
+    @ObservationIgnored private var resubmitted = false
+    /// Why the last reconnect of a transfer failed.
+    @ObservationIgnored private var reconnectFailure: String?
+    @ObservationIgnored private var backgroundTask = UIBackgroundTaskIdentifier.invalid
+
+    init(
+        downloadsFolder: URL = LocalFolders.downloads,
+        opener: @escaping @MainActor () async throws -> SftpSession
+    ) {
+        self.downloadsFolder = downloadsFolder
+        self.opener = opener
+    }
+
+    func revision(of folder: String) -> Int {
+        revisions[folder, default: 0]
+    }
+
+    // MARK: The session
+
+    /// Opens the session unless it is open or opening.
+    func open() {
+        guard !ended, session == nil, state != .connecting else {
+            return
+        }
+        state = .connecting
+        Task {
+            await connect()
+        }
+    }
+
+    /// The terminal's connection is up again: a session lost with the old
+    /// one opens on it, and a batch cut short goes on.
+    func terminalConnected() {
+        if case .disconnected = state {
+            open()
+        }
+    }
+
+    /// The terminal's connection closed, and the session on it with it. A
+    /// phone's connection does not come back, so the engine's reconnecting
+    /// would only wait: the session goes now.
+    func terminalClosed() {
+        if session != nil {
+            lost(String(localized: "终端已断开，重新连接终端后继续"))
+        }
+    }
+
+    /// Ends the session and the transfers for good: the terminal closed.
+    func end() {
+        ended = true
+        session?.end()
+        session = nil
+        state = .disconnected(nil)
+        question = nil
+        for entry in queue.entries {
+            clean(entry.job)
+        }
+        endBackgroundTask()
+    }
+
+    private func connect() async {
+        do {
+            let session = try await opener()
+            guard !ended else {
+                session.end()
+                return
+            }
+            self.session = session
+            engineBusy = false
+            engineHasHead = false
+            home = session.home()
+            if path.isEmpty {
+                path = RemotePath.ancestors(of: home)
+            }
+            state = .connected
+            pump(session)
+            resumeIfReady()
+            startNextIfIdle()
+        } catch SshError.NotConnected {
+            state = .disconnected(String(localized: "终端未连接，重新连接终端后才能浏览文件"))
+        } catch {
+            state = .disconnected(String(localized: "无法启动 SFTP：\(Describe.ssh(error))"))
+        }
+    }
+
+    private func pump(_ session: SftpSession) {
+        Task { [weak self] in
+            while let event = await session.nextEvent() {
+                guard let self, self.session === session else {
+                    return
+                }
+                handle(event)
+            }
+            guard let self, self.session === session else {
+                return
+            }
+            lost(String(localized: "SFTP 已断开"))
+        }
+    }
+
+    private func handle(_ event: SftpEvent) {
+        switch event {
+        case .connected:
+            state = .connected
+            reconnectFailure = nil
+        case .disconnected(let reason):
+            switch reason {
+            case .droppedKept:
+                state = .reconnecting
+            case .failed(let failure):
+                // The engine tries again, or stops the batch, which ends it.
+                reconnectFailure = Describe.firstLink(failure)
+            case .byUser, .dropped, .loginFailed:
+                lost(Describe.disconnect(reason))
+            }
+        case .progress(let progress):
+            let head = queue.head
+            queue.onProgress(progress)
+            if queue.head?.state != .active {
+                question = nil
+            }
+            if let head, let now = queue.entries.first(where: { $0.id == head.id }) {
+                finished(now)
+            }
+            if state == .reconnecting, progress.phase == .stopped {
+                lost(reconnectFailure ?? Describe.disconnect(.droppedKept))
+            }
+        case .question(let question) where resubmitted && question.kind == .resume:
+            try? session?.answer(
+                questionId: question.id, answer: TransferAnswer(choice: .resume, applyToAll: true))
+        case .question(let question):
+            self.question = question
+        case .notice(let failure):
+            notice = Describe.firstLink(failure)
+        case .idle:
+            engineBusy = false
+            resubmitted = false
+            resumeIfReady()
+            startNextIfIdle()
+        }
+    }
+
+    /// The session is gone: the next browse or transfer opens another, and
+    /// a batch it cut short goes on there.
+    private func lost(_ reason: String?) {
+        if queue.head?.state == .active || state == .reconnecting {
+            pendingResume = true
+        }
+        session?.end()
+        session = nil
+        engineBusy = false
+        engineHasHead = false
+        question = nil
+        queue.stopHead()
+        state = .disconnected(reason)
+        endBackgroundTask()
+    }
+
+    // MARK: Browsing and changing
+
+    func list(_ folder: String) async throws -> [DirectoryEntry] {
+        try await connected().list(path: folder).entries
+    }
+
+    func createFolder(_ name: String, in folder: String) async throws {
+        try await connected().createDirectory(path: RemotePath.join(folder, name))
+        touch(folder)
+    }
+
+    func rename(_ name: String, to newName: String, in folder: String) async throws {
+        try await connected().rename(
+            from: RemotePath.join(folder, name), to: RemotePath.join(folder, newName))
+        touch(folder)
+    }
+
+    func delete(_ names: [String], in folder: String) async throws {
+        defer { touch(folder) }
+        try await connected().delete(paths: names.map { RemotePath.join(folder, $0) })
+    }
+
+    /// Reads `folder` again wherever it shows.
+    func touch(_ folder: String) {
+        revisions[folder, default: 0] += 1
+    }
+
+    private func connected() throws -> SftpSession {
+        guard let session, state == .connected else {
+            throw SshError.NotConnected
+        }
+        return session
+    }
+
+    // MARK: Transfers
+
+    /// Brings `paths` down into 已下载的文件.
+    func download(_ paths: [String]) {
+        do {
+            try FileManager.default.createDirectory(
+                at: downloadsFolder, withIntermediateDirectories: true)
+        } catch {
+            notice = error.localizedDescription
+            return
+        }
+        enqueue(.download(sources: paths, destination: downloadsFolder, preview: false))
+    }
+
+    /// Brings the file at `path` down to a folder of its own, and shows it
+    /// once there.
+    func preview(_ path: String) {
+        let folder = LocalFolders.previews.appending(
+            path: UUID().uuidString, directoryHint: .isDirectory)
+        do {
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        } catch {
+            notice = error.localizedDescription
+            return
+        }
+        enqueue(.download(sources: [path], destination: folder, preview: true))
+    }
+
+    /// Uploads what the user picked into `folder`: copies of it, made
+    /// first, as the files picked may be out of reach by the batch's turn.
+    func upload(_ urls: [URL], to folder: String) async {
+        let staging = LocalFolders.uploads.appending(
+            path: UUID().uuidString, directoryHint: .isDirectory)
+        do {
+            let sources = try await Task.detached {
+                try LocalFolders.copy(urls, into: staging)
+            }.value
+            enqueue(.upload(sources: sources, destination: folder, staging: staging))
+        } catch {
+            try? FileManager.default.removeItem(at: staging)
+            notice = String(localized: "无法读取选择的文件：\(error.localizedDescription)")
+        }
+    }
+
+    /// Stops the running batch, keeping what is done.
+    func cancel() {
+        try? session?.cancel()
+    }
+
+    /// Goes on with the stopped head, once there is a session free for it.
+    func resume() {
+        guard queue.head?.state == .stopped else {
+            return
+        }
+        pendingResume = true
+        if session == nil {
+            open()
+        } else {
+            resumeIfReady()
+        }
+    }
+
+    private func resumeIfReady() {
+        guard pendingResume, let session, state == .connected, !engineBusy,
+            let head = queue.head, head.state == .stopped
+        else {
+            return
+        }
+        pendingResume = false
+        engineBusy = true
+        do {
+            if engineHasHead {
+                try session.resume()
+            } else {
+                queue.restartHead()
+                resubmitted = true
+                try submit(head.job, to: session)
+                engineHasHead = true
+            }
+        } catch {
+            engineBusy = false
+            notice = Describe.ssh(error)
+        }
+        updateBackgroundTask()
+    }
+
+    /// Gives up the stopped head, removing what it left half done when the
+    /// engine still has it.
+    func discard() {
+        guard let head = queue.head, head.state == .stopped, !engineBusy else {
+            return
+        }
+        pendingResume = false
+        queue.abandonHead(.discarded)
+        clean(head.job)
+        if let session, engineHasHead, state == .connected {
+            engineBusy = true
+            engineHasHead = false
+            try? session.discard()
+        } else {
+            startNextIfIdle()
+        }
+    }
+
+    func remove(_ entry: TransferEntry) {
+        let head = queue.head?.id == entry.id
+        guard let removed = queue.remove(entry.id) else {
+            return
+        }
+        clean(removed.job)
+        // The engine keeps a stopped head taken off till the next batch
+        // replaces it: there is nothing to resume now.
+        if head {
+            pendingResume = false
+            engineHasHead = false
+        }
+        startNextIfIdle()
+    }
+
+    func clearFinished() {
+        for entry in queue.clearFinished() {
+            clean(entry.job)
+        }
+    }
+
+    func answer(_ choice: TransferChoice, toAll: Bool = false) {
+        guard let question else {
+            return
+        }
+        self.question = nil
+        try? session?.answer(
+            questionId: question.id, answer: TransferAnswer(choice: choice, applyToAll: toAll))
+    }
+
+    private func enqueue(_ job: TransferJob) {
+        queue.push(job)
+        if session == nil {
+            open()
+        }
+        startNextIfIdle()
+    }
+
+    /// Hands the engine the next batch if it is free for one.
+    private func startNextIfIdle() {
+        while let session, state == .connected, !engineBusy, let entry = queue.startNext() {
+            do {
+                try submit(entry.job, to: session)
+                engineBusy = true
+                engineHasHead = true
+            } catch {
+                queue.abandonHead(.notStarted(Describe.ssh(error)))
+                clean(entry.job)
+            }
+        }
+        updateBackgroundTask()
+    }
+
+    private func submit(_ job: TransferJob, to session: SftpSession) throws {
+        switch job {
+        case .upload(let sources, let destination, _):
+            try session.upload(sources: sources.map(\.path), destination: destination)
+        case .download(let sources, let destination, _):
+            try session.download(sources: sources, destination: destination.path)
+        }
+    }
+
+    /// What a batch that ended leaves to do.
+    private func finished(_ entry: TransferEntry) {
+        guard entry.state == .done else {
+            return
+        }
+        switch entry.job {
+        case .upload(_, let destination, let staging):
+            try? FileManager.default.removeItem(at: staging)
+            touch(destination)
+        case .download(let sources, let destination, true):
+            if let progress = entry.progress, progress.succeeded > 0, let source = sources.first {
+                preview = destination.appending(path: RemotePath.name(source))
+            }
+        case .download:
+            downloads += 1
+        }
+    }
+
+    /// What a batch leaving the queue no longer needs: the copies made for
+    /// an upload. A preview stays while it may still be shown.
+    private func clean(_ job: TransferJob) {
+        if case .upload(_, _, let staging) = job {
+            try? FileManager.default.removeItem(at: staging)
+        }
+    }
+
+    // MARK: Running in the background
+
+    /// A transfer under way asks iOS for the time it gives an app that
+    /// leaves the screen, so a quick look elsewhere does not stop it.
+    private func updateBackgroundTask() {
+        if engineBusy {
+            guard backgroundTask == .invalid else {
+                return
+            }
+            backgroundTask = UIApplication.shared.beginBackgroundTask(
+                withName: "SFTP transfer"
+            ) { [weak self] in
+                MainActor.assumeIsolated {
+                    self?.endBackgroundTask()
+                }
+            }
+        } else {
+            endBackgroundTask()
+        }
+    }
+
+    private func endBackgroundTask() {
+        guard backgroundTask != .invalid else {
+            return
+        }
+        UIApplication.shared.endBackgroundTask(backgroundTask)
+        backgroundTask = .invalid
+    }
+}
+
+/// The app's own folders for files.
+enum LocalFolders {
+    /// What the user downloads, which the Files app shows too.
+    static var downloads: URL {
+        URL.documentsDirectory.appending(path: "Downloads", directoryHint: .isDirectory)
+    }
+
+    /// Files brought down to look at, each batch in a folder of its own.
+    static var previews: URL {
+        URL.cachesDirectory.appending(path: "Preview", directoryHint: .isDirectory)
+    }
+
+    /// Copies of what the user picked to upload.
+    static var uploads: URL {
+        URL.temporaryDirectory.appending(path: "Uploads", directoryHint: .isDirectory)
+    }
+
+    /// Clears what an earlier run left: its queue went with it.
+    static func clearLeftovers() {
+        try? FileManager.default.removeItem(at: previews)
+        try? FileManager.default.removeItem(at: uploads)
+    }
+
+    /// Copies `urls`, which may be outside the app, each into a folder of
+    /// its own under `staging`, so two of the same name both go.
+    static func copy(_ urls: [URL], into staging: URL) throws -> [URL] {
+        let manager = FileManager.default
+        return try urls.enumerated().map { index, url in
+            let folder = staging.appending(path: String(index), directoryHint: .isDirectory)
+            try manager.createDirectory(at: folder, withIntermediateDirectories: true)
+            let copy = folder.appending(path: url.lastPathComponent)
+            let access = url.startAccessingSecurityScopedResource()
+            defer {
+                if access {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            try manager.copyItem(at: url, to: copy)
+            return copy
+        }
+    }
+}

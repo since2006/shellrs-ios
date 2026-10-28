@@ -125,6 +125,165 @@ struct ServerTests {
         try await expectAShell(session)
     }
 
+    /// On the terminal's connection: browse, upload, download, a conflict,
+    /// a preview, rename and delete; the files go with the connection and
+    /// come back with it.
+    @Test func browsesAndTransfersFiles() async throws {
+        let server = try #require(TestServer.address)
+        let store = test.core.store()
+        let id = try await store.addHost(
+            draft: draft(address: server.address, port: server.port, user: TestServer.user),
+            password: .set(value: TestServer.password), proxyPassword: .keep)
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
+        session.start()
+        #expect(try await trustEachKey(session) == [nil])
+        try await waitUntil("the shell starts") { session.state == .connected }
+
+        let downloads = test.folder.appending(path: "Downloads", directoryHint: .isDirectory)
+        let files = session.openFiles(downloadsFolder: downloads)
+        files.open()
+        try await waitUntil("SFTP starts") { files.state == .connected }
+        let home = files.home
+        #expect(files.path == RemotePath.ancestors(of: home))
+
+        let name = "shellrs-files-\(UUID().uuidString.prefix(8))"
+        let folder = RemotePath.join(home, name)
+        try await files.createFolder(name, in: home)
+        #expect(try await files.list(home).contains { $0.name == name && $0.isFolder })
+
+        // Large enough to go up and come down resumably.
+        let bytes = Data((0..<(3 << 20)).map { UInt8(truncatingIfNeeded: $0 &* 31) })
+        let source = test.folder.appending(path: "big.bin")
+        try bytes.write(to: source)
+        await files.upload([source], to: folder)
+        try await waitUntil("the upload is done", timeout: .seconds(30)) {
+            files.queue.entries.last?.state == .done
+        }
+        let uploaded = try await files.list(folder)
+        #expect(uploaded.map(\.name) == ["big.bin"])
+        #expect(uploaded.first?.size == UInt64(bytes.count))
+        #expect(files.revision(of: folder) > 0)
+
+        let remote = RemotePath.join(folder, "big.bin")
+        files.download([remote])
+        try await waitUntil("the download is done", timeout: .seconds(30)) {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(try Data(contentsOf: downloads.appending(path: "big.bin")) == bytes)
+        #expect(files.downloads == 1)
+
+        // Downloading it again asks before replacing what came down.
+        files.download([remote])
+        try await waitUntil("asked about the copy there") { files.question != nil }
+        #expect(files.question?.kind == .conflict)
+        files.answer(.skip)
+        try await waitUntil("the skipped download ends") {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(files.queue.entries.last?.progress?.skipped == 1)
+
+        files.preview(remote)
+        try await waitUntil("the preview comes down", timeout: .seconds(30)) {
+            files.preview != nil
+        }
+        #expect(try Data(contentsOf: try #require(files.preview)) == bytes)
+
+        try await files.rename("big.bin", to: "renamed.bin", in: folder)
+        #expect(try await files.list(folder).map(\.name) == ["renamed.bin"])
+        try await files.delete([name], in: home)
+        let after = try await files.list(home)
+        #expect(!after.contains { $0.name == name })
+
+        session.disconnect()
+        try await waitUntil("SFTP goes with the connection") {
+            if case .disconnected = files.state { true } else { false }
+        }
+        session.start()
+        try await waitUntil("the shell starts again") { session.state == .connected }
+        try await waitUntil("SFTP opens again") { files.state == .connected }
+        files.end()
+        session.disconnect()
+    }
+
+    /// A transfer stopped halfway goes on where it was; one the terminal's
+    /// disconnecting cut short goes on by itself once the terminal is back,
+    /// without asking whether to resume.
+    @Test func stopsAndResumesTransfers() async throws {
+        let server = try #require(TestServer.address)
+        let store = test.core.store()
+        let id = try await store.addHost(
+            draft: draft(address: server.address, port: server.port, user: TestServer.user),
+            password: .set(value: TestServer.password), proxyPassword: .keep)
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
+        session.start()
+        #expect(try await trustEachKey(session) == [nil])
+        try await waitUntil("the shell starts") { session.state == .connected }
+        let downloads = test.folder.appending(path: "Downloads", directoryHint: .isDirectory)
+        let files = session.openFiles(downloadsFolder: downloads)
+        files.open()
+        try await waitUntil("SFTP starts") { files.state == .connected }
+
+        // Large enough to stop halfway; a pattern that shows a misplaced block.
+        var bytes = Data()
+        let block = Data((0..<4093).map { UInt8(truncatingIfNeeded: $0 &* 31) })
+        while bytes.count < 96 << 20 {
+            bytes.append(block)
+        }
+        let source = test.folder.appending(path: "large.bin")
+        try bytes.write(to: source)
+        let name = "shellrs-resume-\(UUID().uuidString.prefix(8))"
+        let folder = RemotePath.join(files.home, name)
+        try await files.createFolder(name, in: files.home)
+
+        func halfway() async throws {
+            try await waitUntil("the upload is under way", timeout: .seconds(30)) {
+                (files.queue.head?.progress?.completedBytes ?? 0) > 0
+            }
+            #expect(files.queue.head?.state == .active)
+        }
+        func uploadedSize() async throws -> UInt64? {
+            try await files.list(folder).first { $0.name == "large.bin" }?.size
+        }
+
+        await files.upload([source], to: folder)
+        try await halfway()
+        files.cancel()
+        try await waitUntil("the upload stops") { files.queue.head?.state == .stopped }
+        files.resume()
+        try await waitUntil("the upload is done", timeout: .seconds(60)) {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(try await uploadedSize() == UInt64(bytes.count))
+
+        try await files.delete(["large.bin"], in: folder)
+        await files.upload([source], to: folder)
+        try await halfway()
+        session.disconnect()
+        try await waitUntil("the upload stops with the terminal") {
+            files.queue.head?.state == .stopped
+        }
+        if case .disconnected = files.state {} else {
+            Issue.record("still \(files.state)")
+        }
+        session.start()
+        try await waitUntil("the upload is done", timeout: .seconds(60)) {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(files.question == nil)
+        #expect(files.queue.entries.last?.progress?.failed == 0)
+        #expect(try await uploadedSize() == UInt64(bytes.count))
+
+        // What went up is what was sent: back down, byte for byte.
+        files.download([RemotePath.join(folder, "large.bin")])
+        try await waitUntil("the download is done", timeout: .seconds(60)) {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(try Data(contentsOf: downloads.appending(path: "large.bin")) == bytes)
+        try await files.delete([name], in: files.home)
+        files.end()
+        session.disconnect()
+    }
+
     /// Trusts each key the login asks about until it ends asking; whose
     /// each was: a jump host's name, or `nil` for the host itself.
     private func trustEachKey(_ session: TerminalSession) async throws -> [String?] {

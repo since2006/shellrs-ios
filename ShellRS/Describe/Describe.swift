@@ -8,9 +8,31 @@ import ShellRSCore
 /// compiling until it has words.
 enum Describe {
     /// Every link of `failure`, outermost first, joined as the desktop
-    /// joins them.
+    /// joins them, up to one that says the rest in a sentence of its own.
     static func failure(_ failure: Failure) -> String {
-        failure.links.map(link).joined(separator: ": ")
+        chain(failure.links[...])
+    }
+
+    /// `links` in words, joined with 「: 」, up to one that says the rest.
+    static func chain(_ links: ArraySlice<FailureLink>) -> String {
+        var text: [String] = []
+        var rest = links
+        while let first = rest.popFirst() {
+            text.append(link(first, rest: rest))
+            if saysTheRest(first) {
+                break
+            }
+        }
+        return text.joined(separator: ": ")
+    }
+
+    /// The first link of `failure`, as the desktop shows a transfer's
+    /// question, notice or note: one that says the rest takes it along.
+    static func firstLink(_ failure: Failure) -> String {
+        guard let first = failure.links.first else {
+            return ""
+        }
+        return link(first, rest: failure.links.dropFirst())
     }
 
     /// Why the core would not open.
@@ -185,7 +207,8 @@ enum Describe {
         }
     }
 
-    static func link(_ link: FailureLink) -> String {
+    /// One link in words; `rest` is what lies under it.
+    static func link(_ link: FailureLink, rest: ArraySlice<FailureLink> = []) -> String {
         switch link {
         case .connect(let error):
             connect(error)
@@ -214,19 +237,19 @@ enum Describe {
         case .io(let kind, let detail):
             io(kind, detail: detail)
         case .sftp(let error):
-            String(describing: error)
+            sftp(error, rest: rest)
         case .upload(let error):
-            String(describing: error)
+            upload(error, rest: rest)
         case .download(let error):
-            String(describing: error)
+            download(error, rest: rest)
         case .journal(let error):
-            String(describing: error)
+            journal(error)
         case .edit(let error):
-            String(describing: error)
-        case .sftpStatus(_, let message):
-            message
+            edit(error, rest: rest)
+        case .sftpStatus(let status, let message):
+            sftpStatus(status, message: message)
         case .cancelled:
-            String(localized: "已取消")
+            String(localized: "传输已停止，进度已保留")
         case .other(let detail):
             detail
         }
