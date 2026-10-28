@@ -18,6 +18,13 @@ enum SidebarList: Hashable {
     case credentials
 }
 
+/// What a command asks of the host list.
+enum HostListRequest: Equatable {
+    case newHost
+    case newGroup
+    case search
+}
+
 /// The terminal tabs a tab's menu closes with it, as on the desktop.
 enum TabsAround {
     case left
@@ -45,11 +52,35 @@ final class AppModel {
     /// tabs beside it, rather than the iPhone's tabs.
     var isWide = false
     var sidebarList = SidebarList.hosts
+    /// Whether a wide window shows its sidebar; hidden, the terminal has
+    /// the width.
+    var sidebarShown = true
     /// The settings, over a wide window; a narrow one has a tab for them.
     var showingSettings = false
+    /// What a command asks of the host list, which does it once shown.
+    var hostListRequest: HostListRequest?
+    /// The terminals' text size in points, the same in all of them; this
+    /// device's own, not synced.
+    var fontSize: Double {
+        didSet {
+            defaults.set(fontSize, forKey: Self.fontSizeKey)
+            for session in sessions {
+                session.surface.fontSize = fontSize
+            }
+        }
+    }
 
-    init(core: Core, deviceName: String) {
+    /// The desktop's default text size and range.
+    static let defaultFontSize = 13.0
+    static let fontSizes = 10.0...28.0
+    private static let fontSizeKey = "terminalFontSize"
+    @ObservationIgnored private let defaults: UserDefaults
+
+    init(core: Core, deviceName: String, defaults: UserDefaults = .standard) {
         self.core = core
+        self.defaults = defaults
+        let saved = defaults.double(forKey: Self.fontSizeKey)
+        fontSize = Self.fontSizes.contains(saved) ? saved : Self.defaultFontSize
         hosts = HostsModel(store: core.store())
         sync = SyncModel(service: core.sync(), deviceName: deviceName)
         hosts.onChange = { [sync] in
@@ -78,7 +109,7 @@ final class AppModel {
         guard host.isSsh else {
             throw StoreError.NotSsh
         }
-        let session = TerminalSession(host: host, core: core)
+        let session = TerminalSession(host: host, core: core, fontSize: fontSize)
         session.onClose = { [weak self, weak session] in
             if let self, let session {
                 close(session)
@@ -98,6 +129,67 @@ final class AppModel {
             }
         }
         sync.cameForward()
+    }
+
+    /// Whether a command may show the host list or the settings now: not
+    /// under the terminal over a narrow window, nor behind the settings
+    /// over a wide one.
+    var canPresent: Bool {
+        isWide ? !showingSettings : shownSession == nil
+    }
+
+    /// Shows the host list, and has it do `request`: ⌘N, ⌘⇧N, ⌘K.
+    func request(_ request: HostListRequest) {
+        guard canPresent else {
+            return
+        }
+        if isWide {
+            sidebarList = .hosts
+            sidebarShown = true
+        } else {
+            tab = .hosts
+        }
+        hostListRequest = request
+    }
+
+    /// ⌘,: the settings sheet of a wide window, the tab of a narrow one.
+    func openSettings() {
+        guard canPresent else {
+            return
+        }
+        if isWide {
+            showingSettings = true
+        } else {
+            tab = .settings
+        }
+    }
+
+    /// ⌘B: only a wide window has the sidebar.
+    func toggleSidebar() {
+        if isWide {
+            sidebarShown.toggle()
+        }
+    }
+
+    /// ⌘W: closes the terminal shown.
+    func closeShown() {
+        if let shownSession {
+            close(shownSession)
+        }
+    }
+
+    /// ⌘= / ⌘- / ⌘0: a point bigger or smaller, within the range, or back
+    /// to the default.
+    func biggerText() {
+        fontSize = min(fontSize + 1, Self.fontSizes.upperBound)
+    }
+
+    func smallerText() {
+        fontSize = max(fontSize - 1, Self.fontSizes.lowerBound)
+    }
+
+    func defaultText() {
+        fontSize = Self.defaultFontSize
     }
 
     /// Opens the sync page on what sync waits for the user to settle.

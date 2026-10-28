@@ -1,3 +1,4 @@
+import GameController
 import SwiftTerm
 import SwiftUI
 import UIKit
@@ -17,9 +18,21 @@ final class TerminalSurface: NSObject, TerminalViewDelegate {
     /// The title the program in the terminal set.
     var onTitle: (String) -> Void = { _ in }
 
-    override init() {
-        let font = UIFont.monospacedSystemFont(ofSize: 13, weight: .regular)
-        view = TerminalView(frame: CGRect(x: 0, y: 0, width: 320, height: 480), font: font)
+    /// The text size in points. The terminal then has other columns and
+    /// rows: SwiftTerm reports them through `sizeChanged`, as it reports a
+    /// new window size.
+    var fontSize: Double {
+        didSet {
+            if fontSize != oldValue {
+                view.font = Self.font(fontSize)
+            }
+        }
+    }
+
+    init(fontSize: Double) {
+        self.fontSize = fontSize
+        view = TerminalView(
+            frame: CGRect(x: 0, y: 0, width: 320, height: 480), font: Self.font(fontSize))
         super.init()
         view.terminalDelegate = self
         view.nativeBackgroundColor = .black
@@ -56,6 +69,22 @@ final class TerminalSurface: NSObject, TerminalViewDelegate {
 
     func focus() {
         _ = view.becomeFirstResponder()
+    }
+
+    /// Takes the keys if a keyboard is attached, once the view is in the
+    /// window: shown, the terminal is typed into straight away. Without a
+    /// keyboard it stays as it is, rather than bring up the on-screen one.
+    func focusForKeyboard() {
+        guard GCKeyboard.coalesced != nil else {
+            return
+        }
+        DispatchQueue.main.async {
+            self.focus()
+        }
+    }
+
+    private static func font(_ size: Double) -> UIFont {
+        UIFont.monospacedSystemFont(ofSize: size, weight: .regular)
     }
 
     // MARK: TerminalViewDelegate

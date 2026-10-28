@@ -24,6 +24,7 @@ struct RootView: View {
         .onChange(of: wide, initial: true) { _, wide in
             model.isWide = wide
         }
+        .focusedSceneValue(\.appModel, model)
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:

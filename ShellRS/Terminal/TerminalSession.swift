@@ -34,10 +34,10 @@ final class TerminalSession: Identifiable {
     /// Events from an earlier attempt are dropped.
     @ObservationIgnored private var attempt = 0
 
-    init(host: Host, core: Core) {
+    init(host: Host, core: Core, fontSize: Double = AppModel.defaultFontSize) {
         self.host = host
         self.core = core
-        surface = TerminalSurface()
+        surface = TerminalSurface(fontSize: fontSize)
         surface.onInput = { [weak self] bytes in
             self?.input(bytes)
         }

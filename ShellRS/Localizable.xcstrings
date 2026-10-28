@@ -73,6 +73,16 @@
         }
       }
     },
+    "%lld pt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld pt"
+          }
+        }
+      }
+    },
     "%lld 个子分组": {
       "localizations": {
         "en": {
@@ -409,6 +419,16 @@
         }
       }
     },
+    "上一个标签": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previous tab"
+          }
+        }
+      }
+    },
     "上传写入流水线意外结束": {
       "localizations": {
         "en": {
@@ -465,6 +485,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parent group"
+          }
+        }
+      }
+    },
+    "下一个标签": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next tab"
           }
         }
       }
@@ -1335,6 +1365,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Close to the left"
+          }
+        }
+      }
+    },
+    "关闭标签": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close tab"
           }
         }
       }
@@ -2427,6 +2467,16 @@
         }
       }
     },
+    "字号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Font size"
+          }
+        }
+      }
+    },
     "存储桶": {
       "localizations": {
         "en": {
@@ -2959,6 +3009,16 @@
         }
       }
     },
+    "打开设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open settings"
+          }
+        }
+      }
+    },
     "找不到": {
       "localizations": {
         "en": {
@@ -3035,6 +3095,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide"
+          }
+        }
+      }
+    },
+    "放大字号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bigger text"
           }
         }
       }
@@ -3755,6 +3825,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show password"
+          }
+        }
+      }
+    },
+    "显示或隐藏侧栏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show or hide sidebar"
           }
         }
       }
@@ -5267,12 +5347,32 @@
         }
       }
     },
+    "缩小字号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smaller text"
+          }
+        }
+      }
+    },
     "网络不可达": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "network unreachable"
+          }
+        }
+      }
+    },
+    "聚焦搜索": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus search"
           }
         }
       }
@@ -6521,6 +6621,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "First connection to this host"
+          }
+        }
+      }
+    },
+    "默认字号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default text size"
           }
         }
       }

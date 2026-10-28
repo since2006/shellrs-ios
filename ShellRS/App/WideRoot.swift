@@ -4,11 +4,14 @@ import SwiftUI
 /// be hidden, the terminal tabs beside it.
 struct WideRoot: View {
     @Environment(AppModel.self) private var model
-    @State private var columns = NavigationSplitViewVisibility.all
 
     var body: some View {
         @Bindable var model = model
-        NavigationSplitView(columnVisibility: $columns) {
+        NavigationSplitView(
+            columnVisibility: Binding(
+                get: { model.sidebarShown ? .all : .detailOnly },
+                set: { model.sidebarShown = $0 != .detailOnly })
+        ) {
             Sidebar()
                 .navigationSplitViewColumnWidth(min: 260, ideal: 320, max: 420)
         } detail: {

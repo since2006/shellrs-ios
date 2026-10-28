@@ -40,6 +40,10 @@ struct TerminalWorkspace: View {
                 }
             }
         }
+        // A tab brought forward takes the keys, to type in straight away.
+        .onChange(of: model.shownSession?.id, initial: true) {
+            model.shownSession?.surface.focusForKeyboard()
+        }
         .sheet(isPresented: $showingFiles) {
             if let session = model.shownSession {
                 FilesView(files: session.openFiles())

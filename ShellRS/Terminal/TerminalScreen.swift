@@ -42,6 +42,9 @@ struct TerminalScreen: View {
             FilesView(files: session.openFiles())
         }
         .loginPrompts(of: session)
+        .onAppear {
+            session.surface.focusForKeyboard()
+        }
     }
 }
 

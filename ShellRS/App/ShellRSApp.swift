@@ -14,6 +14,9 @@ struct ShellRSApp: App {
                 LaunchFailedView(reason: reason)
             }
         }
+        .commands {
+            AppCommands()
+        }
     }
 }
 

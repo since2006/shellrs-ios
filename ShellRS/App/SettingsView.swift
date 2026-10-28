@@ -27,6 +27,16 @@ struct SettingsView: View {
                         }
                     }
                 }
+                Section("终端") {
+                    Stepper(
+                        value: $model.fontSize, in: AppModel.fontSizes, step: 1
+                    ) {
+                        LabeledContent("字号") {
+                            Text("\(Int(model.fontSize)) pt")
+                                .monospacedDigit()
+                        }
+                    }
+                }
                 Section("关于") {
                     LabeledContent("版本", value: Self.version)
                     Link(destination: Self.website) {

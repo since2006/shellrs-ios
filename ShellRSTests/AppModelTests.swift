@@ -9,11 +9,13 @@ import Testing
 @MainActor
 struct AppModelTests {
     let test: TestCore
+    let defaults: UserDefaults
     let model: AppModel
 
     init() throws {
         test = try TestCore()
-        model = AppModel(core: test.core, deviceName: "iPad")
+        defaults = try #require(UserDefaults(suiteName: "AppModelTests.\(UUID().uuidString)"))
+        model = AppModel(core: test.core, deviceName: "iPad", defaults: defaults)
     }
 
     /// Opens a terminal on each of `names`, saved on a port nothing listens
@@ -117,6 +119,78 @@ struct AppModelTests {
         #expect(throws: StoreError.NotSsh) {
             try model.connect(host)
         }
+        #expect(model.sessions.isEmpty)
+    }
+
+    @Test func theTextSizeStaysInItsRangeAndIsKept() async throws {
+        #expect(model.fontSize == 13)
+        let a = try #require(try await open("a").first)
+        #expect(a.surface.fontSize == 13)
+
+        for _ in 0..<20 {
+            model.biggerText()
+        }
+        #expect(model.fontSize == 28)
+        // Every terminal open changes with it.
+        #expect(a.surface.view.font.pointSize == 28)
+        for _ in 0..<30 {
+            model.smallerText()
+        }
+        #expect(model.fontSize == 10)
+        model.defaultText()
+        #expect(model.fontSize == 13)
+
+        model.fontSize = 16
+        let b = try #require(try await open("b").last)
+        #expect(b.surface.fontSize == 16)
+        // This device's, kept for the next launch.
+        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults).fontSize == 16)
+        defaults.set(99.0, forKey: "terminalFontSize")
+        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults).fontSize == 13)
+    }
+
+    @Test func commandsShowTheListWhereTheWindowHasIt() async throws {
+        model.isWide = true
+        model.sidebarList = .credentials
+        model.sidebarShown = false
+        model.request(.newHost)
+        #expect(model.sidebarList == .hosts)
+        #expect(model.sidebarShown)
+        #expect(model.tab == .hosts)
+        #expect(model.hostListRequest == .newHost)
+        model.hostListRequest = nil
+
+        // Not behind the settings.
+        model.openSettings()
+        #expect(model.showingSettings)
+        model.request(.search)
+        #expect(model.hostListRequest == nil)
+        model.showingSettings = false
+
+        model.toggleSidebar()
+        #expect(!model.sidebarShown)
+
+        model.isWide = false
+        model.toggleSidebar()
+        #expect(!model.sidebarShown)
+        model.tab = .credentials
+        model.request(.newGroup)
+        #expect(model.tab == .hosts)
+        #expect(model.hostListRequest == .newGroup)
+        model.hostListRequest = nil
+        model.openSettings()
+        #expect(model.tab == .settings)
+        #expect(!model.showingSettings)
+
+        // Not under the terminal over a narrow window.
+        model.tab = .hosts
+        _ = try await open("a")
+        model.request(.search)
+        model.openSettings()
+        #expect(model.hostListRequest == nil)
+        #expect(model.tab == .hosts)
+        model.closeShown()
+        #expect(model.shownSession == nil)
         #expect(model.sessions.isEmpty)
     }
 

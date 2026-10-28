@@ -16,6 +16,7 @@ struct HostListView: View {
 struct HostList: View {
     @Environment(AppModel.self) private var model
     @State private var query = ""
+    @State private var searchShown = false
     @State private var editMode = EditMode.inactive
     @State private var editingHost: HostEditor.Subject?
     @State private var editingGroup: GroupEditor.Subject?
@@ -48,7 +49,22 @@ struct HostList: View {
             }
         }
         .environment(\.editMode, $editMode)
-        .searchable(text: $query, prompt: "搜索主机或分组")
+        .searchable(text: $query, isPresented: $searchShown, prompt: "搜索主机或分组")
+        // ⌘N, ⌘⇧N and ⌘K, once the list is shown.
+        .onChange(of: model.hostListRequest, initial: true) { _, request in
+            guard let request else {
+                return
+            }
+            model.hostListRequest = nil
+            switch request {
+            case .newHost:
+                editingHost = .new(group: nil)
+            case .newGroup:
+                editingGroup = .new(parent: nil)
+            case .search:
+                searchShown = true
+            }
+        }
         .overlay {
             if isEmpty {
                 ContentUnavailableView {
