@@ -12,6 +12,8 @@ struct RootView: View {
             SessionsView()
                 .tabItem { Label("终端", systemImage: "terminal") }
                 .badge(model.sessions.count)
+            CredentialListView()
+                .tabItem { Label("凭据", systemImage: "key") }
             SettingsView()
                 .tabItem { Label("设置", systemImage: "gear") }
         }

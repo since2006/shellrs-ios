@@ -63,12 +63,28 @@ final class TestCore {
 
 func draft(
     name: String = "", address: String = "127.0.0.1", port: UInt16 = 22,
-    user: String = "root", auth: HostAuth = .password
+    user: String = "root", auth: HostAuth = .password, route: HostRoute = .direct,
+    group: UInt64? = nil
 ) -> HostDraft {
     HostDraft(
         name: name, protocol: .ssh, address: address, port: port, user: user, auth: auth,
-        route: .direct, group: nil, notes: "")
+        route: route, group: group, notes: "")
 }
+
+/// An Ed25519 key made for the tests, unencrypted; nothing trusts it.
+let testKey = """
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACBbdUTH3lRjzsMSojgUOVzyvrNtHIbu2dktXOz49wfBdQAAAJA/QxkjP0MZ
+    IwAAAAtzc2gtZWQyNTUxOQAAACBbdUTH3lRjzsMSojgUOVzyvrNtHIbu2dktXOz49wfBdQ
+    AAAEATh0jt90VMd6hiDRFt/3vRa6hhVD9De53qQMFAUisgiVt1RMfeVGPOwxKiOBQ5XPK+
+    s20chu7Z2S1c7Pj3B8F1AAAADHNoZWxscnMtdGVzdAE=
+    -----END OPENSSH PRIVATE KEY-----
+
+    """
+
+/// `testKey`'s public key, without its comment.
+let testPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFt1RMfeVGPOwxKiOBQ5XPK+s20chu7Z2S1c7Pj3B8F1"
 
 /// A port on this computer nothing listens on.
 func closedPort() throws -> UInt16 {

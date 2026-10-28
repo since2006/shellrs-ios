@@ -52,14 +52,7 @@ enum Describe {
                 return String(localized: "请选择或粘贴私钥")
             }
         case .Key(let problem):
-            switch problem {
-            case .Empty:
-                return String(localized: "请粘贴私钥")
-            case .PublicKey:
-                return String(localized: "这是公钥，请粘贴私钥")
-            case .Unreadable:
-                return String(localized: "无法识别这段私钥")
-            }
+            return key(problem)
         case .GroupName:
             return String(localized: "请输入分组名称")
         case .GroupNotFound:
@@ -102,6 +95,18 @@ enum Describe {
             String(localized: "请输入代理地址")
         case .proxyPort:
             String(localized: "代理端口必须是 1 到 65535 之间的数字")
+        }
+    }
+
+    /// What is wrong with a private key's text.
+    static func key(_ problem: KeyProblem) -> String {
+        switch problem {
+        case .Empty:
+            String(localized: "请粘贴私钥")
+        case .PublicKey:
+            String(localized: "这是公钥，请粘贴私钥")
+        case .Unreadable:
+            String(localized: "无法识别这段私钥")
         }
     }
 

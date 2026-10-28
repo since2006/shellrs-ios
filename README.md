@@ -34,31 +34,41 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 `ShellRSTests` 用 Swift Testing，宿主是 App 本身：
 
 - 钥匙串（`AppKeychain`）在模拟器的钥匙串里用测试自己的 service 存取删；
-- 主机库和终端会话用真的 `Core`，数据在临时文件夹、钥匙串在内存（`MemoryKeychain`），查密码只进钥匙串、数据文件夹里找不到；
+- 主机库、凭据和终端会话用真的 `Core`，数据在临时文件夹、钥匙串在内存（`MemoryKeychain`）：密码、代理密码、口令只进钥匙串，数据文件夹里找不到；分组、排序、复制、删除时说的连带；
+- 主机树（`HostTree`）是纯函数，照电脑版的规则建树、搜索；
 - 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句。
 
-`ServerTests` 连真的 SSH 服务器（信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、断开后 Enter 重连），只在给了服务器时跑。用 Docker 起一台：
+`ServerTests` 连真的 SSH 服务器，只在给了服务器时跑：信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、断开后 Enter 重连；密钥凭据登录（服务器要信任 `ShellRSTests/Support.swift` 里的测试密钥 `testKey`）；给了目标机时经 SSH 跳板连它，再给了 SOCKS5 代理时经代理连它。用 Docker 起一台跳板和一台只在 Docker 网络里的目标机，再经跳板开一个 SOCKS5 代理（密码 `shellrs-test`）：
 
 ```sh
-docker run -d --rm --name shellrs-ios-sshd -p 127.0.0.1:2222:22 alpine:3 sh -c '
-  apk add --no-cache openssh >/dev/null && ssh-keygen -A >/dev/null &&
+docker network create shellrs-test
+SETUP='apk add --no-cache openssh >/dev/null && ssh-keygen -A >/dev/null &&
   echo root:shellrs-test | chpasswd &&
-  sed -i "s/^#\?PermitRootLogin.*/PermitRootLogin yes/" /etc/ssh/sshd_config &&
+  sed -i "s/^#\?PermitRootLogin.*/PermitRootLogin yes/; s/^#\?AllowTcpForwarding.*/AllowTcpForwarding yes/" /etc/ssh/sshd_config &&
+  mkdir -p /root/.ssh &&
+  echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFt1RMfeVGPOwxKiOBQ5XPK+s20chu7Z2S1c7Pj3B8F1 shellrs-test" > /root/.ssh/authorized_keys &&
   exec /usr/sbin/sshd -D -e'
+docker run -d --rm --name shellrs-ios-sshd --network shellrs-test -p 127.0.0.1:2222:22 alpine:3 sh -c "$SETUP"
+docker run -d --rm --name shellrs-ios-target --network shellrs-test --network-alias target alpine:3 sh -c "$SETUP"
+ssh -f -N -D 127.0.0.1:1080 -p 2222 root@127.0.0.1
 
 TEST_RUNNER_SHELLRS_TEST_SSH=127.0.0.1:2222 \
 TEST_RUNNER_SHELLRS_TEST_SSH_PASSWORD=shellrs-test \
+TEST_RUNNER_SHELLRS_TEST_SSH_TARGET=target:22 \
+TEST_RUNNER_SHELLRS_TEST_SOCKS=127.0.0.1:1080 \
 xcodebuild … test
 ```
 
-（`xcodebuild` 把 `TEST_RUNNER_` 开头的变量去掉前缀交给测试；用户名用 `SHELLRS_TEST_SSH_USER`，默认 root。）
+（`xcodebuild` 把 `TEST_RUNNER_` 开头的变量去掉前缀交给测试；用户名用 `SHELLRS_TEST_SSH_USER`，默认 root；目标机和代理不给就跳过那两个测试。代理在跳板上解析 `target`。）
 
 ## 目录
 
-- `ShellRS/App`：入口、`AppModel`（核心、主机、打开的终端）、`AppKeychain`、标签页。
-- `ShellRS/Hosts`：主机列表、主机表单、`HostsModel`。
+- `ShellRS/App`：入口、`AppModel`（核心、主机、打开的终端）、`AppKeychain`、标签页、表单里带标签的输入框。
+- `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
+- `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、终端页、问答、打开的终端列表。
-- `ShellRS/Describe`：核心的错误和失败翻成文案。
+- `ShellRS/Describe`：核心的错误和失败翻成文案，删除前说的连带。
+- `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
 - `ShellRS/Localizable.xcstrings`：全部文案。
 - `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
 
@@ -68,6 +78,7 @@ xcodebuild … test
 - **文案**：中文是源语言，代码里直接写中文（`Text("主机")`、`String(localized:)`），英文在 `Localizable.xcstrings`；用词照 shell-rs 的 `CLAUDE.md` 用词表。插值先转成 `String`，占位符都是 `%@`。
 - **秘密只进钥匙串**：密码、口令经核心写进 `AppKeychain`（`AfterFirstUnlockThisDeviceOnly`，不随备份去别的设备，靠 ShellRS 自己的同步走），数据库里没有秘密。
 - **事件只拉不推**：每个核心对象一个 `Task` 循环 `nextEvent()` 到 `nil`，在主 actor 上更新模型。
+- 核心的 `Group` 和 SwiftUI 的 `Group` 重名，视图里用别名 `HostGroup`。
 - **标签各自记着打开时的主机**（同电脑版）：编辑、删除主机不碰已打开的终端；重新连接时按保存的主机再连。
 - 断开的终端按 Enter 重连、按 Space 关闭（同电脑版），也有按钮。
 - 核心接口缺东西就改 shell-rs 的 `crates/shellrs-mobile`（单独提交、照那边的规矩测），再更新 `core-revision`、重跑 `scripts/build-core.sh`。

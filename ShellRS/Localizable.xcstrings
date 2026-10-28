@@ -11,6 +11,112 @@
         }
       }
     },
+    "%@ · %lld 台主机": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%@ · %lld host"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%@ · %lld hosts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%@ 副本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ copy"
+          }
+        }
+      }
+    },
+    "%@（%@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%@)"
+          }
+        }
+      }
+    },
+    "%lld 个子分组": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld subgroup"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld subgroups"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld 台主机": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "HTTP 代理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HTTP proxy"
+          }
+        }
+      }
+    },
+    "SOCKS5 代理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SOCKS5 proxy"
+          }
+        }
+      }
+    },
     "SSH Agent 中没有密钥": {
       "localizations": {
         "en": {
@@ -41,6 +147,16 @@
         }
       }
     },
+    "SSH 跳板": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jump hosts"
+          }
+        }
+      }
+    },
     "ShellRS 无法启动": {
       "localizations": {
         "en": {
@@ -51,12 +167,62 @@
         }
       }
     },
+    "Telnet 主机暂时只能在电脑上连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telnet hosts connect only from the computer for now."
+          }
+        }
+      }
+    },
+    "Telnet 自动登录": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log in automatically"
+          }
+        }
+      }
+    },
     "、": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": ", "
+          }
+        }
+      }
+    },
+    "上移": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move up"
+          }
+        }
+      }
+    },
+    "上级分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parent group"
+          }
+        }
+      }
+    },
+    "下移": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move down"
           }
         }
       }
@@ -147,6 +313,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keyboard-interactive authentication cancelled"
+          }
+        }
+      }
+    },
+    "从文件读取…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from a file…"
+          }
+        }
+      }
+    },
+    "代理地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy address"
           }
         }
       }
@@ -371,6 +557,46 @@
         }
       }
     },
+    "代理类型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy type"
+          }
+        }
+      }
+    },
+    "代理连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Proxy"
+          }
+        }
+      }
+    },
+    "以 %@ 登录，使用 ShellRS 保存的私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs in as %@ with the private key ShellRS keeps"
+          }
+        }
+      }
+    },
+    "以 %@ 登录，使用凭据保存的密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs in as %@ with the password saved in the credential"
+          }
+        }
+      }
+    },
     "使用凭据": {
       "localizations": {
         "en": {
@@ -381,12 +607,62 @@
         }
       }
     },
+    "例如 127.0.0.1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. 127.0.0.1"
+          }
+        }
+      }
+    },
+    "例如 生产": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Production"
+          }
+        }
+      }
+    },
+    "例如 生产环境 root": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Production root"
+          }
+        }
+      }
+    },
+    "依次经过跳板主机连接到当前主机，可添加多台。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connects to this host through each jump host in turn. You can add several."
+          }
+        }
+      }
+    },
     "保存": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Save"
+          }
+        }
+      }
+    },
+    "保存一套用户名和密码或私钥，让多台主机共用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save a username with a password or a private key for several hosts to share."
           }
         }
       }
@@ -441,6 +717,16 @@
         }
       }
     },
+    "保持不变": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep"
+          }
+        }
+      }
+    },
     "信任并连接": {
       "localizations": {
         "en": {
@@ -451,12 +737,42 @@
         }
       }
     },
+    "全部主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All hosts"
+          }
+        }
+      }
+    },
     "关闭": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Close"
+          }
+        }
+      }
+    },
+    "其他主机都已添加": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All other hosts are added"
+          }
+        }
+      }
+    },
+    "凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Credentials"
           }
         }
       }
@@ -481,12 +797,54 @@
         }
       }
     },
+    "分享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group"
+          }
+        }
+      }
+    },
     "分组不能移到自己或自己的子分组里": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "A group can’t go into itself or one of its subgroups"
+          }
+        }
+      }
+    },
+    "分组外有 %lld 台主机经由这些主机跳转，删除后要重新选择跳板主机才能连接。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host outside the group jumps through these hosts and will need another jump host to connect."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts outside the group jump through these hosts and will need another jump host to connect."
+                }
+              }
+            }
           }
         }
       }
@@ -511,6 +869,16 @@
         }
       }
     },
+    "创建副本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate"
+          }
+        }
+      }
+    },
     "删除": {
       "localizations": {
         "en": {
@@ -521,7 +889,7 @@
         }
       }
     },
-    "删除「%@」？": {
+    "删除“%@”？": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -551,12 +919,32 @@
         }
       }
     },
+    "删除分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete group"
+          }
+        }
+      }
+    },
     "删除分组未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t delete the group from the local database: %@"
+          }
+        }
+      }
+    },
+    "协议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocol"
           }
         }
       }
@@ -581,12 +969,42 @@
         }
       }
     },
+    "只在服务器不支持 Ed25519 时选它（OpenSSH 6.5 以前）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose it only for servers without Ed25519 support (OpenSSH before 6.5)."
+          }
+        }
+      }
+    },
     "只尝试服务器免认证，不询问密码；要用私钥请改用「使用凭据」。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Tries logging in without authentication and doesn’t ask for a password. To log in with a private key, choose “Credential”."
+          }
+        }
+      }
+    },
+    "可选": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional"
+          }
+        }
+      }
+    },
+    "可选，留空则连接后自己输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optional; type it after connecting if left empty"
           }
         }
       }
@@ -661,12 +1079,42 @@
         }
       }
     },
+    "填写代理密码时请同时填写用户名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a username along with the proxy password."
+          }
+        }
+      }
+    },
+    "备注": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notes"
+          }
+        }
+      }
+    },
     "复制主机未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save the host’s copy to the local database: %@"
+          }
+        }
+      }
+    },
+    "复制公钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy public key"
           }
         }
       }
@@ -691,6 +1139,16 @@
         }
       }
     },
+    "完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
     "密码": {
       "localizations": {
         "en": {
@@ -707,6 +1165,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Passwords are kept in the system keychain, never in ShellRS’s database."
+          }
+        }
+      }
+    },
+    "密码和口令保存在系统钥匙串，不会写入 ShellRS 的数据库。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passwords and passphrases are kept in the system keychain, never in ShellRS’s database."
+          }
+        }
+      }
+    },
+    "密码提示文本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password prompt"
           }
         }
       }
@@ -731,12 +1209,74 @@
         }
       }
     },
+    "密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key"
+          }
+        }
+      }
+    },
+    "密钥还在生成，请稍候": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key is still being generated. Try again in a moment."
+          }
+        }
+      }
+    },
     "对方关闭了连接": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "the other side closed the connection"
+          }
+        }
+      }
+    },
+    "将同时删除其中的 %@。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This also deletes the group’s %@."
+          }
+        }
+      }
+    },
+    "将同时删除其中的 %@和 %@。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This also deletes the group’s %@ and %@."
+          }
+        }
+      }
+    },
+    "将同时删除经由该主机的 %lld 条端口转发。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld port forward through this host will also be deleted."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld port forwards through this host will also be deleted."
+                }
+              }
+            }
           }
         }
       }
@@ -781,12 +1321,32 @@
         }
       }
     },
+    "已删除的主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted host"
+          }
+        }
+      }
+    },
     "已取消": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Cancelled"
+          }
+        }
+      }
+    },
+    "已复制公钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied the public key"
           }
         }
       }
@@ -861,6 +1421,16 @@
         }
       }
     },
+    "手动输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual"
+          }
+        }
+      }
+    },
     "手机上没有 SSH Agent，请改用密钥凭据": {
       "localizations": {
         "en": {
@@ -897,6 +1467,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "It isn’t there any more; it may have been deleted"
+          }
+        }
+      }
+    },
+    "把公钥加到服务器的 ~/.ssh/authorized_keys，就能用这把密钥登录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add the public key to ~/.ssh/authorized_keys on a server to log in to it with this key."
+          }
+        }
+      }
+    },
+    "换成新私钥后，要把它的公钥加到这些主机上，它们才能再登录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After switching to a new private key, add its public key to these hosts so they can log in again."
+          }
+        }
+      }
+    },
+    "排序": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reorder"
+          }
+        }
+      }
+    },
+    "搜索主机或分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search hosts or groups"
+          }
+        }
+      }
+    },
+    "搜索凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search credentials"
           }
         }
       }
@@ -951,6 +1571,16 @@
         }
       }
     },
+    "新建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New"
+          }
+        }
+      }
+    },
     "新建一台主机，或在设置里加入电脑上的云同步。": {
       "localizations": {
         "en": {
@@ -971,12 +1601,42 @@
         }
       }
     },
+    "新建主机…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New host…"
+          }
+        }
+      }
+    },
     "新建主机未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save the new host to the local database: %@"
+          }
+        }
+      }
+    },
+    "新建凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New credential"
+          }
+        }
+      }
+    },
+    "新建凭据…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New credential…"
           }
         }
       }
@@ -991,12 +1651,42 @@
         }
       }
     },
+    "新建分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New group"
+          }
+        }
+      }
+    },
+    "新建分组…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New group…"
+          }
+        }
+      }
+    },
     "新建分组未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save the new group to the local database: %@"
+          }
+        }
+      }
+    },
+    "新建子分组…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New subgroup…"
           }
         }
       }
@@ -1221,6 +1911,16 @@
         }
       }
     },
+    "无法读取这个文件，请选择私钥文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read this file. Choose a private key file."
+          }
+        }
+      }
+    },
     "无法连接代理服务器 %@:%@": {
       "localizations": {
         "en": {
@@ -1261,12 +1961,110 @@
         }
       }
     },
+    "最近连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent"
+          }
+        }
+      }
+    },
     "最近连接未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save the recent connections to the local database: %@"
+          }
+        }
+      }
+    },
+    "有 %lld 台主机使用此凭据。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host uses this credential."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts use this credential."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "有 %lld 台主机把它用作跳板主机，删除后要重新选择跳板主机才能连接。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host uses it as a jump host and will need another one to connect."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts use it as a jump host and will need another one to connect."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "有 %lld 台主机正在使用此凭据。删除后它们改为「密码」，连接时询问密码，用户名不变。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host uses this credential. Once it’s deleted, that host switches to Password, asks for the password when connecting, and keeps its username."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts use this credential. Once it’s deleted, they switch to Password, ask for the password when connecting, and keep their usernames."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "有 %lld 台主机正在使用此凭据。删除后它们改为「无密码」，用户名不变。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld host uses this credential. Once it’s deleted, that host switches to No password and keeps its username."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld hosts use this credential. Once it’s deleted, they switch to No password and keep their usernames."
+                }
+              }
+            }
           }
         }
       }
@@ -1441,6 +2239,16 @@
         }
       }
     },
+    "正在生成密钥…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generating the key…"
+          }
+        }
+      }
+    },
     "正在连接…": {
       "localizations": {
         "en": {
@@ -1481,6 +2289,16 @@
         }
       }
     },
+    "添加跳板主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add jump host"
+          }
+        }
+      }
+    },
     "版本": {
       "localizations": {
         "en": {
@@ -1491,12 +2309,22 @@
         }
       }
     },
-    "用保存的凭据登录。": {
+    "生成密钥…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Logs in with the saved credential."
+            "value": "Generate key…"
+          }
+        }
+      }
+    },
+    "生成新密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate"
           }
         }
       }
@@ -1521,12 +2349,52 @@
         }
       }
     },
+    "用户名提示文本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username prompt"
+          }
+        }
+      }
+    },
+    "留空使用常见提示，匹配时忽略大小写。用户名可留空以支持仅密码登录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave a prompt empty for the usual ones; matching ignores case. Leave the username empty for a device that asks only for a password."
+          }
+        }
+      }
+    },
+    "留空则不加密": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave empty to leave the key unencrypted"
+          }
+        }
+      }
+    },
     "留空则每次连接时询问": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Asked at each connection if left empty"
+          }
+        }
+      }
+    },
+    "留空则每次连接都询问": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave empty to be asked at each connection"
           }
         }
       }
@@ -1541,12 +2409,42 @@
         }
       }
     },
+    "目标地址由代理服务器解析；代理不需要认证时，用户名和密码留空。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The proxy server resolves the host’s address. Leave the username and password empty if the proxy doesn’t need them."
+          }
+        }
+      }
+    },
+    "直接连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direct"
+          }
+        }
+      }
+    },
     "确认指纹和服务器的一致后再信任。信任后保存在 ShellRS 里，下次不再询问。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Trust it once the fingerprint matches the server’s. ShellRS keeps it and won’t ask again."
+          }
+        }
+      }
+    },
+    "私钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Private key"
           }
         }
       }
@@ -1581,12 +2479,32 @@
         }
       }
     },
+    "私钥可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready to use"
+          }
+        }
+      }
+    },
     "私钥已加密，未填写口令": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The private key is encrypted and no passphrase was entered"
+          }
+        }
+      }
+    },
+    "私钥已加密，需要口令": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted: needs its passphrase"
           }
         }
       }
@@ -1631,6 +2549,16 @@
         }
       }
     },
+    "移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
     "端口": {
       "localizations": {
         "en": {
@@ -1671,6 +2599,36 @@
         }
       }
     },
+    "类型": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        }
+      }
+    },
+    "粘贴": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
+          }
+        }
+      }
+    },
+    "粘贴私钥，以 -----BEGIN 开头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the private key, starting with -----BEGIN"
+          }
+        }
+      }
+    },
     "终端": {
       "localizations": {
         "en": {
@@ -1697,6 +2655,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Edit host"
+          }
+        }
+      }
+    },
+    "编辑主机…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit host…"
+          }
+        }
+      }
+    },
+    "编辑凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit credential"
+          }
+        }
+      }
+    },
+    "编辑凭据…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit credential…"
           }
         }
       }
@@ -1861,6 +2849,16 @@
         }
       }
     },
+    "请选择凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a credential"
+          }
+        }
+      }
+    },
     "请选择或粘贴私钥": {
       "localizations": {
         "en": {
@@ -1971,6 +2969,46 @@
         }
       }
     },
+    "还没有其他主机可做跳板": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No other hosts to jump through"
+          }
+        }
+      }
+    },
+    "还没有凭据": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No credentials yet"
+          }
+        }
+      }
+    },
+    "还没有凭据，可在「凭据」页新建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No credentials yet. Create one in the Credentials tab."
+          }
+        }
+      }
+    },
+    "还没有密码凭据，可在「凭据」页新建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No password credentials yet. Create one in the Credentials tab."
+          }
+        }
+      }
+    },
     "这个终端经由堡垒机打开，只能使用终端本身，不能另外打开文件": {
       "localizations": {
         "en": {
@@ -1991,6 +3029,28 @@
         }
       }
     },
+    "这些主机的 %lld 条端口转发会一并删除。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld port forward through these hosts will also be deleted."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld port forwards through these hosts will also be deleted."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "这台主机不是 SSH 主机，暂时只能在电脑上连接": {
       "localizations": {
         "en": {
@@ -2001,12 +3061,42 @@
         }
       }
     },
+    "这把私钥由 ShellRS 保存，删除凭据时会一起删除。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ShellRS keeps this private key and deletes it along with the credential."
+          }
+        }
+      }
+    },
+    "这把私钥要口令才能读出公钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The public key can’t be read without the key’s passphrase."
+          }
+        }
+      }
+    },
     "这是公钥，请粘贴私钥": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "This is a public key. Paste the private key"
+          }
+        }
+      }
+    },
+    "连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
           }
         }
       }
@@ -2027,6 +3117,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "the connection was lost"
+          }
+        }
+      }
+    },
+    "连接方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection"
           }
         }
       }
@@ -2081,6 +3181,26 @@
         }
       }
     },
+    "重命名分组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename group"
+          }
+        }
+      }
+    },
+    "重命名分组…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename group…"
+          }
+        }
+      }
+    },
     "重新连接": {
       "localizations": {
         "en": {
@@ -2107,6 +3227,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "First connection to this host"
+          }
+        }
+      }
+    },
+    "（无分组）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(No group)"
+          }
+        }
+      }
+    },
+    "（顶层）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(Top level)"
           }
         }
       }
