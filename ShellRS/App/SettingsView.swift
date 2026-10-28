@@ -9,6 +9,9 @@ enum SettingsRoute: Hashable {
 
 /// The settings: sync, and what the app is.
 struct SettingsView: View {
+    /// Closes them, when they are shown over a wide window rather than in
+    /// a tab.
+    var done: (() -> Void)?
     @Environment(AppModel.self) private var model
 
     var body: some View {
@@ -38,6 +41,13 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("设置")
+            .toolbar {
+                if let done {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("完成", action: done)
+                    }
+                }
+            }
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
                 case .sync:

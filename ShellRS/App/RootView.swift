@@ -1,10 +1,45 @@
 import ShellRSCore
 import SwiftUI
+import UIKit
 
-/// The app's tabs, with the terminal shown over them.
+/// The window: a sidebar and terminal tabs when it is a wide iPad one, the
+/// iPhone's tabs otherwise. The terminals and what is shown are the
+/// model's, so they stay as the window narrows or widens.
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var sizeClass
+
+    var body: some View {
+        // Only an iPad's: a large iPhone is regular too when turned, and
+        // should not change its layout for that.
+        let wide = sizeClass == .regular && UIDevice.current.userInterfaceIdiom == .pad
+        Group {
+            if wide {
+                WideRoot()
+            } else {
+                CompactRoot()
+            }
+        }
+        .onChange(of: wide, initial: true) { _, wide in
+            model.isWide = wide
+        }
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            switch phase {
+            case .active:
+                model.cameForward()
+            case .background:
+                model.sync.goingToBackground()
+            default:
+                break
+            }
+        }
+    }
+}
+
+/// The app's tabs, with the terminal shown over them.
+private struct CompactRoot: View {
+    @Environment(AppModel.self) private var model
 
     var body: some View {
         @Bindable var model = model
@@ -44,16 +79,6 @@ struct RootView: View {
             Button("稍后", role: .cancel) {}
         } message: { attention in
             Text(Describe.attention(attention))
-        }
-        .onChange(of: scenePhase, initial: true) { _, phase in
-            switch phase {
-            case .active:
-                model.cameForward()
-            case .background:
-                model.sync.goingToBackground()
-            default:
-                break
-            }
         }
     }
 }

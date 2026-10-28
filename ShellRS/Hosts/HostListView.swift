@@ -1,9 +1,19 @@
 import ShellRSCore
 import SwiftUI
 
-/// The saved hosts as a tree of groups, the latest connected above it: tap
-/// a host to connect, swipe or hold a row for the rest, 排序 to drag.
+/// The 主机 tab of a narrow window: the list in a stack of its own.
 struct HostListView: View {
+    var body: some View {
+        NavigationStack {
+            HostList()
+        }
+    }
+}
+
+/// The saved hosts as a tree of groups, the latest connected above it: tap
+/// a host to connect, swipe or hold a row for the rest, 排序 to drag. Its
+/// container gives it the navigation bar: the 主机 tab or the sidebar.
+struct HostList: View {
     @Environment(AppModel.self) private var model
     @State private var query = ""
     @State private var editMode = EditMode.inactive
@@ -21,104 +31,102 @@ struct HostListView: View {
         let tree = HostTree(groups: hosts.groups, hosts: hosts.hosts, query: query)
         let showsRecent = !searching && !editMode.isEditing && !hosts.recent.isEmpty
         let isEmpty = hosts.hosts.isEmpty && hosts.groups.isEmpty
-        NavigationStack {
-            List {
+        List {
+            if showsRecent {
+                Section("最近连接") {
+                    ForEach(hosts.recent.prefix(Self.recentShown), id: \.id) { host in
+                        HostButton(host: host, actions: actions)
+                    }
+                }
+            }
+            Section {
+                HostLevel(tree: tree, searching: searching, actions: actions)
+            } header: {
                 if showsRecent {
-                    Section("最近连接") {
-                        ForEach(hosts.recent.prefix(Self.recentShown), id: \.id) { host in
-                            HostButton(host: host, actions: actions)
+                    Text("全部主机")
+                }
+            }
+        }
+        .environment(\.editMode, $editMode)
+        .searchable(text: $query, prompt: "搜索主机或分组")
+        .overlay {
+            if isEmpty {
+                ContentUnavailableView {
+                    Label("还没有主机", systemImage: "server.rack")
+                } description: {
+                    Text("新建一台主机，或在设置里加入电脑上的云同步。")
+                } actions: {
+                    Button("新建主机") {
+                        editingHost = .new(group: nil)
+                    }
+                }
+            } else if searching && tree.isEmpty {
+                ContentUnavailableView.search(text: query)
+            }
+        }
+        .navigationTitle("主机")
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if !isEmpty {
+                    Button(
+                        editMode.isEditing
+                            ? String(localized: "完成") : String(localized: "排序")) {
+                        withAnimation {
+                            editMode = editMode.isEditing ? .inactive : .active
                         }
                     }
                 }
-                Section {
-                    HostLevel(tree: tree, searching: searching, actions: actions)
-                } header: {
-                    if showsRecent {
-                        Text("全部主机")
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Button("新建主机…", systemImage: "server.rack") {
+                        editingHost = .new(group: nil)
                     }
-                }
-            }
-            .environment(\.editMode, $editMode)
-            .searchable(text: $query, prompt: "搜索主机或分组")
-            .overlay {
-                if isEmpty {
-                    ContentUnavailableView {
-                        Label("还没有主机", systemImage: "server.rack")
-                    } description: {
-                        Text("新建一台主机，或在设置里加入电脑上的云同步。")
-                    } actions: {
-                        Button("新建主机") {
-                            editingHost = .new(group: nil)
-                        }
+                    Button("新建分组…", systemImage: "folder.badge.plus") {
+                        editingGroup = .new(parent: nil)
                     }
-                } else if searching && tree.isEmpty {
-                    ContentUnavailableView.search(text: query)
+                } label: {
+                    Label("新建", systemImage: "plus")
                 }
             }
-            .navigationTitle("主机")
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    if !isEmpty {
-                        Button(
-                            editMode.isEditing
-                                ? String(localized: "完成") : String(localized: "排序")) {
-                            withAnimation {
-                                editMode = editMode.isEditing ? .inactive : .active
-                            }
-                        }
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Menu {
-                        Button("新建主机…", systemImage: "server.rack") {
-                            editingHost = .new(group: nil)
-                        }
-                        Button("新建分组…", systemImage: "folder.badge.plus") {
-                            editingGroup = .new(parent: nil)
-                        }
-                    } label: {
-                        Label("新建", systemImage: "plus")
-                    }
-                }
+        }
+        .sheet(item: $editingHost) { subject in
+            HostEditor(subject: subject)
+        }
+        .sheet(item: $editingGroup) { subject in
+            GroupEditor(subject: subject)
+        }
+        .confirmationDialog(
+            deleting.map { String(localized: "删除“\($0.name)”？") } ?? "",
+            isPresented: Binding(
+                get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
+            titleVisibility: .visible,
+            presenting: deleting
+        ) { deletion in
+            Button("删除", role: .destructive) {
+                delete(deletion)
             }
-            .sheet(item: $editingHost) { subject in
-                HostEditor(subject: subject)
-            }
-            .sheet(item: $editingGroup) { subject in
-                GroupEditor(subject: subject)
-            }
-            .confirmationDialog(
-                deleting.map { String(localized: "删除“\($0.name)”？") } ?? "",
-                isPresented: Binding(
-                    get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
-                titleVisibility: .visible,
-                presenting: deleting
-            ) { deletion in
-                Button("删除", role: .destructive) {
-                    delete(deletion)
-                }
-            } message: { deletion in
-                Text(deletion.message)
-            }
-            .alert(
-                "出错了", isPresented: Binding(
-                    get: { failure != nil || hosts.problem != nil },
-                    set: { if !$0 { failure = nil; hosts.problem = nil } })
-            ) {
-                Button("好") {}
-            } message: {
-                Text(failure ?? hosts.problem ?? "")
-            }
+        } message: { deletion in
+            Text(deletion.message)
+        }
+        .alert(
+            "出错了", isPresented: Binding(
+                get: { failure != nil || hosts.problem != nil },
+                set: { if !$0 { failure = nil; hosts.problem = nil } })
+        ) {
+            Button("好") {}
+        } message: {
+            Text(failure ?? hosts.problem ?? "")
         }
     }
 
     private var actions: HostActions {
         HostActions(
             connect: { host in
-                if host.isSsh {
-                    model.connect(host)
-                } else {
-                    failure = Describe.store(StoreError.NotSsh)
+                do {
+                    try model.connect(host)
+                } catch {
+                    failure = Describe.store(error)
                 }
             },
             edit: { editingHost = .edit($0) },

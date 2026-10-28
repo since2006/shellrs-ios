@@ -1259,6 +1259,36 @@
         }
       }
     },
+    "关闭全部": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close all"
+          }
+        }
+      }
+    },
+    "关闭其他": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close others"
+          }
+        }
+      }
+    },
+    "关闭右侧": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close to the right"
+          }
+        }
+      }
+    },
     "关闭同步": {
       "localizations": {
         "en": {
@@ -1295,6 +1325,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Turn off sync?"
+          }
+        }
+      }
+    },
+    "关闭左侧": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close to the left"
           }
         }
       }
@@ -1427,6 +1467,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The group was deleted"
+          }
+        }
+      }
+    },
+    "列表": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
           }
         }
       }
@@ -2221,6 +2271,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Sync your data between devices, end-to-end encrypted (E2EE): it’s encrypted before it leaves this device, so remote storage holds only ciphertext, and only devices with the password can read it."
+          }
+        }
+      }
+    },
+    "在左边点一台主机连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a host on the left to connect."
           }
         }
       }
@@ -4963,6 +5023,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Waiting for an answer"
+          }
+        }
+      }
+    },
+    "等待输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for input"
           }
         }
       }

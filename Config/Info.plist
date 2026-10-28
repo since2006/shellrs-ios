@@ -4,5 +4,12 @@
 <dict>
 	<key>UIFileSharingEnabled</key>
 	<true/>
+	<!-- One window for now: a terminal's view can be in one window only,
+	     and the terminals are the app's, not a window's. -->
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+	</dict>
 </dict>
 </plist>
