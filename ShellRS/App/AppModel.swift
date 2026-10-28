@@ -63,6 +63,17 @@ final class AppModel {
         session.start()
     }
 
+    /// The app came back to the foreground: the connections may have died
+    /// while it was away, and sync may be due.
+    func cameForward() {
+        for session in sessions {
+            Task {
+                await session.checkAlive()
+            }
+        }
+        sync.cameForward()
+    }
+
     /// Opens the sync page on what sync waits for the user to settle.
     func reviewSync() {
         tab = .settings

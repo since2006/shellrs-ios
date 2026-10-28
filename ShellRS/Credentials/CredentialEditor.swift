@@ -108,7 +108,10 @@ struct CredentialEditor: View {
                         Section {
                             LabeledTextField(
                                 "私钥口令", text: $passphrase,
-                                prompt: Text(source == .generate ? "留空则不加密" : "留空则每次连接都询问"),
+                                prompt: Text(
+                                    source == .generate
+                                        ? String(localized: "留空则不加密")
+                                        : String(localized: "留空则每次连接都询问")),
                                 secure: true)
                         } footer: {
                             Text("密码和口令保存在系统钥匙串，不会写入 ShellRS 的数据库。")
@@ -124,7 +127,9 @@ struct CredentialEditor: View {
                     }
                 }
             }
-            .navigationTitle(subject.credential == nil ? "新建凭据" : "编辑凭据")
+            .navigationTitle(
+                subject.credential == nil
+                    ? String(localized: "新建凭据") : String(localized: "编辑凭据"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -136,7 +141,9 @@ struct CredentialEditor: View {
                     if saving {
                         ProgressView()
                     } else {
-                        Button(subject.credential == nil ? "创建" : "保存") {
+                        Button(
+                            subject.credential == nil
+                                ? String(localized: "创建") : String(localized: "保存")) {
                             Task { await save() }
                         }
                     }
@@ -398,7 +405,10 @@ private struct PublicKeyView: View {
                 .truncationMode(.middle)
                 .textSelection(.enabled)
             HStack(spacing: 20) {
-                Button(copied ? "已复制公钥" : "复制公钥", systemImage: "doc.on.doc") {
+                Button(
+                    copied ? String(localized: "已复制公钥") : String(localized: "复制公钥"),
+                    systemImage: "doc.on.doc"
+                ) {
                     UIPasteboard.general.string = key
                     copied = true
                 }

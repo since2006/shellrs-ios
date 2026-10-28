@@ -55,7 +55,9 @@ struct GroupEditor: View {
                     }
                 }
             }
-            .navigationTitle(subject.group == nil ? "新建分组" : "重命名分组")
+            .navigationTitle(
+                subject.group == nil
+                    ? String(localized: "新建分组") : String(localized: "重命名分组"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -64,7 +66,9 @@ struct GroupEditor: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(subject.group == nil ? "创建" : "保存") {
+                    Button(
+                        subject.group == nil
+                            ? String(localized: "创建") : String(localized: "保存")) {
                         save()
                     }
                 }

@@ -169,7 +169,9 @@ struct HostEditor: View {
                     credential = nil
                 }
             }
-            .navigationTitle(subject.host == nil ? "新建主机" : "编辑主机")
+            .navigationTitle(
+                subject.host == nil
+                    ? String(localized: "新建主机") : String(localized: "编辑主机"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -178,7 +180,9 @@ struct HostEditor: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(subject.host == nil ? "创建" : "保存") {
+                    Button(
+                        subject.host == nil
+                            ? String(localized: "创建") : String(localized: "保存")) {
                         Task { await save() }
                     }
                     .disabled(saving)
@@ -313,7 +317,9 @@ struct HostEditor: View {
                 Text("手机上没有 SSH Agent，请改用密钥凭据")
             }
         } else if usableCredentials.isEmpty {
-            Text(kind == .ssh ? "还没有凭据，可在「凭据」页新建" : "还没有密码凭据，可在「凭据」页新建")
+            Text(
+                kind == .ssh
+                    ? String(localized: "还没有凭据，可在「凭据」页新建") : String(localized: "还没有密码凭据，可在「凭据」页新建"))
         }
     }
 
@@ -365,7 +371,9 @@ struct HostEditor: View {
                 EmptyView()
             case .jump:
                 if jumpCandidates.isEmpty {
-                    Text(jumps.isEmpty ? "还没有其他主机可做跳板" : "其他主机都已添加")
+                    Text(
+                        jumps.isEmpty
+                            ? String(localized: "还没有其他主机可做跳板") : String(localized: "其他主机都已添加"))
                 } else {
                     Text("依次经过跳板主机连接到当前主机，可添加多台。")
                 }

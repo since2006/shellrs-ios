@@ -329,12 +329,22 @@
         }
       }
     },
+    "ShellRS 用到的开源软件，点开看许可证全文。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The open-source software in ShellRS. Tap one to read its license."
+          }
+        }
+      }
+    },
     "Telnet 主机暂时只能在电脑上连接。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Telnet hosts connect only from the computer for now."
+            "value": "For now, Telnet hosts connect only from a computer."
           }
         }
       }
@@ -1225,6 +1235,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld records in all. If you didn’t delete them, cancel: sync waits until you agree."
+          }
+        }
+      }
+    },
+    "关于": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
           }
         }
       }
@@ -2262,7 +2282,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enter a username along with the proxy password."
+            "value": "Enter a username along with the proxy password"
           }
         }
       }
@@ -2397,6 +2417,16 @@
         }
       }
     },
+    "官网": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Website"
+          }
+        }
+      }
+    },
     "密码": {
       "localizations": {
         "en": {
@@ -2472,7 +2502,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The key is still being generated. Try again in a moment."
+            "value": "The key is still being generated. Try again in a moment"
           }
         }
       }
@@ -2795,6 +2825,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Turn on sync"
+          }
+        }
+      }
+    },
+    "开源许可": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open-source licenses"
           }
         }
       }
@@ -3604,7 +3644,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn’t read this file. Choose a private key file."
+            "value": "Couldn’t read this file. Choose a private key file"
           }
         }
       }
@@ -5654,7 +5694,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No credentials yet. Create one in the Credentials tab."
+            "value": "No credentials yet. Create one in the Credentials tab"
           }
         }
       }
@@ -5664,7 +5704,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No password credentials yet. Create one in the Credentials tab."
+            "value": "No password credentials yet. Create one in the Credentials tab"
           }
         }
       }
@@ -5746,7 +5786,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This isn’t an SSH host. For now it connects only on a computer"
+            "value": "This isn’t an SSH host. For now, it connects only from a computer"
           }
         }
       }
@@ -5816,7 +5856,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The public key can’t be read without the key’s passphrase."
+            "value": "The public key can’t be read without the key’s passphrase"
           }
         }
       }

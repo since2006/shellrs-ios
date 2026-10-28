@@ -86,6 +86,31 @@ final class TerminalSession: Identifiable {
         end(nil)
     }
 
+    /// Whether the connection survived the time the app was away: one the
+    /// system closed meanwhile ends the terminal now, through its events.
+    /// One that does not answer in time stays open with no latency shown
+    /// (it may only be slow, and ending it would end the programs running
+    /// there) until the core's keepalive gives up on it.
+    @discardableResult
+    func checkAlive() async -> Bool {
+        guard case .connected = state, let connection else {
+            return false
+        }
+        let attempt = attempt
+        do {
+            let milliseconds = try await connection.checkAlive()
+            if self.attempt == attempt {
+                latency = milliseconds
+            }
+            return true
+        } catch {
+            if self.attempt == attempt {
+                latency = nil
+            }
+            return false
+        }
+    }
+
     /// The files on the host, opening on this terminal's connection.
     func openFiles(downloadsFolder: URL = LocalFolders.downloads) -> FilesModel {
         if let files {

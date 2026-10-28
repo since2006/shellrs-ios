@@ -1,7 +1,9 @@
 #!/bin/sh
 # Builds the ShellRS core from a checkout of shell-rs and puts it where the
 # ShellRSCore package looks for it: the xcframework and its Swift interface,
-# neither of which is committed.
+# neither of which is committed. Then writes the list of open-source
+# licenses again (ShellRS/About/Licenses.json, committed: a change in the
+# core's dependencies shows in its diff).
 #
 #   SHELLRS_DIR  the shell-rs checkout, ../shell-rs unless set
 #
@@ -32,3 +34,6 @@ rm -rf "$package/ShellRSCore.xcframework"
 cp -R "$built/ShellRSCore.xcframework" "$package/"
 cp "$built/Sources/ShellRSCore.swift" "$package/Sources/ShellRSCore/"
 echo "The core is in $package"
+
+# The licenses of what the core links, for 设置 › 开源许可.
+SHELLRS_DIR="$shellrs" python3 scripts/licenses.py

@@ -47,9 +47,13 @@ struct ServerTests {
         try await waitUntil("the command's output shows") {
             session.surface.text.contains("shellrs-42")
         }
+        // Back in the foreground, the connection answers.
+        #expect(await session.checkAlive())
+        #expect(session.latency != nil)
 
         session.disconnect()
         #expect(session.isClosed)
+        #expect(await !session.checkAlive())
         // Enter on a closed terminal connects again, as on the desktop.
         session.surface.onInput(Data([0x0d]))
         try await waitUntil("the password is asked for again") { session.prompt != nil }

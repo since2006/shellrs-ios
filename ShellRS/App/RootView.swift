@@ -48,7 +48,7 @@ struct RootView: View {
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:
-                model.sync.cameForward()
+                model.cameForward()
             case .background:
                 model.sync.goingToBackground()
             default:

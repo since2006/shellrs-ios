@@ -4,6 +4,7 @@ import SwiftUI
 /// What can be pushed in the settings.
 enum SettingsRoute: Hashable {
     case sync
+    case licenses
 }
 
 /// The settings: sync, and what the app is.
@@ -23,8 +24,17 @@ struct SettingsView: View {
                         }
                     }
                 }
-                Section {
+                Section("关于") {
                     LabeledContent("版本", value: Self.version)
+                    Link(destination: Self.website) {
+                        LabeledContent {
+                            Text(verbatim: "shellrs.com")
+                        } label: {
+                            Text("官网")
+                                .foregroundStyle(Color.primary)
+                        }
+                    }
+                    NavigationLink("开源许可", value: SettingsRoute.licenses)
                 }
             }
             .navigationTitle("设置")
@@ -32,10 +42,14 @@ struct SettingsView: View {
                 switch route {
                 case .sync:
                     SyncView(sync: model.sync)
+                case .licenses:
+                    LicensesView()
                 }
             }
         }
     }
+
+    private static let website = URL(string: "https://shellrs.com")!
 
     private static var version: String {
         let info = Bundle.main.infoDictionary

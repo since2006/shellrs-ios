@@ -82,7 +82,9 @@ struct PromptSheet: View {
             Section {
                 secureField(0, label: String(localized: "密码"))
             } footer: {
-                Text(savedRejected ? "已保存的密码被服务器拒绝，请重新输入" : "请输入登录密码")
+                Text(
+                    savedRejected
+                        ? String(localized: "已保存的密码被服务器拒绝，请重新输入") : String(localized: "请输入登录密码"))
             }
         case .passphrase(let keyPath, let savedRejected):
             Section {
@@ -90,7 +92,8 @@ struct PromptSheet: View {
             } footer: {
                 Text(
                     savedRejected
-                        ? "已保存的口令无法解开 \(keyPath)，请重新输入" : "请输入 \(keyPath) 的口令")
+                        ? String(localized: "已保存的口令无法解开 \(keyPath)，请重新输入")
+                        : String(localized: "请输入 \(keyPath) 的口令"))
             }
         case .keyboardInteractive(_, let instructions, let fields, let savedPasswordRejected):
             Section {

@@ -59,7 +59,9 @@ struct HostListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     if !isEmpty {
-                        Button(editMode.isEditing ? "完成" : "排序") {
+                        Button(
+                            editMode.isEditing
+                                ? String(localized: "完成") : String(localized: "排序")) {
                             withAnimation {
                                 editMode = editMode.isEditing ? .inactive : .active
                             }

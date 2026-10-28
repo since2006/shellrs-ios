@@ -13,7 +13,7 @@ rustup target add aarch64-apple-ios aarch64-apple-ios-sim
 ```
 
 1. 把 shell-rs 检出在本仓库旁边（`../shell-rs`），或用 `SHELLRS_DIR` 指过去。
-2. 编核心：`scripts/build-core.sh`。它跑 shell-rs 的 `scripts/build-ios.sh`，把 `ShellRSCore.xcframework` 和生成的 `ShellRSCore.swift` 拷进 `Packages/ShellRSCore`（这两样不进库）。检出的提交和 `Packages/ShellRSCore/core-revision` 不同、或 crates 有没提交的改动时会提醒。
+2. 编核心：`scripts/build-core.sh`。它跑 shell-rs 的 `scripts/build-ios.sh`，把 `ShellRSCore.xcframework` 和生成的 `ShellRSCore.swift` 拷进 `Packages/ShellRSCore`（这两样不进库）。检出的提交和 `Packages/ShellRSCore/core-revision` 不同、或 crates 有没提交的改动时会提醒。最后跑 `scripts/licenses.py` 重写「开源许可」的清单 `ShellRS/About/Licenses.json`（进库；SwiftTerm 的许可证从它的检出里读，还没构建过 App 时沿用清单里版本相同的那条）。
 3. 打开 `ShellRS.xcodeproj`。第一次构建 Xcode 会问是否信任 SwiftTerm 的构建插件 `SwiftTermBuildInfoPlugin`（只生成版本信息），选「Trust & Enable」。
 4. 真机运行要签名：新建 `Config/Local.xcconfig`（不进库），写一行 `DEVELOPMENT_TEAM = 你的 Team ID`。
 
@@ -37,10 +37,11 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - 主机库、凭据和终端会话用真的 `Core`，数据在临时文件夹、钥匙串在内存（`MemoryKeychain`）：密码、代理密码、口令只进钥匙串，数据文件夹里找不到；分组、排序、复制、删除时说的连带；
 - 主机树（`HostTree`）是纯函数，照电脑版的规则建树、搜索；
 - 传输队列（`TransferQueue`）照电脑版的规则：一次一批、停止的批次占着队头、移出和清除；SFTP 的失败链在「无法上传：…」这种自己说原因的一节停下（同电脑版）；没连上时文件页说原因，要传的在队列里等下一次会话；
-- 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句；
-- 同步（`SyncModel`）用两个 `Core` 经临时文件夹同步（核心的文件夹存储，测试里不上网）：创建、加入、密码不对；一边改了停一会儿自己同步出去，另一边回到前台时拿到；别处改了同步密码时等用户输入，期间改动和回到前台都不同步；被别的设备移出后重新加入；关闭后数据留着、不再同步。
+- 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句；关掉的终端检查连接时直接说不在；
+- 同步（`SyncModel`）用两个 `Core` 经临时文件夹同步（核心的文件夹存储，测试里不上网）：创建、加入、密码不对；一边改了停一会儿自己同步出去，另一边回到前台时拿到；别处改了同步密码时等用户输入，期间改动和回到前台都不同步；被别的设备移出后重新加入；关闭后数据留着、不再同步；
+- 开源许可的清单（`Licenses.json`）里有 SwiftTerm、russh、tokio、UniFFI 和 Simple Icons，没有 shell-rs 自己的 crate，每一项都有许可证和全文。
 
-`ServerTests` 连真的 SSH 服务器，只在给了服务器时跑：信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、断开后 Enter 重连；密钥凭据登录（服务器要信任 `ShellRSTests/Support.swift` 里的测试密钥 `testKey`）；给了目标机时经 SSH 跳板连它，再给了 SOCKS5 代理时经代理连它；在终端的连接上开 SFTP：浏览、新建文件夹、上传、下载、同名时问、预览、重命名、删除，传到一半停止再继续，传到一半终端断开、重连后自己接着传，传回来逐字节相同。用 Docker 起一台跳板和一台只在 Docker 网络里的目标机，再经跳板开一个 SOCKS5 代理（密码 `shellrs-test`）：
+`ServerTests` 连真的 SSH 服务器，只在给了服务器时跑：信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、检查连接（量出延迟，断开后说不在）、断开后 Enter 重连；密钥凭据登录（服务器要信任 `ShellRSTests/Support.swift` 里的测试密钥 `testKey`）；给了目标机时经 SSH 跳板连它，再给了 SOCKS5 代理时经代理连它；在终端的连接上开 SFTP：浏览、新建文件夹、上传、下载、同名时问、预览、重命名、删除，传到一半停止再继续，传到一半终端断开、重连后自己接着传，传回来逐字节相同。用 Docker 起一台跳板和一台只在 Docker 网络里的目标机，再经跳板开一个 SOCKS5 代理（密码 `shellrs-test`）：
 
 ```sh
 docker network create shellrs-test
@@ -65,28 +66,32 @@ xcodebuild … test
 
 ## 目录
 
-- `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端）、`AppKeychain`、标签页（前后台切换时告诉同步）、设置页、表单里带标签的输入框。
+- `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端）、`AppKeychain`、标签页（前后台切换时告诉同步，回到前台时检查终端的连接）、设置页（云同步、关于）、表单里带标签的输入框。
 - `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
 - `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、终端页、问答、打开的终端列表。
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览、传输队列页、已下载的文件。
 - `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）。
 - `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`，同步的在 `DescribeSync.swift`），删除前说的连带。
+- `ShellRS/About`：「开源许可」页和它的清单 `Licenses.json`（`scripts/licenses.py` 生成，不手改）。
 - `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。
 - `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
 - `ShellRS/Localizable.xcstrings`：全部文案。
 - `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
+- `scripts`：`build-core.sh`（编核心）、`licenses.py`（开源许可的清单）、`license-texts`（crate 没带许可证文件时用的标准全文）。
 
 ## 约定
 
 - **核心不产出文案。** 失败是一串类型化的环节（`Failure.links`），`Describe` 逐节翻译、用「: 」连起来，措辞照电脑版的 `locales/*.yml`；`switch` 写全，核心加了变体这里就编不过，要补上文案。
-- **文案**：中文是源语言，代码里直接写中文（`Text("主机")`、`String(localized:)`），英文在 `Localizable.xcstrings`；用词照 shell-rs 的 `CLAUDE.md` 用词表。插值先转成 `String`（`%@`）；数量用 `Int`（`%lld`），英文在 String Catalog 里分单复数。
+- **文案**：中文是源语言，代码里直接写中文（`Text("主机")`、`String(localized:)`），英文在 `Localizable.xcstrings`；用词照 shell-rs 的 `CLAUDE.md` 用词表。插值先转成 `String`（`%@`）；数量用 `Int`（`%lld`），英文在 String Catalog 里分单复数。三目运算挑两个字面量交给 `Text`、`Button`、`navigationTitle` 时走的是 `String` 的重载、不翻译，每个分支要写成 `String(localized:)`。
 - **秘密只进钥匙串**：密码、口令经核心写进 `AppKeychain`（`AfterFirstUnlockThisDeviceOnly`，不随备份去别的设备，靠 ShellRS 自己的同步走），数据库里没有秘密。
 - **事件只拉不推**：每个核心对象一个 `Task` 循环 `nextEvent()` 到 `nil`，在主 actor 上更新模型。
 - 核心的 `Group` 和 SwiftUI 的 `Group` 重名，视图里用别名 `HostGroup`。
 - **标签各自记着打开时的主机**（同电脑版）：编辑、删除主机不碰已打开的终端；重新连接时按保存的主机再连。
 - 断开的终端按 Enter 重连、按 Space 关闭（同电脑版），也有按钮。
+- **回到前台时检查每个终端的连接**（`checkAlive`）：在后台时被系统关掉的，马上显示断开条；5 秒没回应的不主动断开（可能只是慢，断了会结束服务器上正在跑的程序），只是不显示延迟，等核心的心跳放弃（约一分半）再显示断开条。
 - **SFTP 开在终端自己的连接上**（同电脑版右侧栏的「文件」，堡垒机上不用再登录一次）：终端断开它就断，终端重连后它自己开回来，传到一半的批次接着传，不再问是否续传（已经说过「继续」）。手机上的连接断了不会回来，所以不等引擎重试，终端一断就放下会话。
 - **传输一次一批**，排队在 App 里（同电脑版）。下载放 `Documents/Downloads`（「文件」App 的「我的 iPhone › ShellRS」里看得到），点文件是下到缓存里用快速查看预览；上传先把选的文件拷进临时目录（选的文件到时可能已经拿不到），批次结束就删，启动时清掉上次留下的。
 - **什么时候同步**（照核心 README，同电脑版）：启动和回到前台（一分钟内只一次）、改了要同步的东西后停 5 秒（`status().hasChanges` 为真才排）、进后台前有改动就借系统给的后台时间同步一轮；不定时轮询。出错只写在云同步页；要用户处理的（别处改了同步密码、被重置、被移出、一次删很多、登录被拒）弹一次提示、设置标签上有标记，处理完之前不自动同步。位置只有 WebDAV 和 S3，WebDAV 密码、S3 Secret Key 和同步密钥只进钥匙串（账户名同电脑版）。
+- **开源许可**：清单只列 iOS 上真链接进 App 的（shellrs-mobile 的普通依赖，不含过程宏和 shell-rs 自己的 crate，加上 SwiftTerm 和 Simple Icons）；可以选许可证的（`MIT OR Apache-2.0`）列选用的那个，MIT 优先；同时适用几个的全列。升级依赖后重跑 `scripts/build-core.sh`，`Licenses.json` 跟着改动一起提交。
 - 核心接口缺东西就改 shell-rs 的 `crates/shellrs-mobile`（单独提交、照那边的规矩测），再更新 `core-revision`、重跑 `scripts/build-core.sh`。

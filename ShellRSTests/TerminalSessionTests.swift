@@ -30,6 +30,8 @@ struct TerminalSessionTests {
             return
         }
         #expect(reason.contains(String(localized: "连接被拒绝，该端口上没有服务在监听")), "\(reason)")
+        // Nothing to check once closed.
+        #expect(await !session.checkAlive())
     }
 
     @Test func aDeletedHostDoesNotConnect() async throws {
