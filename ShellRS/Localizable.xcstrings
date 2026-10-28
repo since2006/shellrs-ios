@@ -33,6 +33,16 @@
         }
       }
     },
+    "%@ · ShellRS %@ · 上次同步 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · ShellRS %@ · last synced %@"
+          }
+        }
+      }
+    },
     "%@ 副本": {
       "localizations": {
         "en": {
@@ -129,12 +139,72 @@
         }
       }
     },
+    "AWS S3，或 Cloudflare R2、MinIO、阿里云 OSS、腾讯云 COS 等兼容 S3 的对象存储。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AWS S3, or object storage that speaks its API, such as Cloudflare R2, MinIO, Alibaba Cloud OSS or Tencent Cloud COS."
+          }
+        }
+      }
+    },
+    "Access Key ID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access key ID"
+          }
+        }
+      }
+    },
     "HTTP 代理": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "HTTP proxy"
+          }
+        }
+      }
+    },
+    "Nextcloud、群晖等支持 WebDAV 的网盘或服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A cloud drive or server that speaks WebDAV, such as Nextcloud or a Synology NAS."
+          }
+        }
+      }
+    },
+    "S3 位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S3 location"
+          }
+        }
+      }
+    },
+    "S3 存储桶": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S3 bucket"
+          }
+        }
+      }
+    },
+    "S3 访问密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S3 access key"
           }
         }
       }
@@ -239,6 +309,16 @@
         }
       }
     },
+    "Secret Access Key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secret access key"
+          }
+        }
+      }
+    },
     "ShellRS 无法启动": {
       "localizations": {
         "en": {
@@ -265,6 +345,36 @@
           "stringUnit": {
             "state": "translated",
             "value": "Log in automatically"
+          }
+        }
+      }
+    },
+    "WebDAV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WebDAV"
+          }
+        }
+      }
+    },
+    "WebDAV 地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WebDAV address"
+          }
+        }
+      }
+    },
+    "WebDAV 账号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WebDAV login"
           }
         }
       }
@@ -319,6 +429,16 @@
         }
       }
     },
+    "上次同步：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last synced %@"
+          }
+        }
+      }
+    },
     "上移": {
       "localizations": {
         "en": {
@@ -335,6 +455,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Parent group"
+          }
+        }
+      }
+    },
+    "下一步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
           }
         }
       }
@@ -425,6 +555,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Discard partial transfer"
+          }
+        }
+      }
+    },
+    "两次输入的同步密码不一样。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two passwords don’t match."
           }
         }
       }
@@ -535,6 +675,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Home"
+          }
+        }
+      }
+    },
+    "云同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud sync"
           }
         }
       }
@@ -1069,6 +1219,16 @@
         }
       }
     },
+    "共 %lld 条记录。如果不是你删的，选「取消」，同步会暂停，直到你确认。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld records in all. If you didn’t delete them, cancel: sync waits until you agree."
+          }
+        }
+      }
+    },
     "关闭": {
       "localizations": {
         "en": {
@@ -1079,12 +1239,82 @@
         }
       }
     },
+    "关闭同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off sync"
+          }
+        }
+      }
+    },
+    "关闭同步…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off sync…"
+          }
+        }
+      }
+    },
+    "关闭同步并删除这台设备的同步文件": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off and delete this device’s sync file"
+          }
+        }
+      }
+    },
+    "关闭同步？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off sync?"
+          }
+        }
+      }
+    },
     "其他主机都已添加": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "All other hosts are added"
+          }
+        }
+      }
+    },
+    "其他设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other devices"
+          }
+        }
+      }
+    },
+    "其他设备上显示为“%@”。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other devices list it as “%@”."
+          }
+        }
+      }
+    },
+    "再输入一次": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm password"
           }
         }
       }
@@ -1197,6 +1427,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Duplicate"
+          }
+        }
+      }
+    },
+    "创建同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up sync"
           }
         }
       }
@@ -1323,6 +1563,36 @@
         }
       }
     },
+    "加入同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join sync"
+          }
+        }
+      }
+    },
+    "区域": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Region"
+          }
+        }
+      }
+    },
+    "区域留空就是 us-east-1，Cloudflare R2 填 auto。阿里云 OSS、腾讯云 COS 等填它们兼容 S3 的服务地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An empty region is us-east-1; Cloudflare R2’s is auto. For Alibaba Cloud OSS, Tencent Cloud COS and the like, enter their S3-compatible endpoint."
+          }
+        }
+      }
+    },
     "协议": {
       "localizations": {
         "en": {
@@ -1443,6 +1713,36 @@
         }
       }
     },
+    "另一台设备刚在这个文件夹里开启了同步。重新开启同步，改为加入它。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another device just set up sync in this folder. Turn on sync again to join it."
+          }
+        }
+      }
+    },
+    "另一台设备把这台设备移出了同步。重新加入会把这台设备的数据再写回同步文件夹。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another device removed this device from sync. Rejoining writes this device’s data back to the sync folder."
+          }
+        }
+      }
+    },
+    "另一台设备的 ShellRS 更新，这台设备升级后才能继续同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another device runs a newer ShellRS. Update this device to keep syncing."
+          }
+        }
+      }
+    },
     "只在服务器不支持 Ed25519 时选它（OpenSSH 6.5 以前）。": {
       "localizations": {
         "en": {
@@ -1469,6 +1769,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Only hidden files"
+          }
+        }
+      }
+    },
+    "只能重新登录同步正在用的位置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can sign in again only to the location sync uses."
           }
         }
       }
@@ -1513,12 +1823,284 @@
         }
       }
     },
+    "同时换一把新的数据密钥：已移除的设备即使知道旧密码，也读不了之后的数据。别的设备下次同步时要输入新密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A new data key comes with it, so a removed device can’t read anything newer even with the old password. Your other devices ask for the new password when they next sync."
+          }
+        }
+      }
+    },
+    "同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync"
+          }
+        }
+      }
+    },
+    "同步密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync password"
+          }
+        }
+      }
+    },
+    "同步密码不对。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s not the sync password."
+          }
+        }
+      }
+    },
+    "同步密码已在别的设备上更改。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync password was changed on another device."
+          }
+        }
+      }
+    },
+    "同步密码已在别的设备上更改，输入新密码后继续同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync password was changed on another device. Enter the new one to keep syncing."
+          }
+        }
+      }
+    },
+    "同步密码至少要 %lld 个字符。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "The sync password needs at least %lld character."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "The sync password needs at least %lld characters."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "同步已关闭。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync is off."
+          }
+        }
+      }
+    },
+    "同步已在别的设备上重置。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync was reset on another device."
+          }
+        }
+      }
+    },
+    "同步已在别的设备上重置。输入现在的同步密码重新加入，这台设备上的数据会和其他设备的合并。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync was reset on another device. Enter its sync password to rejoin; what’s on this device is merged with the other devices’."
+          }
+        }
+      }
+    },
+    "同步已在别的设备上重置，重新加入后继续同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync was reset on another device. Rejoin it to keep syncing."
+          }
+        }
+      }
+    },
+    "同步已设好，但没能记下同步的位置，下次打开 ShellRS 时同步是关闭的：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync is set up, but where it goes couldn’t be saved, so it’s off the next time ShellRS opens: %@"
+          }
+        }
+      }
+    },
+    "同步文件夹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync folder"
+          }
+        }
+      }
+    },
+    "同步文件夹暂时用不了：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync folder isn’t available for now: %@"
+          }
+        }
+      }
+    },
+    "同步文件夹没有响应。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync folder isn’t responding."
+          }
+        }
+      }
+    },
+    "同步文件夹里找不到需要的文件。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A file sync needs isn’t in the sync folder."
+          }
+        }
+      }
+    },
+    "同步文件夹里有文件大得不正常。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A file in the sync folder is unusually large."
+          }
+        }
+      }
+    },
+    "同步文件夹里没有同步数据。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync folder has no sync data."
+          }
+        }
+      }
+    },
+    "同步文件夹里的 vault.json 已损坏：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The vault.json in the sync folder is damaged: %@"
+          }
+        }
+      }
+    },
+    "同步文件夹里的文件刚被别的设备改过，稍后再试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another device just changed the files in the sync folder. Try again later."
+          }
+        }
+      }
+    },
+    "同步期间数据一直在变，下次再同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The data kept changing while syncing. It syncs next time."
+          }
+        }
+      }
+    },
     "同步来的密码未能存进钥匙串：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t keep a synced password in the keychain: %@"
+          }
+        }
+      }
+    },
+    "同步来的改动未能保存，这一轮没有应用：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save what sync brought, so none of it was applied: %@"
+          }
+        }
+      }
+    },
+    "同步状态未能保存：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t save the sync state: %@"
+          }
+        }
+      }
+    },
+    "同步的位置拒绝了访问：检查用户名和密码，或文件夹的权限。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync location refused access. Check the username and password, or the folder’s permissions."
+          }
+        }
+      }
+    },
+    "同步的位置拒绝了这台设备的登录信息，重新登录后继续同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync location refused this device’s login. Sign in again to keep syncing."
+          }
+        }
+      }
+    },
+    "同步里没有这台设备。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That device isn’t in sync."
           }
         }
       }
@@ -1613,6 +2195,38 @@
         }
       }
     },
+    "在几台设备之间同步数据，数据使用端到端加密（E2EE）：离开这台设备前就已加密，远端只有密文，只有拥有密码的设备能解开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync your data between devices, end-to-end encrypted (E2EE): it’s encrypted before it leaves this device, so remote storage holds only ciphertext, and only devices with the password can read it."
+          }
+        }
+      }
+    },
+    "在所有设备上删除 %lld 条记录？": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld record everywhere?"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Delete %lld records everywhere?"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "地址": {
       "localizations": {
         "en": {
@@ -1623,12 +2237,42 @@
         }
       }
     },
+    "地址是服务器上放同步数据的文件夹，不存在会自动建。Nextcloud 要用「设置 › 安全」里生成的应用密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address is the server folder sync goes in; it’s made if missing. For Nextcloud, use an app password from “Settings › Security”."
+          }
+        }
+      }
+    },
+    "地址要以 https:// 或 http:// 开头，比如 https://dav.example.com/ShellRS。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address starts with https:// or http://, such as https://dav.example.com/ShellRS."
+          }
+        }
+      }
+    },
     "填写代理密码时请同时填写用户名": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Enter a username along with the proxy password."
+          }
+        }
+      }
+    },
+    "处理…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review…"
           }
         }
       }
@@ -1703,6 +2347,16 @@
         }
       }
     },
+    "存储桶": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bucket"
+          }
+        }
+      }
+    },
     "存储空间已满": {
       "localizations": {
         "en": {
@@ -1719,6 +2373,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Both a recovery backup and the destination file exist. Check the remote folder first; nothing was deleted"
+          }
+        }
+      }
+    },
+    "它在同步文件夹里的文件会被删除。如果设备丢失了，接着更换同步密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Its file in the sync folder is deleted. If the device is lost, change the sync password next."
           }
         }
       }
@@ -1875,6 +2539,16 @@
         }
       }
     },
+    "尚未同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not synced yet"
+          }
+        }
+      }
+    },
     "已下载的文件": {
       "localizations": {
         "en": {
@@ -1981,6 +2655,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Done"
+          }
+        }
+      }
+    },
+    "已开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On"
           }
         }
       }
@@ -2105,6 +2789,36 @@
         }
       }
     },
+    "开启同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn on sync"
+          }
+        }
+      }
+    },
+    "必填": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Required"
+          }
+        }
+      }
+    },
+    "忘了同步密码就无法找回，记在安全的地方。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A forgotten sync password can’t be recovered. Keep it somewhere safe."
+          }
+        }
+      }
+    },
     "恢复备份已变化，停止替换": {
       "localizations": {
         "en": {
@@ -2221,6 +2935,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hide"
+          }
+        }
+      }
+    },
+    "数据密钥一起换新，已移除的设备即使知道旧密码也读不了之后的数据。别的设备下次同步时要输入新密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The data key is changed with it, so a removed device can’t read anything newer even with the old password. Your other devices ask for the new password when they next sync."
           }
         }
       }
@@ -2471,6 +3195,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "New folder…"
+          }
+        }
+      }
+    },
+    "新的同步密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New sync password"
           }
         }
       }
@@ -2915,6 +3649,16 @@
         }
       }
     },
+    "显示密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show password"
+          }
+        }
+      }
+    },
     "显示隐藏文件": {
       "localizations": {
         "en": {
@@ -2931,6 +3675,56 @@
           "stringUnit": {
             "state": "translated",
             "value": "More"
+          }
+        }
+      }
+    },
+    "更换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        }
+      }
+    },
+    "更换 S3 访问密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change S3 access key"
+          }
+        }
+      }
+    },
+    "更换…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change…"
+          }
+        }
+      }
+    },
+    "更换同步密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change sync password"
+          }
+        }
+      }
+    },
+    "更换同步密码…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change sync password…"
           }
         }
       }
@@ -3263,6 +4057,26 @@
         }
       }
     },
+    "服务地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endpoint"
+          }
+        }
+      }
+    },
+    "服务地址要以 https:// 或 http:// 开头，比如 Cloudflare R2 的 https://<ACCOUNT_ID>.r2.cloudflarestorage.com。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The endpoint starts with https:// or http://, such as Cloudflare R2’s https://<ACCOUNT_ID>.r2.cloudflarestorage.com."
+          }
+        }
+      }
+    },
     "未填写密码": {
       "localizations": {
         "en": {
@@ -3273,12 +4087,72 @@
         }
       }
     },
+    "未开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
     "未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t save to the local database: %@"
+          }
+        }
+      }
+    },
+    "未能关闭同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t turn off sync"
+          }
+        }
+      }
+    },
+    "未能创建同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t set up sync"
+          }
+        }
+      }
+    },
+    "未能加入同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t join sync"
+          }
+        }
+      }
+    },
+    "未能同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t sync"
+          }
+        }
+      }
+    },
+    "未能更换同步密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t change the sync password"
           }
         }
       }
@@ -3373,12 +4247,82 @@
         }
       }
     },
+    "查看…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review…"
+          }
+        }
+      }
+    },
+    "桶里的文件夹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder in the bucket"
+          }
+        }
+      }
+    },
+    "正在创建同步…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting up sync…"
+          }
+        }
+      }
+    },
+    "正在加入同步…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joining sync…"
+          }
+        }
+      }
+    },
+    "正在同步…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing…"
+          }
+        }
+      }
+    },
+    "正在同步，等这一轮结束再试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync is running. Try again once it’s done."
+          }
+        }
+      }
+    },
     "正在扫描": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Scanning"
+          }
+        }
+      }
+    },
+    "正在更换…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changing…"
           }
         }
       }
@@ -3483,6 +4427,16 @@
         }
       }
     },
+    "测试连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test connection"
+          }
+        }
+      }
+    },
     "添加跳板主机": {
       "localizations": {
         "en": {
@@ -3533,6 +4487,16 @@
         }
       }
     },
+    "状态": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        }
+      }
+    },
     "生成密钥…": {
       "localizations": {
         "en": {
@@ -3549,6 +4513,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Generate"
+          }
+        }
+      }
+    },
+    "生成随机密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Generate password"
           }
         }
       }
@@ -3843,12 +4817,62 @@
         }
       }
     },
+    "移除“%@”？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove “%@”?"
+          }
+        }
+      }
+    },
+    "移除…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove…"
+          }
+        }
+      }
+    },
+    "移除丢失的设备后，再更换同步密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After removing a lost device, change the sync password."
+          }
+        }
+      }
+    },
+    "稍后": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Later"
+          }
+        }
+      }
+    },
     "空目录": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Empty folder"
+          }
+        }
+      }
+    },
+    "立即同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync now"
           }
         }
       }
@@ -3943,6 +4967,16 @@
         }
       }
     },
+    "系统的随机数源出错了。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The system’s random number source failed."
+          }
+        }
+      }
+    },
     "终端": {
       "localizations": {
         "en": {
@@ -3999,6 +5033,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Resume download"
+          }
+        }
+      }
+    },
+    "继续同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep syncing"
           }
         }
       }
@@ -4183,6 +5227,16 @@
         }
       }
     },
+    "设备未能移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t remove the device"
+          }
+        }
+      }
+    },
     "设置": {
       "localizations": {
         "en": {
@@ -4323,6 +5377,16 @@
         }
       }
     },
+    "读写同步文件夹失败：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read or write the sync folder: %@"
+          }
+        }
+      }
+    },
     "调整主机顺序未能保存到本地数据库：%@": {
       "localizations": {
         "en": {
@@ -4339,6 +5403,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t resize the remote terminal"
+          }
+        }
+      }
+    },
+    "路径式地址（MinIO 等自建的服务要打开）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path-style addresses (for MinIO and other self-hosted services)"
           }
         }
       }
@@ -4413,6 +5487,86 @@
         }
       }
     },
+    "输入 Access Key ID。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the access key ID."
+          }
+        }
+      }
+    },
+    "输入 Secret Access Key。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the secret access key."
+          }
+        }
+      }
+    },
+    "输入同步密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the sync password."
+          }
+        }
+      }
+    },
+    "输入存储桶的名称。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the bucket’s name."
+          }
+        }
+      }
+    },
+    "输入密码…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter password…"
+          }
+        }
+      }
+    },
+    "输入密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the password."
+          }
+        }
+      }
+    },
+    "输入新的同步密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the new sync password"
+          }
+        }
+      }
+    },
+    "输入用户名。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the username."
+          }
+        }
+      }
+    },
     "输出太快，跳过了 %@ 字节": {
       "localizations": {
         "en": {
@@ -4441,6 +5595,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "还没有。在另一台设备上开启同步，选同一个文件夹。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None yet. Turn on sync on another device and pick the same folder."
           }
         }
       }
@@ -4505,6 +5669,36 @@
         }
       }
     },
+    "这个文件夹里已有同步。输入创建时设的同步密码，这台设备上的数据会和其他设备的合并。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder has sync already. Enter its sync password; what’s on this device is merged with the other devices’."
+          }
+        }
+      }
+    },
+    "这个文件夹里的同步来自更新版本的 ShellRS，升级后才能使用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sync in this folder is from a newer ShellRS. Update to use it."
+          }
+        }
+      }
+    },
+    "这个文件夹里还没有同步。设一个同步密码，别的设备加入时要输入它。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder has no sync yet. Choose a sync password; your other devices ask for it when they join."
+          }
+        }
+      }
+    },
     "这个终端经由堡垒机打开，只能使用终端本身，不能另外打开文件": {
       "localizations": {
         "en": {
@@ -4557,6 +5751,56 @@
         }
       }
     },
+    "这台设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device"
+          }
+        }
+      }
+    },
+    "这台设备上没有可用的系统钥匙串，同步的密钥无处保存。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device has no keychain to keep the sync keys in."
+          }
+        }
+      }
+    },
+    "这台设备上的数据保留不动，之后的改动不再同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What’s on this device stays as it is; later changes aren’t synced."
+          }
+        }
+      }
+    },
+    "这台设备已在别的设备上被移出同步，同步已暂停。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device was removed from sync on another device. Sync is paused."
+          }
+        }
+      }
+    },
+    "这台设备的同步状态读不出来：%@。关闭同步再开启即可恢复。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device’s sync state can’t be read: %@. Turn sync off and on again to recover."
+          }
+        }
+      }
+    },
     "这把私钥由 ShellRS 保存，删除凭据时会一起删除。": {
       "localizations": {
         "en": {
@@ -4583,6 +5827,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "This is a public key. Paste the private key"
+          }
+        }
+      }
+    },
+    "这次同步会删除 %lld 条记录中的 %lld 条。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This sync would delete %2$lld of %1$lld records."
+          }
+        }
+      }
+    },
+    "这次同步会删除 %lld 条记录，等你确认。": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "This sync would delete %lld record. It waits for you to agree."
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "This sync would delete %lld records. It waits for you to agree."
+                }
+              }
+            }
           }
         }
       }
@@ -4707,12 +5983,52 @@
         }
       }
     },
+    "连接 S3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect S3"
+          }
+        }
+      }
+    },
+    "连接 WebDAV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect WebDAV"
+          }
+        }
+      }
+    },
     "连接中断，传输进度已保留": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The connection dropped. Transfer progress is kept"
+          }
+        }
+      }
+    },
+    "连接失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t connect"
+          }
+        }
+      }
+    },
+    "连接失败：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t connect: %@"
           }
         }
       }
@@ -4733,6 +6049,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "the connection was lost"
+          }
+        }
+      }
+    },
+    "连接成功，可以在这里读写。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected. Sync can read and write there."
           }
         }
       }
@@ -4919,6 +6245,66 @@
         }
       }
     },
+    "重新加入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoin"
+          }
+        }
+      }
+    },
+    "重新加入…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoin…"
+          }
+        }
+      }
+    },
+    "重新加入同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoin sync"
+          }
+        }
+      }
+    },
+    "重新加入同步？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rejoin sync?"
+          }
+        }
+      }
+    },
+    "重新登录 WebDAV": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to WebDAV"
+          }
+        }
+      }
+    },
+    "重新登录…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in…"
+          }
+        }
+      }
+    },
     "重新连接": {
       "localizations": {
         "en": {
@@ -4949,6 +6335,26 @@
         }
       }
     },
+    "钥匙串里没有同步位置的密码或密钥。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The keychain doesn’t have the sync location’s password or key."
+          }
+        }
+      }
+    },
+    "钥匙串里没有同步的密钥，需要再输入一次同步密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The keychain doesn’t have the sync keys. Enter the sync password again."
+          }
+        }
+      }
+    },
     "链接": {
       "localizations": {
         "en": {
@@ -4965,6 +6371,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "The link target isn’t valid UTF-8"
+          }
+        }
+      }
+    },
+    "隐藏密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide password"
+          }
+        }
+      }
+    },
+    "需要处理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needs attention"
           }
         }
       }

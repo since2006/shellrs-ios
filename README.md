@@ -1,6 +1,6 @@
 # ShellRS for iOS
 
-ShellRS 的 iPhone / iPad 版：SSH 主机管理、终端和 SFTP 文件。连接、主机库、同步都在 Rust 核心里（[shell-rs](https://github.com/since2006/shell-rs) 的 `crates/shellrs-mobile`，经 UniFFI 生成 Swift 接口），和电脑上的 ShellRS 共用同一套逻辑和数据格式；终端模拟用 [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)。
+ShellRS 的 iPhone / iPad 版：SSH 主机管理、终端、SFTP 文件和云同步。连接、主机库、同步都在 Rust 核心里（[shell-rs](https://github.com/since2006/shell-rs) 的 `crates/shellrs-mobile`，经 UniFFI 生成 Swift 接口），和电脑上的 ShellRS 共用同一套逻辑和数据格式；终端模拟用 [SwiftTerm](https://github.com/migueldeicaza/SwiftTerm)。
 
 最低 iOS 17，Bundle ID `com.shellrs.ios`（钥匙串跟它绑定，发布后不能改）。
 
@@ -37,7 +37,8 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - 主机库、凭据和终端会话用真的 `Core`，数据在临时文件夹、钥匙串在内存（`MemoryKeychain`）：密码、代理密码、口令只进钥匙串，数据文件夹里找不到；分组、排序、复制、删除时说的连带；
 - 主机树（`HostTree`）是纯函数，照电脑版的规则建树、搜索；
 - 传输队列（`TransferQueue`）照电脑版的规则：一次一批、停止的批次占着队头、移出和清除；SFTP 的失败链在「无法上传：…」这种自己说原因的一节停下（同电脑版）；没连上时文件页说原因，要传的在队列里等下一次会话；
-- 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句。
+- 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句；
+- 同步（`SyncModel`）用两个 `Core` 经临时文件夹同步（核心的文件夹存储，测试里不上网）：创建、加入、密码不对；一边改了停一会儿自己同步出去，另一边回到前台时拿到；别处改了同步密码时等用户输入，期间改动和回到前台都不同步；被别的设备移出后重新加入；关闭后数据留着、不再同步。
 
 `ServerTests` 连真的 SSH 服务器，只在给了服务器时跑：信任主机密钥、密码问答、命令输出出现在 SwiftTerm 的屏幕上、断开后 Enter 重连；密钥凭据登录（服务器要信任 `ShellRSTests/Support.swift` 里的测试密钥 `testKey`）；给了目标机时经 SSH 跳板连它，再给了 SOCKS5 代理时经代理连它；在终端的连接上开 SFTP：浏览、新建文件夹、上传、下载、同名时问、预览、重命名、删除，传到一半停止再继续，传到一半终端断开、重连后自己接着传，传回来逐字节相同。用 Docker 起一台跳板和一台只在 Docker 网络里的目标机，再经跳板开一个 SOCKS5 代理（密码 `shellrs-test`）：
 
@@ -64,12 +65,14 @@ xcodebuild … test
 
 ## 目录
 
-- `ShellRS/App`：入口、`AppModel`（核心、主机、打开的终端）、`AppKeychain`、标签页、表单里带标签的输入框。
+- `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端）、`AppKeychain`、标签页（前后台切换时告诉同步）、设置页、表单里带标签的输入框。
 - `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
 - `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、终端页、问答、打开的终端列表。
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览、传输队列页、已下载的文件。
-- `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`），删除前说的连带。
+- `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）。
+- `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`，同步的在 `DescribeSync.swift`），删除前说的连带。
+- `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。
 - `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
 - `ShellRS/Localizable.xcstrings`：全部文案。
 - `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
@@ -85,4 +88,5 @@ xcodebuild … test
 - 断开的终端按 Enter 重连、按 Space 关闭（同电脑版），也有按钮。
 - **SFTP 开在终端自己的连接上**（同电脑版右侧栏的「文件」，堡垒机上不用再登录一次）：终端断开它就断，终端重连后它自己开回来，传到一半的批次接着传，不再问是否续传（已经说过「继续」）。手机上的连接断了不会回来，所以不等引擎重试，终端一断就放下会话。
 - **传输一次一批**，排队在 App 里（同电脑版）。下载放 `Documents/Downloads`（「文件」App 的「我的 iPhone › ShellRS」里看得到），点文件是下到缓存里用快速查看预览；上传先把选的文件拷进临时目录（选的文件到时可能已经拿不到），批次结束就删，启动时清掉上次留下的。
+- **什么时候同步**（照核心 README，同电脑版）：启动和回到前台（一分钟内只一次）、改了要同步的东西后停 5 秒（`status().hasChanges` 为真才排）、进后台前有改动就借系统给的后台时间同步一轮；不定时轮询。出错只写在云同步页；要用户处理的（别处改了同步密码、被重置、被移出、一次删很多、登录被拒）弹一次提示、设置标签上有标记，处理完之前不自动同步。位置只有 WebDAV 和 S3，WebDAV 密码、S3 Secret Key 和同步密钥只进钥匙串（账户名同电脑版）。
 - 核心接口缺东西就改 shell-rs 的 `crates/shellrs-mobile`（单独提交、照那边的规矩测），再更新 `core-revision`、重跑 `scripts/build-core.sh`。

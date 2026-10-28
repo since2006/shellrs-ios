@@ -19,6 +19,8 @@ final class HostsModel {
     private(set) var recent: [Host] = []
     /// What the store could not keep, until the user has seen it.
     var problem: String?
+    /// Told when the store changed, by the user or by sync.
+    var onChange: (@MainActor () -> Void)?
 
     init(store: HostStore) {
         self.store = store
@@ -29,6 +31,7 @@ final class HostsModel {
                 switch event {
                 case .changed:
                     reload()
+                    onChange?()
                 case .failed(let failure):
                     problem = Describe.storeFailure(failure)
                 }

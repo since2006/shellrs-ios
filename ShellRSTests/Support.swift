@@ -35,12 +35,13 @@ final class TestCore {
     let keychain = MemoryKeychain()
     let core: Core
 
-    init() throws {
+    /// `name` is what other devices in sync call it.
+    init(name: String = "Test") throws {
         folder = FileManager.default.temporaryDirectory
             .appending(path: "shellrs-tests-\(UUID().uuidString)", directoryHint: .isDirectory)
         core = try Core(
             config: CoreConfig(
-                dataDir: folder.path, deviceName: "Test", platform: "ios", appVersion: "0"),
+                dataDir: folder.path, deviceName: name, platform: "ios", appVersion: "0"),
             keychain: keychain)
     }
 

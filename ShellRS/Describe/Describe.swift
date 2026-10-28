@@ -181,7 +181,7 @@ enum Describe {
         }
     }
 
-    private static func secret(_ problem: SecretProblem) -> String {
+    static func secret(_ problem: SecretProblem) -> String {
         switch problem {
         case .unavailable:
             String(localized: "钥匙串现在不可用")
