@@ -17,6 +17,8 @@ struct HostList: View {
     @Environment(AppModel.self) private var model
     @State private var query = ""
     @State private var searchShown = false
+    /// The groups folded in the search's results, for this search only.
+    @State private var foldedInSearch: Set<UInt64> = []
     @State private var editMode = EditMode.inactive
     @State private var editingHost: HostEditor.Subject?
     @State private var editingGroup: GroupEditor.Subject?
@@ -41,7 +43,9 @@ struct HostList: View {
                 }
             }
             Section {
-                HostLevel(tree: tree, searching: searching, actions: actions)
+                HostLevel(
+                    tree: tree, searching: searching, foldedInSearch: $foldedInSearch,
+                    actions: actions)
             } header: {
                 if showsRecent {
                     Text("全部主机")
@@ -50,6 +54,10 @@ struct HostList: View {
         }
         .environment(\.editMode, $editMode)
         .searchable(text: $query, isPresented: $searchShown, prompt: "搜索主机或分组")
+        // Each search opens every group again, as the desktop's does.
+        .onChange(of: query) {
+            foldedInSearch = []
+        }
         // ⌘N, ⌘⇧N and ⌘K, once the list is shown.
         .onChange(of: model.hostListRequest, initial: true) { _, request in
             guard let request else {
@@ -222,15 +230,19 @@ private enum Deletion {
 /// the core keeps them.
 private struct HostLevel: View {
     let tree: HostTree
-    /// Every group is open, and nothing moves.
+    /// Every group opens, and nothing moves.
     let searching: Bool
+    /// The groups folded in the search's results.
+    @Binding var foldedInSearch: Set<UInt64>
     let actions: HostActions
     @Environment(AppModel.self) private var model
 
     var body: some View {
         ForEach(tree.branches) { branch in
             DisclosureGroup(isExpanded: expanded(branch.group)) {
-                HostLevel(tree: branch.tree, searching: searching, actions: actions)
+                HostLevel(
+                    tree: branch.tree, searching: searching, foldedInSearch: $foldedInSearch,
+                    actions: actions)
             } label: {
                 GroupRow(group: branch.group, actions: actions)
             }
@@ -249,13 +261,18 @@ private struct HostLevel: View {
     }
 
     /// Open or not as the core keeps it, so the desktop's choice comes along
-    /// with sync.
+    /// with sync. A search's results open every group, and fold one for the
+    /// search only, as the desktop's: what is kept stays as it was.
     private func expanded(_ group: HostGroup) -> Binding<Bool> {
         Binding(
-            get: { searching || group.expanded },
+            get: { searching ? !foldedInSearch.contains(group.id) : group.expanded },
             set: { expanded in
                 if !searching {
                     model.hosts.setExpanded(group, expanded)
+                } else if expanded {
+                    foldedInSearch.remove(group.id)
+                } else {
+                    foldedInSearch.insert(group.id)
                 }
             })
     }

@@ -95,7 +95,7 @@ xcodebuild … test
 ## 目录
 
 - `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端、窗口的状态和快捷键做的事）、`AppKeychain`、`RootView`（按窗口宽窄选布局；前后台切换时告诉同步，回到前台时检查终端的连接）、宽窗口的分栏（`WideRoot`、`Sidebar`）、快捷键（`AppCommands`）、确认框（`Confirmation`）、设置页（云同步、终端字号、关于）、表单里带标签的输入框。
-- `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
+- `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版：结果里分组全部展开，折叠只管这次搜索，不改存着的展开状态）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
 - `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、窄窗口的终端页（`TerminalScreen`）、宽窗口的标签条和终端（`TerminalWorkspace`、`TerminalTabs`）、开始页、问答、打开的终端列表。
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览（拖进来上传）、文件简介（`FileInfoView`：点文件先看这里，预览和下载都从这里开始）、传输队列页（`TransferControls`：传输条、队列和简介共用的停止 / 继续 / 取消按钮）、已下载的文件。
