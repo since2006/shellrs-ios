@@ -39,7 +39,9 @@ struct TerminalScreen: View {
         // shown over it is not.
         .environment(\.colorScheme, .dark)
         .sheet(isPresented: $showingFiles) {
-            FilesView(files: session.openFiles())
+            FilesView(files: session.openFiles()) {
+                showingFiles = false
+            }
         }
         .loginPrompts(of: session)
         .onAppear {

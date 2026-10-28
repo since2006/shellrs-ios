@@ -4,9 +4,11 @@ import SwiftUI
 
 /// The terminal host's files over SFTP: its folders from `/` down, the
 /// user's home open first, and the running transfer along the bottom.
+/// Over a narrow window's terminal or beside a wide one's, which closes
+/// it with `close`.
 struct FilesView: View {
     let files: FilesModel
-    @Environment(\.dismiss) private var dismiss
+    let close: () -> Void
     @State private var shown: Shown?
 
     /// What the sheet shows over itself.
@@ -20,7 +22,7 @@ struct FilesView: View {
     var body: some View {
         @Bindable var files = files
         let actions = FilesActions(
-            close: { dismiss() },
+            close: close,
             showTransfers: { shown = .transfers },
             showDownloads: { shown = .downloads })
         NavigationStack(path: $files.path) {
@@ -73,9 +75,10 @@ private struct TransferPrompts: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .confirmationDialog(
-                title, isPresented: Binding(get: { active && files.question != nil }, set: { _ in }),
-                titleVisibility: .visible, presenting: files.question
+            .confirmation(
+                Text(verbatim: title),
+                isPresented: Binding(get: { active && files.question != nil }, set: { _ in }),
+                presenting: files.question, cancels: true
             ) { question in
                 buttons(question)
             } message: { question in
@@ -189,6 +192,7 @@ private struct TransferBar: View {
                 .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             }
             .buttonStyle(.plain)
+            .hoverEffect()
             .padding(.horizontal)
             .padding(.bottom, 8)
         }

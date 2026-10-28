@@ -5,7 +5,6 @@ import SwiftUI
 /// or the start page while none is open.
 struct TerminalWorkspace: View {
     @Environment(AppModel.self) private var model
-    @State private var showingFiles = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -30,10 +29,9 @@ struct TerminalWorkspace: View {
                     TerminalTitle(session: session)
                 }
                 ToolbarItem(placement: .primaryAction) {
-                    Button("文件", systemImage: "folder") {
-                        showingFiles = true
+                    Button("文件", systemImage: model.showsFiles ? "folder.fill" : "folder") {
+                        model.toggleFiles()
                     }
-                    .disabled(session.files == nil && session.isClosed)
                 }
                 ToolbarItem(placement: .primaryAction) {
                     TerminalMenu(session: session)
@@ -44,10 +42,31 @@ struct TerminalWorkspace: View {
         .onChange(of: model.shownSession?.id, initial: true) {
             model.shownSession?.surface.focusForKeyboard()
         }
-        .sheet(isPresented: $showingFiles) {
-            if let session = model.shownSession {
-                FilesView(files: session.openFiles())
+    }
+}
+
+/// The files beside a terminal, on its connection: they follow the tab in
+/// front, each tab's own.
+struct FilesPane: View {
+    let session: TerminalSession
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        // As the files say it once opened on a closed terminal: not opened
+        // here, as that would open them for nothing.
+        if session.files == nil, session.isClosed {
+            ContentUnavailableView {
+                Label("SFTP 已断开", systemImage: "bolt.horizontal")
+            } description: {
+                Text("终端未连接，重新连接终端后才能浏览文件")
             }
+        } else {
+            FilesView(files: session.openFiles()) {
+                model.showsFiles = false
+            }
+            // Another tab's are other files: opened afresh, not these
+            // updated.
+            .id(session.id)
         }
     }
 }

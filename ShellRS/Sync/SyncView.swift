@@ -107,10 +107,10 @@ struct SyncView: View {
         } message: { deletes in
             Text("共 \(Int(deletes.of)) 条记录。如果不是你删的，选「取消」，同步会暂停，直到你确认。")
         }
-        .confirmationDialog(
-            removing.map { String(localized: "移除“\($0.name)”？") } ?? "",
+        .confirmation(
+            Text(verbatim: removing.map { String(localized: "移除“\($0.name)”？") } ?? ""),
             isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
-            titleVisibility: .visible, presenting: removing
+            presenting: removing
         ) { device in
             Button("移除", role: .destructive) {
                 Task { await remove(device) }
@@ -118,7 +118,7 @@ struct SyncView: View {
         } message: { _ in
             Text("它在同步文件夹里的文件会被删除。如果设备丢失了，接着更换同步密码。")
         }
-        .confirmationDialog("关闭同步？", isPresented: $turningOff, titleVisibility: .visible) {
+        .confirmation(Text("关闭同步？"), isPresented: $turningOff) {
             Button("关闭同步", role: .destructive) {
                 Task { await turnOff(deleteFile: false) }
             }

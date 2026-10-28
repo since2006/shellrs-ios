@@ -45,6 +45,11 @@ struct AppCommands: Commands {
             }
             .keyboardShortcut("b")
             .disabled(model?.isWide != true)
+            Button("显示或隐藏右侧栏") {
+                model?.toggleFiles()
+            }
+            .keyboardShortcut("b", modifiers: [.command, .option])
+            .disabled(model.map { !$0.isWide || $0.shownSession == nil } != false)
             Button("聚焦搜索") {
                 model?.request(.search)
             }

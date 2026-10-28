@@ -3729,6 +3729,16 @@
         }
       }
     },
+    "无法读取拖入的文件：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t read the dropped files: %@"
+          }
+        }
+      }
+    },
     "无法读取目录": {
       "localizations": {
         "en": {
@@ -3835,6 +3845,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show or hide sidebar"
+          }
+        }
+      }
+    },
+    "显示或隐藏右侧栏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show or hide right sidebar"
           }
         }
       }

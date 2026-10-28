@@ -55,6 +55,10 @@ final class AppModel {
     /// Whether a wide window shows its sidebar; hidden, the terminal has
     /// the width.
     var sidebarShown = true
+    /// Whether a wide window shows the files of the terminal in front
+    /// beside it, as the desktop's right sidebar does; a narrow one shows
+    /// them over the terminal when asked.
+    var showsFiles = false
     /// The settings, over a wide window; a narrow one has a tab for them.
     var showingSettings = false
     /// What a command asks of the host list, which does it once shown.
@@ -168,6 +172,13 @@ final class AppModel {
     func toggleSidebar() {
         if isWide {
             sidebarShown.toggle()
+        }
+    }
+
+    /// ⌘⌥B: the files beside the terminal in front of a wide window.
+    func toggleFiles() {
+        if isWide, shownSession != nil {
+            showsFiles.toggle()
         }
     }
 

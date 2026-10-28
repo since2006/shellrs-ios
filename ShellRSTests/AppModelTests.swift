@@ -194,6 +194,23 @@ struct AppModelTests {
         #expect(model.sessions.isEmpty)
     }
 
+    @Test func theFilesShowBesideATerminalOfAWideWindow() async throws {
+        model.isWide = true
+        // The start page has no terminal to show the files of.
+        model.toggleFiles()
+        #expect(!model.showsFiles)
+        _ = try await open("a")
+        model.toggleFiles()
+        #expect(model.showsFiles)
+        model.toggleFiles()
+        #expect(!model.showsFiles)
+
+        // A narrow window shows them over the terminal, from its button.
+        model.isWide = false
+        model.toggleFiles()
+        #expect(!model.showsFiles)
+    }
+
     @Test func syncsReviewOpensWhereTheWindowHasTheSettings() {
         model.isWide = true
         model.reviewSync()

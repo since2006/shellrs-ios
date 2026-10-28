@@ -87,11 +87,10 @@ struct CredentialList: View {
         .sheet(item: $editing) { subject in
             CredentialEditor(subject: subject)
         }
-        .confirmationDialog(
-            deleting.map { String(localized: "删除“\($0.name)”？") } ?? "",
+        .confirmation(
+            Text(verbatim: deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
             isPresented: Binding(
                 get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
-            titleVisibility: .visible,
             presenting: deleting
         ) { credential in
             Button("删除", role: .destructive) {

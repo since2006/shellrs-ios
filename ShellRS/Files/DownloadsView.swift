@@ -65,10 +65,10 @@ struct DownloadsView: View {
             load()
         }
         .quickLookPreview($preview, in: items.filter { !$0.isFolder }.map(\.url))
-        .confirmationDialog(
-            deleting.map { String(localized: "删除“\($0.name)”？") } ?? "",
+        .confirmation(
+            Text(verbatim: deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
             isPresented: Binding(get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
-            titleVisibility: .visible, presenting: deleting
+            presenting: deleting
         ) { item in
             Button("删除", role: .destructive) {
                 delete(item)

@@ -21,6 +21,7 @@ struct RootView: View {
                 CompactRoot()
             }
         }
+        .environment(\.wideWindow, wide)
         .onChange(of: wide, initial: true) { _, wide in
             model.isWide = wide
         }

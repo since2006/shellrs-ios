@@ -44,9 +44,13 @@ struct FolderView: View {
     @State private var deleting: [String] = []
     @State private var importing = false
     @State private var trouble: Trouble?
+    @State private var dropTargeted = false
 
     var body: some View {
-        List(selection: $selection) {
+        // Selecting only while 选择 is on: an iPad's list selects with a
+        // binding at all, and a tap would then select a folder rather than
+        // go in.
+        List(selection: editMode.isEditing ? $selection : nil) {
             // A folder not reachable now shows why, not what it had.
             ForEach(connected || files.state == .reconnecting ? shown : [], id: \.name) { entry in
                 row(entry)
@@ -54,6 +58,28 @@ struct FolderView: View {
         }
         .overlay {
             overlay
+        }
+        // Files dragged in from another app go up into this folder.
+        .dropDestination(for: DroppedFile.self) { dropped, _ in
+            guard connected, !dropped.isEmpty else {
+                return false
+            }
+            files.upload(dropped: dropped.map(\.url), to: folder)
+            return true
+        } isTargeted: { targeted in
+            dropTargeted = targeted && connected
+        }
+        .overlay {
+            if dropTargeted {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .strokeBorder(Color.accentColor, lineWidth: 3)
+                    .background(
+                        Color.accentColor.opacity(0.08),
+                        in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    )
+                    .padding(4)
+                    .allowsHitTesting(false)
+            }
         }
         .refreshable {
             await load()
@@ -89,10 +115,9 @@ struct FolderView: View {
             }
             Button("取消", role: .cancel) {}
         }
-        .confirmationDialog(
-            deletingTitle, isPresented: Binding(
-                get: { !deleting.isEmpty }, set: { if !$0 { deleting = [] } }),
-            titleVisibility: .visible
+        .confirmation(
+            Text(verbatim: deletingTitle), isPresented: Binding(
+                get: { !deleting.isEmpty }, set: { if !$0 { deleting = [] } })
         ) {
             Button("删除", role: .destructive) {
                 delete(deleting)
@@ -400,6 +425,18 @@ struct FolderView: View {
                 trouble = Trouble(
                     title: String(localized: "删除失败"), message: Describe.ssh(error))
             }
+        }
+    }
+}
+
+/// A file or folder dragged in from another app, kept as it lands: the
+/// app it came from takes it back once the drop is over.
+struct DroppedFile: Transferable {
+    let url: URL
+
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .item) { received in
+            DroppedFile(url: try LocalFolders.keep(received.file))
         }
     }
 }

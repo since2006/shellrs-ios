@@ -287,6 +287,23 @@ final class FilesModel {
         }
     }
 
+    /// Uploads into `folder` what was dropped on it, kept by
+    /// `LocalFolders.keep`: one batch, as the files picked are.
+    func upload(dropped: [URL], to folder: String) {
+        let staging = LocalFolders.uploads.appending(
+            path: UUID().uuidString, directoryHint: .isDirectory)
+        do {
+            let sources = try LocalFolders.gather(dropped, into: staging)
+            enqueue(.upload(sources: sources, destination: folder, staging: staging))
+        } catch {
+            try? FileManager.default.removeItem(at: staging)
+            for file in dropped {
+                try? FileManager.default.removeItem(at: file.deletingLastPathComponent())
+            }
+            notice = String(localized: "无法读取拖入的文件：\(error.localizedDescription)")
+        }
+    }
+
     /// Stops the running batch, keeping what is done.
     func cancel() {
         try? session?.cancel()
@@ -504,6 +521,33 @@ enum LocalFolders {
             }
             try manager.copyItem(at: url, to: copy)
             return copy
+        }
+    }
+
+    /// Keeps a copy of `file`, dropped from another app, which takes it
+    /// back once the drop is over: in a folder of its own among the
+    /// uploads, for `gather` to put in a batch.
+    static func keep(_ file: URL) throws -> URL {
+        let manager = FileManager.default
+        let folder = uploads.appending(
+            path: "Dropped/\(UUID().uuidString)", directoryHint: .isDirectory)
+        try manager.createDirectory(at: folder, withIntermediateDirectories: true)
+        let copy = folder.appending(path: file.lastPathComponent)
+        try manager.copyItem(at: file, to: copy)
+        return copy
+    }
+
+    /// Moves what `keep` kept into `staging`, each into a folder of its own
+    /// as `copy` puts them, and drops the folders they were kept in.
+    static func gather(_ kept: [URL], into staging: URL) throws -> [URL] {
+        let manager = FileManager.default
+        return try kept.enumerated().map { index, file in
+            let folder = staging.appending(path: String(index), directoryHint: .isDirectory)
+            try manager.createDirectory(at: folder, withIntermediateDirectories: true)
+            let moved = folder.appending(path: file.lastPathComponent)
+            try manager.moveItem(at: file, to: moved)
+            try? manager.removeItem(at: file.deletingLastPathComponent())
+            return moved
         }
     }
 }
