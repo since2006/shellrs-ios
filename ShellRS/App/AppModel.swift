@@ -57,8 +57,27 @@ final class AppModel {
     var sidebarShown = true
     /// Whether a wide window shows the files of the terminal in front
     /// beside it, as the desktop's right sidebar does; a narrow one shows
-    /// them over the terminal when asked.
-    var showsFiles = false
+    /// them over the terminal when asked. Kept by host as the desktop keeps
+    /// its right sidebar: a tab brought forward shows them if its host's
+    /// were shown, and a host never shown them does not.
+    var showsFiles: Bool {
+        get {
+            shownSession.map { filesShown.contains($0.host.id) } ?? false
+        }
+        set {
+            guard let host = shownSession?.host.id else {
+                return
+            }
+            if newValue {
+                filesShown.insert(host)
+            } else {
+                filesShown.remove(host)
+            }
+        }
+    }
+    /// The hosts whose files are shown, while the app runs: its terminals
+    /// do not outlive it either.
+    private var filesShown: Set<UInt64> = []
     /// The settings, over a wide window; a narrow one has a tab for them.
     var showingSettings = false
     /// What a command asks of the host list, which does it once shown.

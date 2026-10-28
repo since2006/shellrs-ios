@@ -107,6 +107,12 @@ struct TransferQueueTests {
         #expect(RemotePath.name("/") == "/")
         #expect(RemotePath.ancestors(of: "/home/me") == ["/home", "/home/me"])
         #expect(RemotePath.ancestors(of: "/") == [])
+        #expect(RemotePath.parent("/home/me") == "/home")
+        #expect(RemotePath.parent("/etc") == "/")
+        #expect(RemotePath.parent("/") == "/")
+        let folders = RemotePath.byFolder(["/a/x", "/b/y", "/a/z"])
+        #expect(folders.map(\.folder) == ["/a", "/b"])
+        #expect(folders.map(\.paths) == [["/a/x", "/a/z"], ["/b/y"]])
     }
 
     @Test func aTypedNameIsCheckedAsTheDesktopDoes() {

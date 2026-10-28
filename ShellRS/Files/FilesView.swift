@@ -12,11 +12,18 @@ struct FilesView: View {
     @State private var shown: Shown?
 
     /// What the sheet shows over itself.
-    enum Shown: String, Identifiable {
+    enum Shown: Identifiable {
         case transfers
         case downloads
+        case file(FileShown)
 
-        var id: String { rawValue }
+        var id: String {
+            switch self {
+            case .transfers: "transfers"
+            case .downloads: "downloads"
+            case .file(let file): "file:" + file.path
+            }
+        }
     }
 
     var body: some View {
@@ -24,7 +31,8 @@ struct FilesView: View {
         let actions = FilesActions(
             close: close,
             showTransfers: { shown = .transfers },
-            showDownloads: { shown = .downloads })
+            showDownloads: { shown = .downloads },
+            showFile: { shown = .file($0) })
         NavigationStack(path: $files.path) {
             FolderView(folder: "/", files: files, actions: actions)
                 .navigationDestination(for: String.self) { folder in
@@ -42,7 +50,7 @@ struct FilesView: View {
                 TransfersView(files: files)
             case .downloads:
                 NavigationStack {
-                    DownloadsView(revision: files.downloads)
+                    DownloadsView(folder: files.downloadsFolder, revision: files.downloads)
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("完成") {
@@ -50,6 +58,10 @@ struct FilesView: View {
                                 }
                             }
                         }
+                }
+            case .file(let file):
+                FileInfoView(files: files, file: file) {
+                    self.shown = nil
                 }
             }
         }
@@ -151,48 +163,52 @@ private struct TransferPrompts: ViewModifier {
 }
 
 /// The batch at the head of the queue, along the bottom of the files: tap
-/// it for the whole queue.
+/// it for the whole queue, or stop or give it up from its buttons.
 private struct TransferBar: View {
     let files: FilesModel
     let open: () -> Void
 
     var body: some View {
         if let entry = files.queue.head ?? files.queue.entries.first(where: { $0.state == .pending }) {
-            Button(action: open) {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 10) {
-                        Image(systemName: entry.job.direction == .upload ? "arrow.up.circle" : "arrow.down.circle")
-                            .font(.title3)
-                            .foregroundStyle(Color.accentColor)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(verbatim: entry.job.title)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Text(verbatim: entry.status)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 10) {
+                    Button(action: open) {
+                        HStack(spacing: 10) {
+                            Image(systemName: entry.job.direction == .upload ? "arrow.up.circle" : "arrow.down.circle")
+                                .font(.title3)
+                                .foregroundStyle(Color.accentColor)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text(verbatim: entry.job.title)
+                                    .lineLimit(1)
+                                    .truncationMode(.middle)
+                                Text(verbatim: entry.status)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                            Spacer(minLength: 0)
+                            if waiting > 0 {
+                                Text("还有 \(waiting) 批")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Image(systemName: "chevron.up")
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
-                        Spacer(minLength: 0)
-                        if waiting > 0 {
-                            Text("还有 \(waiting) 批")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        Image(systemName: "chevron.up")
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.tertiary)
+                        .contentShape(Rectangle())
                     }
-                    if entry.state == .active, entry.progress?.phase == .transferring {
-                        ProgressView(value: entry.progress?.fraction ?? 0)
-                    }
+                    .buttonStyle(.plain)
+                    .hoverEffect()
+                    TransferControls(entry: entry, files: files)
                 }
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                if entry.state == .active, entry.progress?.phase == .transferring {
+                    ProgressView(value: entry.progress?.fraction ?? 0)
+                }
             }
-            .buttonStyle(.plain)
-            .hoverEffect()
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .padding(.horizontal)
             .padding(.bottom, 8)
         }

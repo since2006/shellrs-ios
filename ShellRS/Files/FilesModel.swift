@@ -37,7 +37,8 @@ final class FilesModel {
 
     /// Opens a session on the terminal's connection.
     @ObservationIgnored private let opener: @MainActor () async throws -> SftpSession
-    /// Where 下载 puts what it brings down.
+    /// Where 下载 puts what it brings down: the host's folder in 已下载的文件,
+    /// in which each file goes where it is on the server.
     @ObservationIgnored let downloadsFolder: URL
     @ObservationIgnored private var session: SftpSession?
     @ObservationIgnored private var ended = false
@@ -54,10 +55,12 @@ final class FilesModel {
     @ObservationIgnored private var resubmitted = false
     /// Why the last reconnect of a transfer failed.
     @ObservationIgnored private var reconnectFailure: String?
+    /// The batch being given up: discarded once it has stopped.
+    @ObservationIgnored private var abandoning: Int?
     @ObservationIgnored private var backgroundTask = UIBackgroundTaskIdentifier.invalid
 
     init(
-        downloadsFolder: URL = LocalFolders.downloads,
+        downloadsFolder: URL,
         opener: @escaping @MainActor () async throws -> SftpSession
     ) {
         self.downloadsFolder = downloadsFolder
@@ -188,6 +191,9 @@ final class FilesModel {
         case .idle:
             engineBusy = false
             resubmitted = false
+            if abandonIfStopped() {
+                return
+            }
             resumeIfReady()
             startNextIfIdle()
         }
@@ -207,6 +213,7 @@ final class FilesModel {
         queue.stopHead()
         state = .disconnected(reason)
         endBackgroundTask()
+        abandonIfStopped()
     }
 
     // MARK: Browsing and changing
@@ -245,30 +252,63 @@ final class FilesModel {
 
     // MARK: Transfers
 
-    /// Brings `paths` down into 已下载的文件.
-    func download(_ paths: [String]) {
-        do {
-            try FileManager.default.createDirectory(
-                at: downloadsFolder, withIntermediateDirectories: true)
-        } catch {
-            notice = error.localizedDescription
-            return
+    /// Brings `paths` down into 已下载的文件, each where it is on the
+    /// server, so two of a name in different folders are two files there.
+    /// A batch for each folder they are in: the one a selection is in.
+    /// Returns the last batch.
+    @discardableResult
+    func download(_ paths: [String]) -> Int? {
+        var batch: Int?
+        for (folder, sources) in RemotePath.byFolder(paths) {
+            guard let destination = localFolder(folder) else {
+                return batch
+            }
+            batch = enqueue(.download(sources: sources, destination: destination, preview: false))
         }
-        enqueue(.download(sources: paths, destination: downloadsFolder, preview: false))
+        return batch
     }
 
-    /// Brings the file at `path` down to a folder of its own, and shows it
-    /// once there.
-    func preview(_ path: String) {
-        let folder = LocalFolders.previews.appending(
-            path: UUID().uuidString, directoryHint: .isDirectory)
+    /// Shows the file at `path`, which the folder listed as `entry`: a
+    /// download into 已下载的文件 that shows the file once there, or the copy
+    /// there at once if it is the same. One there that is not is asked
+    /// about as a download asks. Returns the batch that brings it down.
+    @discardableResult
+    func preview(_ path: String, as entry: DirectoryEntry) -> Int? {
+        if let copy = downloaded(path, as: entry) {
+            preview = copy
+            return nil
+        }
+        guard let destination = localFolder(RemotePath.parent(path)) else {
+            return nil
+        }
+        return enqueue(.download(sources: [path], destination: destination, preview: true))
+    }
+
+    /// The copy of the file at `path` in 已下载的文件, if it is the same as
+    /// `entry` says the server's is: a download gives it the server's time.
+    func downloaded(_ path: String, as entry: DirectoryEntry) -> URL? {
+        let copy = local(path)
+        return LocalFolders.same(copy, as: entry) ? copy : nil
+    }
+
+    /// Where `path` on the server goes in 已下载的文件.
+    func local(_ path: String, directoryHint: URL.DirectoryHint = .inferFromPath) -> URL {
+        let relative = path.drop { $0 == "/" }
+        return relative.isEmpty
+            ? downloadsFolder
+            : downloadsFolder.appending(path: String(relative), directoryHint: directoryHint)
+    }
+
+    /// The folder `folder` on the server goes to, made if need be.
+    private func localFolder(_ folder: String) -> URL? {
+        let url = local(folder, directoryHint: .isDirectory)
         do {
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+            return url
         } catch {
             notice = error.localizedDescription
-            return
+            return nil
         }
-        enqueue(.download(sources: [path], destination: folder, preview: true))
     }
 
     /// Uploads what the user picked into `folder`: copies of it, made
@@ -364,6 +404,42 @@ final class FilesModel {
         }
     }
 
+    /// Gives up the batch `id`, leaving nothing of it: one waiting leaves
+    /// the queue; one running stops, and goes with what it left half done
+    /// once it has.
+    func abandon(_ id: Int) {
+        guard let entry = queue.entries.first(where: { $0.id == id }) else {
+            return
+        }
+        switch entry.state {
+        case .pending:
+            remove(entry)
+        case .active:
+            abandoning = id
+            cancel()
+        case .stopped:
+            abandoning = id
+            abandonIfStopped()
+        case .done, .removed:
+            break
+        }
+    }
+
+    /// Discards the batch being given up once it has stopped and the
+    /// engine is free, and takes it off the list. Whether it did.
+    @discardableResult
+    private func abandonIfStopped() -> Bool {
+        guard let abandoning, let head = queue.head, head.id == abandoning,
+            head.state == .stopped, !engineBusy
+        else {
+            return false
+        }
+        self.abandoning = nil
+        discard()
+        queue.remove(abandoning)
+        return true
+    }
+
     func remove(_ entry: TransferEntry) {
         let head = queue.head?.id == entry.id
         guard let removed = queue.remove(entry.id) else {
@@ -394,12 +470,14 @@ final class FilesModel {
             questionId: question.id, answer: TransferAnswer(choice: choice, applyToAll: toAll))
     }
 
-    private func enqueue(_ job: TransferJob) {
-        queue.push(job)
+    @discardableResult
+    private func enqueue(_ job: TransferJob) -> Int {
+        let id = queue.push(job)
         if session == nil {
             open()
         }
         startNextIfIdle()
+        return id
     }
 
     /// Hands the engine the next batch if it is free for one.
@@ -435,17 +513,22 @@ final class FilesModel {
         case .upload(_, let destination, let staging):
             try? FileManager.default.removeItem(at: staging)
             touch(destination)
-        case .download(let sources, let destination, true):
-            if let progress = entry.progress, progress.succeeded > 0, let source = sources.first {
-                preview = destination.appending(path: RemotePath.name(source))
-            }
-        case .download:
+        case .download(let sources, let destination, let shows):
             downloads += 1
+            // What came down, or the copy there the user chose to keep.
+            if shows, let progress = entry.progress, progress.succeeded + progress.skipped > 0,
+                let source = sources.first
+            {
+                let copy = destination.appending(path: RemotePath.name(source))
+                if FileManager.default.fileExists(atPath: copy.path) {
+                    preview = copy
+                }
+            }
         }
     }
 
     /// What a batch leaving the queue no longer needs: the copies made for
-    /// an upload. A preview stays while it may still be shown.
+    /// an upload.
     private func clean(_ job: TransferJob) {
         if case .upload(_, _, let staging) = job {
             try? FileManager.default.removeItem(at: staging)
@@ -484,14 +567,26 @@ final class FilesModel {
 
 /// The app's own folders for files.
 enum LocalFolders {
-    /// What the user downloads, which the Files app shows too.
+    /// What the user downloads, which the Files app shows too: a folder
+    /// for each host.
     static var downloads: URL {
         URL.documentsDirectory.appending(path: "Downloads", directoryHint: .isDirectory)
     }
 
-    /// Files brought down to look at, each batch in a folder of its own.
-    static var previews: URL {
-        URL.cachesDirectory.appending(path: "Preview", directoryHint: .isDirectory)
+    /// The folder in 已下载的文件 for what comes down from `host`.
+    static func downloads(for host: Host) -> URL {
+        downloads.appending(path: folderName(host.title), directoryHint: .isDirectory)
+    }
+
+    /// `title` as a folder's name: what a name cannot hold, or the Files
+    /// app shows otherwise, made 「-」, and no leading dot to hide it.
+    static func folderName(_ title: String) -> String {
+        let name = String(
+            title.map { $0 == "/" || $0 == ":" ? "-" : $0 }
+        )
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .drop { $0 == "." }
+        return name.isEmpty ? "Host" : String(name)
     }
 
     /// Copies of what the user picked to upload.
@@ -501,7 +596,6 @@ enum LocalFolders {
 
     /// Clears what an earlier run left: its queue went with it.
     static func clearLeftovers() {
-        try? FileManager.default.removeItem(at: previews)
         try? FileManager.default.removeItem(at: uploads)
     }
 
@@ -535,6 +629,21 @@ enum LocalFolders {
         let copy = folder.appending(path: file.lastPathComponent)
         try manager.copyItem(at: file, to: copy)
         return copy
+    }
+
+    /// Whether `copy` is a file the same as `entry` on the server: its size,
+    /// and its time to the second, which a download gives it. A server that
+    /// gives no time leaves it unknown, so not the same.
+    static func same(_ copy: URL, as entry: DirectoryEntry) -> Bool {
+        guard let modified = entry.modified,
+            let attributes = try? FileManager.default.attributesOfItem(atPath: copy.path),
+            attributes[.type] as? FileAttributeType == .typeRegular,
+            let size = attributes[.size] as? UInt64,
+            let date = attributes[.modificationDate] as? Date
+        else {
+            return false
+        }
+        return size == entry.size && Int64(date.timeIntervalSince1970.rounded(.down)) == Int64(modified)
     }
 
     /// Moves what `keep` kept into `staging`, each into a folder of its own

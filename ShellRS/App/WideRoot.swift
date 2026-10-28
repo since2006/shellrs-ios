@@ -24,7 +24,7 @@ struct WideRoot: View {
         // Only with a terminal: the start page has none to show files of.
         .inspector(
             isPresented: Binding(
-                get: { model.showsFiles && model.shownSession != nil },
+                get: { model.showsFiles },
                 set: { model.showsFiles = $0 })
         ) {
             Group {

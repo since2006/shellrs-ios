@@ -263,6 +263,27 @@ enum Format {
         date.formatted(date: .numeric, time: .shortened)
     }
 
+    /// Mode bits as `ls -l` shows them: `rwxr-xr-x`, with setuid, setgid
+    /// and sticky as `s`/`S` and `t`/`T`, as the desktop's 权限 column.
+    static func rights(_ mode: UInt32) -> String {
+        let special: [(bit: UInt32, withExecute: Character, without: Character)] = [
+            (0o4000, "s", "S"), (0o2000, "s", "S"), (0o1000, "t", "T"),
+        ]
+        var rights = ""
+        for (index, special) in special.enumerated() {
+            let bits = (mode >> UInt32(6 - index * 3)) & 0o7
+            rights.append(bits & 0o4 != 0 ? "r" : "-")
+            rights.append(bits & 0o2 != 0 ? "w" : "-")
+            let execute = bits & 0o1 != 0
+            if mode & special.bit != 0 {
+                rights.append(execute ? special.withExecute : special.without)
+            } else {
+                rights.append(execute ? "x" : "-")
+            }
+        }
+        return rights
+    }
+
     /// `seconds` as 「1 分 5 秒」.
     static func duration(_ seconds: UInt64) -> String {
         Duration.seconds(Int64(clamping: seconds)).formatted(

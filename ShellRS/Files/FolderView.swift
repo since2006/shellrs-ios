@@ -8,10 +8,20 @@ struct FilesActions {
     let close: () -> Void
     let showTransfers: () -> Void
     let showDownloads: () -> Void
+    let showFile: (FileShown) -> Void
 }
 
-/// A remote folder: tap a folder to go in, a file to look at it; swipe or
-/// long-press for the rest, or select several to download or delete.
+/// A remote file to show the details of, as its folder listed it; with
+/// `previewing`, brought down to look at straight away.
+struct FileShown {
+    let path: String
+    let entry: DirectoryEntry
+    var previewing = false
+}
+
+/// A remote folder: tap a folder to go in, a file for its details and to
+/// look at it; swipe or long-press for the rest, or select several to
+/// download or delete.
 struct FolderView: View {
     let folder: String
     let files: FilesModel
@@ -182,10 +192,10 @@ struct FolderView: View {
                     EntryRow(entry: entry)
                 }
             } else {
+                // Not brought down on a tap: a large one would come down by
+                // mistake.
                 Button {
-                    if entry.isFile {
-                        files.preview(path)
-                    }
+                    actions.showFile(FileShown(path: path, entry: entry))
                 } label: {
                     EntryRow(entry: entry)
                 }
@@ -204,7 +214,7 @@ struct FolderView: View {
         .contextMenu {
             if entry.isFile {
                 Button("预览", systemImage: "eye") {
-                    files.preview(path)
+                    actions.showFile(FileShown(path: path, entry: entry, previewing: true))
                 }
             }
             Button("下载", systemImage: "arrow.down.circle") {

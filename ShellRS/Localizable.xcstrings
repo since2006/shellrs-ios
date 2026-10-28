@@ -53,6 +53,16 @@
         }
       }
     },
+    "%@（%@ 字节）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%@ bytes)"
+          }
+        }
+      }
+    },
     "%@（%@）": {
       "localizations": {
         "en": {
@@ -1059,6 +1069,16 @@
         }
       }
     },
+    "位置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        }
+      }
+    },
     "使用凭据": {
       "localizations": {
         "en": {
@@ -1205,6 +1225,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trust and connect"
+          }
+        }
+      }
+    },
+    "修改时间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modified"
           }
         }
       }
@@ -1789,6 +1819,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cancel download"
+          }
+        }
+      }
+    },
+    "取消预览": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel preview"
           }
         }
       }
@@ -2447,6 +2487,16 @@
         }
       }
     },
+    "大小": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size"
+          }
+        }
+      }
+    },
     "失败": {
       "localizations": {
         "en": {
@@ -2979,6 +3029,16 @@
         }
       }
     },
+    "所有者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Owner"
+          }
+        }
+      }
+    },
     "手动输入": {
       "localizations": {
         "en": {
@@ -3205,6 +3265,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "No such file or folder"
+          }
+        }
+      }
+    },
+    "文件较大，仍要预览吗？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview this large file?"
           }
         }
       }
@@ -4427,6 +4497,16 @@
         }
       }
     },
+    "权限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions"
+          }
+        }
+      }
+    },
     "来源已变为目录，请丢弃旧文件进度后重新上传，或跳过。": {
       "localizations": {
         "en": {
@@ -5107,6 +5187,16 @@
         }
       }
     },
+    "等前面的传输完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waits for the transfers ahead"
+          }
+        }
+      }
+    },
     "等待中": {
       "localizations": {
         "en": {
@@ -5183,6 +5273,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "The system’s random number source failed."
+          }
+        }
+      }
+    },
+    "组": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Group"
           }
         }
       }
@@ -6631,6 +6731,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Preview"
+          }
+        }
+      }
+    },
+    "预览要先下载整个文件（%@）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previewing downloads the whole file first (%@)."
           }
         }
       }

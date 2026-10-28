@@ -111,12 +111,16 @@ final class TerminalSession: Identifiable {
         }
     }
 
-    /// The files on the host, opening on this terminal's connection.
-    func openFiles(downloadsFolder: URL = LocalFolders.downloads) -> FilesModel {
+    /// The files on the host, opening on this terminal's connection; what
+    /// comes down goes into the host's folder in 已下载的文件, unless
+    /// `downloadsFolder` says where.
+    func openFiles(downloadsFolder: URL? = nil) -> FilesModel {
         if let files {
             return files
         }
-        let files = FilesModel(downloadsFolder: downloadsFolder) { [weak self] in
+        let files = FilesModel(
+            downloadsFolder: downloadsFolder ?? LocalFolders.downloads(for: host)
+        ) { [weak self] in
             guard let connection = self?.connection else {
                 throw SshError.NotConnected
             }

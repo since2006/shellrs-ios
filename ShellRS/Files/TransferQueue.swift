@@ -7,7 +7,7 @@ enum TransferJob: Equatable {
     /// made of what the user picked, and goes once the batch is over.
     case upload(sources: [URL], destination: String, staging: URL)
     /// Remote files and folders into a local folder. A `preview` brings one
-    /// file down to look at.
+    /// file down into 已下载的文件 to look at, and shows it once there.
     case download(sources: [String], destination: URL, preview: Bool)
 
     var direction: TransferDirection {
@@ -15,6 +15,15 @@ enum TransferJob: Equatable {
         case .upload: .upload
         case .download: .download
         }
+    }
+
+    /// Bringing a file down to look at: given up rather than stopped, as it
+    /// is wanted now or not at all.
+    var isPreview: Bool {
+        if case .download(_, _, true) = self {
+            return true
+        }
+        return false
     }
 
     /// The one item by name, or how many there are.
@@ -35,8 +44,6 @@ enum TransferJob: Equatable {
         switch self {
         case .upload(_, let destination, _):
             destination
-        case .download(_, _, true):
-            String(localized: "预览")
         case .download:
             String(localized: "已下载的文件")
         }
@@ -263,6 +270,26 @@ enum RemotePath {
     static func name(_ path: String) -> String {
         let trimmed = path.count > 1 && path.hasSuffix("/") ? String(path.dropLast()) : path
         return trimmed.split(separator: "/").last.map(String.init) ?? trimmed
+    }
+
+    /// The folder `path` is in: 「/home/me」 gives 「/home」, 「/etc」 gives
+    /// 「/」.
+    static func parent(_ path: String) -> String {
+        ancestors(of: path).dropLast().last ?? "/"
+    }
+
+    /// `paths` by the folder each is in, in the order they come.
+    static func byFolder(_ paths: [String]) -> [(folder: String, paths: [String])] {
+        var folders: [(folder: String, paths: [String])] = []
+        for path in paths {
+            let folder = parent(path)
+            if let index = folders.firstIndex(where: { $0.folder == folder }) {
+                folders[index].paths.append(path)
+            } else {
+                folders.append((folder, [path]))
+            }
+        }
+        return folders
     }
 
     /// The folders from the top down to `path`, without `/` itself:

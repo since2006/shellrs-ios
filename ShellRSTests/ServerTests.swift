@@ -173,7 +173,9 @@ struct ServerTests {
         try await waitUntil("the download is done", timeout: .seconds(30)) {
             files.queue.entries.last?.state == .done
         }
-        #expect(try Data(contentsOf: downloads.appending(path: "big.bin")) == bytes)
+        // Where it is on the server, in the folder for the host.
+        #expect(files.local(remote).path.hasPrefix(downloads.path))
+        #expect(try Data(contentsOf: files.local(remote)) == bytes)
         #expect(files.downloads == 1)
 
         // Downloading it again asks before replacing what came down.
@@ -186,11 +188,53 @@ struct ServerTests {
         }
         #expect(files.queue.entries.last?.progress?.skipped == 1)
 
-        files.preview(remote)
+        // What came down is the same as the server's: shown at once, not
+        // brought down again.
+        let listed = try #require(try await files.list(folder).first { $0.name == "big.bin" })
+        let downloaded = files.local(remote)
+        #expect(files.downloaded(remote, as: listed)?.path == downloaded.path)
+        let batches = files.queue.entries.count
+        #expect(files.preview(remote, as: listed) == nil)
+        #expect(files.preview?.path == downloaded.path)
+        #expect(files.queue.entries.count == batches)
+        files.preview = nil
+
+        // Without it, the file comes down there to look at, and is there
+        // the next time.
+        try FileManager.default.removeItem(at: downloaded)
+        #expect(files.downloaded(remote, as: listed) == nil)
+        let finished = files.downloads
+        let job = try #require(files.preview(remote, as: listed))
         try await waitUntil("the preview comes down", timeout: .seconds(30)) {
             files.preview != nil
         }
+        #expect(files.queue.entries.last?.id == job)
+        #expect(files.preview?.path == downloaded.path)
+        #expect(try Data(contentsOf: downloaded) == bytes)
+        #expect(files.downloads == finished + 1)
+        files.preview = nil
+        #expect(files.preview(remote, as: listed) == nil)
+        #expect(files.preview?.path == downloaded.path)
+        files.preview = nil
+
+        // One there that is not the same is asked about: kept, it is the
+        // one shown; replaced, the server's is.
+        let stale = Data("stale".utf8)
+        try stale.write(to: downloaded)
+        #expect(files.downloaded(remote, as: listed) == nil)
+        files.preview(remote, as: listed)
+        try await waitUntil("asked about the copy there") { files.question != nil }
+        #expect(files.question?.kind == .conflict)
+        files.answer(.skip)
+        try await waitUntil("the copy there is shown") { files.preview != nil }
+        #expect(try Data(contentsOf: try #require(files.preview)) == stale)
+        files.preview = nil
+        files.preview(remote, as: listed)
+        try await waitUntil("asked about the copy there") { files.question != nil }
+        files.answer(.overwrite)
+        try await waitUntil("the server's is shown", timeout: .seconds(30)) { files.preview != nil }
         #expect(try Data(contentsOf: try #require(files.preview)) == bytes)
+        files.preview = nil
 
         try await files.rename("big.bin", to: "renamed.bin", in: folder)
         #expect(try await files.list(folder).map(\.name) == ["renamed.bin"])
@@ -282,7 +326,29 @@ struct ServerTests {
         try await waitUntil("the download is done", timeout: .seconds(60)) {
             files.queue.entries.last?.state == .done
         }
-        #expect(try Data(contentsOf: downloads.appending(path: "large.bin")) == bytes)
+        let large = files.local(RemotePath.join(folder, "large.bin"))
+        #expect(try Data(contentsOf: large) == bytes)
+
+        // One started by mistake is given up halfway, leaving nothing, and
+        // the queue goes on.
+        try FileManager.default.removeItem(at: large)
+        let listed = try #require(try await files.list(folder).first { $0.name == "large.bin" })
+        let job = try #require(files.preview(RemotePath.join(folder, "large.bin"), as: listed))
+        try await waitUntil("the preview is under way", timeout: .seconds(30)) {
+            (files.queue.head?.progress?.completedBytes ?? 0) > 0
+        }
+        files.abandon(job)
+        try await waitUntil("the preview is given up") {
+            !files.queue.entries.contains { $0.id == job }
+        }
+        let left = try FileManager.default.contentsOfDirectory(atPath: files.local(folder).path)
+        #expect(!left.contains { $0.hasPrefix("large.bin") }, "left \(left)")
+        files.download([RemotePath.join(folder, "large.bin")])
+        try await waitUntil("the next download is done", timeout: .seconds(60)) {
+            files.queue.entries.last?.state == .done
+        }
+        #expect(files.preview == nil)
+        #expect(files.notice == nil)
         try await files.delete([name], in: files.home)
         files.end()
         session.disconnect()

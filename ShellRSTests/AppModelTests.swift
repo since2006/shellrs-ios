@@ -199,16 +199,36 @@ struct AppModelTests {
         // The start page has no terminal to show the files of.
         model.toggleFiles()
         #expect(!model.showsFiles)
-        _ = try await open("a")
+        let a = try await open("a")[0]
         model.toggleFiles()
         #expect(model.showsFiles)
         model.toggleFiles()
         #expect(!model.showsFiles)
 
-        // A narrow window shows them over the terminal, from its button.
-        model.isWide = false
+        // Kept by host, as the desktop's right sidebar: a host connected
+        // after shows none, and its tab and another of the first host's
+        // show what their host had.
+        model.toggleFiles()
+        let b = try await open("b")[1]
+        #expect(!model.showsFiles)
+        model.shownSession = a
+        #expect(model.showsFiles)
+        try model.connect(a.host)
+        #expect(model.showsFiles)
+        model.shownSession = b
+        #expect(!model.showsFiles)
+        model.toggleFiles()
+        model.shownSession = a
         model.toggleFiles()
         #expect(!model.showsFiles)
+        model.shownSession = b
+        #expect(model.showsFiles)
+
+        // A narrow window shows them over the terminal, from its button:
+        // ⌘⌥B leaves what a wide one would show as it was.
+        model.isWide = false
+        model.toggleFiles()
+        #expect(model.showsFiles)
     }
 
     @Test func syncsReviewOpensWhereTheWindowHasTheSettings() {

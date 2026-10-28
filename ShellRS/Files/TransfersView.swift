@@ -20,7 +20,7 @@ struct TransfersView: View {
                 }
                 Section {
                     NavigationLink {
-                        DownloadsView(revision: files.downloads)
+                        DownloadsView(folder: files.downloadsFolder, revision: files.downloads)
                     } label: {
                         Label("已下载的文件", systemImage: "arrow.down.circle")
                     }
@@ -77,10 +77,11 @@ private struct TransferRow: View {
                     .foregroundStyle(entry.state == .stopped || failed ? Color.red : Color.secondary)
                     .multilineTextAlignment(.trailing)
                     .lineLimit(2)
+                TransferControls(entry: entry, files: files)
             }
             if let progress = entry.progress, entry.state == .active, progress.phase == .transferring {
                 ProgressView(value: progress.fraction)
-                Text(verbatim: Self.amount(progress))
+                Text(verbatim: progress.amount)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
@@ -138,16 +139,67 @@ private struct TransferRow: View {
         }
     }
 
+}
+
+extension TransferProgress {
     /// 「1.2 MB / 3.4 MB · 2 MB/s · 剩余 12 秒」.
-    static func amount(_ progress: TransferProgress) -> String {
-        var parts = ["\(Format.size(progress.completedBytes)) / \(Format.size(progress.totalBytes))"]
-        if progress.bytesPerSecond > 0 {
-            parts.append("\(Format.size(progress.bytesPerSecond))/s")
+    var amount: String {
+        var parts = ["\(Format.size(completedBytes)) / \(Format.size(totalBytes))"]
+        if bytesPerSecond > 0 {
+            parts.append("\(Format.size(bytesPerSecond))/s")
         }
-        if let remaining = progress.remainingSeconds {
-            parts.append(String(localized: "剩余 \(Format.duration(remaining))"))
+        if let remainingSeconds {
+            parts.append(String(localized: "剩余 \(Format.duration(remainingSeconds))"))
         }
         return parts.joined(separator: " · ")
+    }
+}
+
+/// A batch's buttons wherever it shows, so a transfer started by mistake
+/// is not waited out: a running one stops with its progress kept, to go
+/// on later, or is given up at once; a preview is only given up.
+struct TransferControls: View {
+    let entry: TransferEntry
+    let files: FilesModel
+
+    var body: some View {
+        HStack(spacing: 14) {
+            if entry.job.isPreview {
+                if !entry.state.isFinished {
+                    Button("取消预览", systemImage: "xmark.circle.fill") {
+                        files.abandon(entry.id)
+                    }
+                }
+            } else {
+                switch entry.state {
+                case .active:
+                    Button("停止", systemImage: "pause.circle.fill") {
+                        files.cancel()
+                    }
+                    cancel
+                case .stopped:
+                    Button("继续", systemImage: "play.circle.fill") {
+                        files.resume()
+                    }
+                    cancel
+                case .pending, .done, .removed:
+                    EmptyView()
+                }
+            }
+        }
+        .labelStyle(.iconOnly)
+        .font(.title2)
+        .symbolRenderingMode(.hierarchical)
+        .buttonStyle(.borderless)
+    }
+
+    private var cancel: some View {
+        Button(
+            entry.job.direction == .upload ? String(localized: "取消上传") : String(localized: "取消下载"),
+            systemImage: "xmark.circle.fill"
+        ) {
+            files.abandon(entry.id)
+        }
     }
 }
 

@@ -1,10 +1,11 @@
 import QuickLook
 import SwiftUI
 
-/// What the user downloaded, on this device: tap a file to look at it,
-/// share it or delete it. The Files app shows the same folder.
+/// What the user downloaded from a host, on this device: its folder in
+/// 已下载的文件, laid out as on the server. Tap a file to look at it, share
+/// it or delete it. The Files app shows the same folders.
 struct DownloadsView: View {
-    var folder = LocalFolders.downloads
+    let folder: URL
     var title: String?
     /// Read again when it changes: a download finished.
     var revision = 0
