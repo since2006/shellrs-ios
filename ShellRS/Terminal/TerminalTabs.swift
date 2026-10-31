@@ -10,7 +10,8 @@ struct TerminalTabs: View {
         ScrollViewReader { scroller in
             ScrollView(.horizontal) {
                 HStack(spacing: 4) {
-                    ForEach(Array(model.sessions.enumerated()), id: \.element.id) { index, session in
+                    ForEach(Array(model.sessions.enumerated()), id: \.element.id) {
+                        index, session in
                         TerminalTab(
                             session: session, isFront: session === model.shownSession,
                             isFirst: index == 0, isLast: index == model.sessions.count - 1)
@@ -43,7 +44,7 @@ private struct TerminalTab: View {
     var body: some View {
         HStack(spacing: 0) {
             Button {
-                model.shownSession = session
+                model.show(session)
             } label: {
                 HStack(spacing: 8) {
                     HostMark(host: session.host, dimmed: session.state != .connected, size: 20)

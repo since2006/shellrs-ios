@@ -35,7 +35,18 @@ struct SyncView: View {
         let reason: String
     }
 
-    @State private var sheet: Sheet?
+    @Environment(AppModel.self) private var model
+    @State private var nestedSheet: Sheet?
+    private var sheet: Sheet? {
+        get { nestedSheet }
+        nonmutating set {
+            if model.showingSettings {
+                nestedSheet = newValue
+            } else {
+                model.sheet = newValue.map(AppSheet.sync)
+            }
+        }
+    }
     @State private var confirmingRejoin = false
     @State private var massDelete: MassDelete?
     @State private var removing: SyncDevice?
@@ -72,19 +83,8 @@ struct SyncView: View {
         }
         .navigationTitle("云同步")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $sheet) { sheet in
-            NavigationStack {
-                switch sheet {
-                case .setUp(let kind):
-                    SyncLoginView(sync: sync, kind: kind, signingIn: nil, close: close)
-                case .signIn(let location):
-                    SyncLoginView(
-                        sync: sync, kind: RemoteKind(location), signingIn: location, close: close)
-                case .password(let step):
-                    SyncPasswordView(sync: sync, step: step, cancellable: true, close: close)
-                }
-            }
-            .interactiveDismissDisabled()
+        .sheet(item: $nestedSheet) { sheet in
+            SyncSheetView(sync: sync, sheet: sheet, close: close)
         }
         .alert("重新加入同步？", isPresented: $confirmingRejoin) {
             Button("重新加入") {
@@ -426,5 +426,28 @@ private struct DeviceRow: View {
             .formatted(date: .numeric, time: .shortened)
         let platform = Describe.platform(device.platform)
         return String(localized: "\(platform) · ShellRS \(device.appVersion) · 上次同步 \(time)")
+    }
+}
+
+/// The same stable sheet, whether opened from a compact tab or settings modal.
+struct SyncSheetView: View {
+    let sync: SyncModel
+    let sheet: SyncView.Sheet
+    let close: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            switch sheet {
+            case .setUp(let kind):
+                SyncLoginView(sync: sync, kind: kind, signingIn: nil, close: close)
+            case .signIn(let location):
+                SyncLoginView(
+                    sync: sync, kind: RemoteKind(location),
+                    signingIn: location, close: close)
+            case .password(let step):
+                SyncPasswordView(sync: sync, step: step, cancellable: true, close: close)
+            }
+        }
+        .interactiveDismissDisabled()
     }
 }

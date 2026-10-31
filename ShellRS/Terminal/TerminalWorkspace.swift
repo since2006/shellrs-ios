@@ -9,7 +9,8 @@ struct TerminalWorkspace: View {
     var body: some View {
         VStack(spacing: 0) {
             if !model.sessions.isEmpty {
-                TerminalTabs()
+                UnobscuredArea { TerminalTabs() }
+                    .frame(height: 44)
                 Divider()
             }
             if let session = model.shownSession {
@@ -17,7 +18,6 @@ struct TerminalWorkspace: View {
                     // Down past the home indicator, but not under the
                     // sidebar, which floats over the detail's edge.
                     .background(Color.black.ignoresSafeArea(edges: .bottom))
-                    .loginPrompts(of: session)
             } else {
                 StartView()
             }

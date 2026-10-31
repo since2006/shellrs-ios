@@ -27,40 +27,15 @@ struct FolderView: View {
     let files: FilesModel
     let actions: FilesActions
 
-    enum Listing {
-        case loading
-        case loaded([DirectoryEntry])
-        case failed(String)
-    }
-
-    /// A name being typed.
-    enum Naming: Equatable {
-        case newFolder
-        case rename(String)
-    }
-
-    /// What went wrong, under what title.
-    struct Trouble {
-        let title: String
-        let message: String
-    }
+    private var state: FolderState { files.folderState(for: folder) }
 
     @AppStorage("files.showHidden") private var showHidden = false
-    @State private var listing = Listing.loading
-    @State private var selection = Set<String>()
-    @State private var editMode = EditMode.inactive
-    @State private var naming: Naming?
-    @State private var name = ""
-    @State private var deleting: [String] = []
-    @State private var importing = false
-    @State private var trouble: Trouble?
-    @State private var dropTargeted = false
-
     var body: some View {
+        @Bindable var state = files.folderState(for: folder)
         // Selecting only while 选择 is on: an iPad's list selects with a
         // binding at all, and a tap would then select a folder rather than
         // go in.
-        List(selection: editMode.isEditing ? $selection : nil) {
+        List(selection: state.editMode.isEditing ? $state.selection : nil) {
             // A folder not reachable now shows why, not what it had.
             ForEach(connected || files.state == .reconnecting ? shown : [], id: \.name) { entry in
                 row(entry)
@@ -77,10 +52,10 @@ struct FolderView: View {
             files.upload(dropped: dropped.map(\.url), to: folder)
             return true
         } isTargeted: { targeted in
-            dropTargeted = targeted && connected
+            state.dropTargeted = targeted && connected
         }
         .overlay {
-            if dropTargeted {
+            if state.dropTargeted {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(Color.accentColor, lineWidth: 3)
                     .background(
@@ -105,58 +80,7 @@ struct FolderView: View {
         .toolbar {
             toolbar
         }
-        .environment(\.editMode, $editMode)
-        .alert(
-            namingTitle, isPresented: Binding(
-                get: { naming != nil }, set: { if !$0 { naming = nil } }),
-            presenting: naming
-        ) { naming in
-            TextField("名称", text: $name)
-                .textInputAutocapitalization(.never)
-                .autocorrectionDisabled()
-            if naming == .newFolder {
-                Button("创建") {
-                    commit(naming)
-                }
-            } else {
-                Button("重命名") {
-                    commit(naming)
-                }
-            }
-            Button("取消", role: .cancel) {}
-        }
-        .confirmation(
-            Text(verbatim: deletingTitle), isPresented: Binding(
-                get: { !deleting.isEmpty }, set: { if !$0 { deleting = [] } })
-        ) {
-            Button("删除", role: .destructive) {
-                delete(deleting)
-            }
-        } message: {
-            Text("远程文件无法恢复，目录会连同其中全部内容一起删除。")
-        }
-        .fileImporter(
-            isPresented: $importing, allowedContentTypes: [.item], allowsMultipleSelection: true
-        ) { result in
-            switch result {
-            case .success(let urls):
-                Task {
-                    await files.upload(urls, to: folder)
-                }
-            case .failure(let error):
-                trouble = Trouble(
-                    title: String(localized: "无法上传"), message: error.localizedDescription)
-            }
-        }
-        .alert(
-            trouble?.title ?? "", isPresented: Binding(
-                get: { trouble != nil }, set: { if !$0 { trouble = nil } }),
-            presenting: trouble
-        ) { _ in
-            Button("好") {}
-        } message: { trouble in
-            Text(trouble.message)
-        }
+        .environment(\.editMode, $state.editMode)
     }
 
     // MARK: The list
@@ -166,7 +90,7 @@ struct FolderView: View {
     }
 
     private var entries: [DirectoryEntry] {
-        guard case .loaded(let entries) = listing else {
+        guard case .loaded(let entries) = state.listing else {
             return []
         }
         return entries.filter { $0.name != "." && $0.name != ".." }
@@ -204,7 +128,7 @@ struct FolderView: View {
         }
         .swipeActions {
             Button("删除", role: .destructive) {
-                deleting = [entry.name]
+                state.deleting = [entry.name]
             }
             Button("下载") {
                 files.download([path])
@@ -221,15 +145,15 @@ struct FolderView: View {
                 files.download([path])
             }
             Button("重命名…", systemImage: "pencil") {
-                name = entry.name
-                naming = .rename(entry.name)
+                state.name = entry.name
+                state.naming = .rename(entry.name)
             }
             Button("复制路径", systemImage: "doc.on.doc") {
                 UIPasteboard.general.string = path
             }
             Divider()
             Button("删除", systemImage: "trash", role: .destructive) {
-                deleting = [entry.name]
+                state.deleting = [entry.name]
             }
         }
     }
@@ -253,7 +177,7 @@ struct FolderView: View {
                 .buttonStyle(.borderedProminent)
             }
         case .connected, .reconnecting:
-            switch listing {
+            switch state.listing {
             case .loading:
                 ProgressView("正在读取目录…")
             case .failed(let reason):
@@ -288,18 +212,20 @@ struct FolderView: View {
         }
         do {
             let entries = try await files.list(folder)
-            listing = .loaded(entries)
+            guard !Task.isCancelled else { return }
+            state.listing = .loaded(entries)
         } catch {
-            listing = .failed(Describe.ssh(error))
+            guard !Task.isCancelled else { return }
+            state.listing = .failed(Describe.ssh(error))
         }
-        selection.formIntersection(self.entries.map(\.name))
+        state.selection.formIntersection(self.entries.map(\.name))
     }
 
     // MARK: The bars
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        if editMode.isEditing {
+        if state.editMode.isEditing {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("完成") {
                     endSelecting()
@@ -307,32 +233,35 @@ struct FolderView: View {
             }
             ToolbarItemGroup(placement: .bottomBar) {
                 Button("下载", systemImage: "arrow.down.circle") {
-                    files.download(selection.map { RemotePath.join(folder, $0) })
+                    files.download(state.selection.map { RemotePath.join(folder, $0) })
                     endSelecting()
                 }
-                .disabled(selection.isEmpty)
+                .disabled(state.selection.isEmpty)
                 Spacer()
-                Text(selection.isEmpty ? "" : String(localized: "已选择 \(selection.count) 项"))
-                    .font(.footnote)
+                Text(
+                    state.selection.isEmpty
+                        ? "" : String(localized: "已选择 \(state.selection.count) 项")
+                )
+                .font(.footnote)
                 Spacer()
                 Button("删除", systemImage: "trash", role: .destructive) {
-                    deleting = Array(selection)
+                    state.deleting = Array(state.selection)
                 }
-                .disabled(selection.isEmpty)
+                .disabled(state.selection.isEmpty)
             }
         } else {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
                     Button("选择", systemImage: "checkmark.circle") {
-                        editMode = .active
+                        state.editMode = .active
                     }
                     .disabled(shown.isEmpty)
                     Button("新建文件夹…", systemImage: "folder.badge.plus") {
-                        name = String(localized: "新建文件夹")
-                        naming = .newFolder
+                        state.name = String(localized: "新建文件夹")
+                        state.naming = .newFolder
                     }
                     Button("上传文件…", systemImage: "arrow.up.doc") {
-                        importing = true
+                        state.importing = true
                     }
                     Divider()
                     Toggle("显示隐藏文件", systemImage: "eye", isOn: $showHidden)
@@ -376,67 +305,10 @@ struct FolderView: View {
     }
 
     private func endSelecting() {
-        editMode = .inactive
-        selection = []
+        state.editMode = .inactive
+        state.selection = []
     }
 
-    // MARK: Changing
-
-    private var namingTitle: Text {
-        switch naming {
-        case .rename(let original):
-            Text("重命名「\(original)」")
-        case .newFolder, nil:
-            Text("新建文件夹")
-        }
-    }
-
-    private var deletingTitle: String {
-        deleting.count == 1
-            ? String(localized: "删除「\(deleting[0])」？")
-            : String(localized: "删除 \(deleting.count) 个项目？")
-    }
-
-    private func commit(_ naming: Naming) {
-        let original: String? =
-            switch naming {
-            case .rename(let original): original
-            case .newFolder: nil
-            }
-        let failed =
-            original == nil ? String(localized: "新建失败") : String(localized: "重命名失败")
-        if name == original {
-            return
-        }
-        if let problem = FileName.problem(name, among: entries.map(\.name)) {
-            trouble = Trouble(title: failed, message: problem)
-            return
-        }
-        let name = name
-        Task {
-            do {
-                if let original {
-                    try await files.rename(original, to: name, in: folder)
-                } else {
-                    try await files.createFolder(name, in: folder)
-                }
-            } catch {
-                trouble = Trouble(title: failed, message: Describe.ssh(error))
-            }
-        }
-    }
-
-    private func delete(_ names: [String]) {
-        endSelecting()
-        Task {
-            do {
-                try await files.delete(names, in: folder)
-            } catch {
-                trouble = Trouble(
-                    title: String(localized: "删除失败"), message: Describe.ssh(error))
-            }
-        }
-    }
 }
 
 /// A file or folder dragged in from another app, kept as it lands: the
@@ -459,7 +331,9 @@ private struct EntryRow: View {
         HStack(spacing: 12) {
             Image(systemName: entry.symbol)
                 .font(.title2)
-                .foregroundStyle(entry.isFolder ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
+                .foregroundStyle(
+                    entry.isFolder ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary)
+                )
                 .frame(width: 32)
             VStack(alignment: .leading, spacing: 2) {
                 Text(entry.name)

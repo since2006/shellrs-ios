@@ -5,7 +5,6 @@ import SwiftUI
 struct TerminalScreen: View {
     let session: TerminalSession
     @Environment(AppModel.self) private var model
-    @State private var showingFiles = false
 
     var body: some View {
         NavigationStack {
@@ -18,7 +17,7 @@ struct TerminalScreen: View {
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
                         Button("收起", systemImage: "chevron.down") {
-                            model.shownSession = nil
+                            model.hideTerminal()
                         }
                     }
                     ToolbarItem(placement: .principal) {
@@ -26,7 +25,7 @@ struct TerminalScreen: View {
                     }
                     ToolbarItem(placement: .primaryAction) {
                         Button("文件", systemImage: "folder") {
-                            showingFiles = true
+                            model.showsFiles = true
                         }
                         .disabled(session.files == nil && session.isClosed)
                     }
@@ -38,12 +37,6 @@ struct TerminalScreen: View {
         // The terminal is dark whatever the system's appearance; what is
         // shown over it is not.
         .environment(\.colorScheme, .dark)
-        .sheet(isPresented: $showingFiles) {
-            FilesView(files: session.openFiles()) {
-                showingFiles = false
-            }
-        }
-        .loginPrompts(of: session)
         .onAppear {
             session.surface.focusForKeyboard()
         }
@@ -57,40 +50,23 @@ struct TerminalPane: View {
     let session: TerminalSession
 
     var body: some View {
-        TerminalSurfaceView(surface: session.surface)
-            // The view is the session's own: another session needs a new
-            // representable, not this one updated.
-            .id(session.id)
-            .safeAreaInset(edge: .bottom) {
-                if session.isClosed {
-                    ClosedBar(session: session)
-                        .padding()
+        UnobscuredArea {
+            TerminalSurfaceView(surface: session.surface)
+                // A new session owns a different UIKit surface.
+                .id(session.id)
+                .safeAreaInset(edge: .bottom) {
+                    if session.isClosed {
+                        ClosedBar(session: session)
+                            .padding()
+                    }
                 }
-            }
-            .overlay {
-                if session.state == .connecting, session.prompt == nil {
-                    ProgressView()
-                        .controlSize(.large)
-                        .tint(.white)
+                .overlay {
+                    if session.state == .connecting, session.prompt == nil {
+                        ProgressView()
+                            .controlSize(.large)
+                            .tint(.white)
+                    }
                 }
-            }
-    }
-}
-
-extension View {
-    /// What the login of `session` asks the user, in a sheet.
-    func loginPrompts(of session: TerminalSession) -> some View {
-        sheet(
-            isPresented: Binding(
-                get: { session.prompt != nil },
-                set: { if !$0 { session.answer(.cancel) } })
-        ) {
-            if let prompt = session.prompt {
-                PromptSheet(prompt: prompt) { reply in
-                    session.answer(reply)
-                }
-                .id(prompt.id)
-            }
         }
     }
 }

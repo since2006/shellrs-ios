@@ -9,30 +9,15 @@ import SwiftUI
 struct FilesView: View {
     let files: FilesModel
     let close: () -> Void
-    @State private var shown: Shown?
-
-    /// What the sheet shows over itself.
-    enum Shown: Identifiable {
-        case transfers
-        case downloads
-        case file(FileShown)
-
-        var id: String {
-            switch self {
-            case .transfers: "transfers"
-            case .downloads: "downloads"
-            case .file(let file): "file:" + file.path
-            }
-        }
-    }
+    @Environment(AppModel.self) private var model
 
     var body: some View {
         @Bindable var files = files
         let actions = FilesActions(
             close: close,
-            showTransfers: { shown = .transfers },
-            showDownloads: { shown = .downloads },
-            showFile: { shown = .file($0) })
+            showTransfers: { model.sheet = .transfers(files) },
+            showDownloads: { model.sheet = .downloads(files) },
+            showFile: { model.sheet = .file(files, $0) })
         NavigationStack(path: $files.path) {
             FolderView(folder: "/", files: files, actions: actions)
                 .navigationDestination(for: String.self) { folder in
@@ -41,32 +26,9 @@ struct FilesView: View {
         }
         .safeAreaInset(edge: .bottom) {
             TransferBar(files: files) {
-                shown = .transfers
+                model.sheet = .transfers(files)
             }
         }
-        .sheet(item: $shown) { shown in
-            switch shown {
-            case .transfers:
-                TransfersView(files: files)
-            case .downloads:
-                NavigationStack {
-                    DownloadsView(folder: files.downloadsFolder, revision: files.downloads)
-                        .toolbar {
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("完成") {
-                                    self.shown = nil
-                                }
-                            }
-                        }
-                }
-            case .file(let file):
-                FileInfoView(files: files, file: file) {
-                    self.shown = nil
-                }
-            }
-        }
-        // While a sheet is over it, the sheet asks and shows instead.
-        .transferPrompts(files, active: shown == nil)
         .onAppear {
             files.open()
         }
@@ -97,7 +59,8 @@ private struct TransferPrompts: ViewModifier {
                 Text(verbatim: "\(question.path)\n\n\(Describe.firstLink(question.message))")
             }
             .alert(
-                "传输出错", isPresented: Binding(
+                "传输出错",
+                isPresented: Binding(
                     get: { active && files.notice != nil }, set: { if !$0 { files.notice = nil } })
             ) {
                 Button("好") {}
@@ -143,14 +106,20 @@ private struct TransferPrompts: ViewModifier {
                 Button("全部跳过") { files.answer(.skip, toAll: true) }
             }
         case .resume:
-            Button(upload ? String(localized: "继续上传") : String(localized: "继续下载")) { files.answer(.resume) }
+            Button(upload ? String(localized: "继续上传") : String(localized: "继续下载")) {
+                files.answer(.resume)
+            }
             if several {
                 Button("全部继续") { files.answer(.resume, toAll: true) }
             }
-            Button(upload ? String(localized: "重新上传") : String(localized: "重新下载")) { files.answer(.restart) }
+            Button(upload ? String(localized: "重新上传") : String(localized: "重新下载")) {
+                files.answer(.restart)
+            }
             Button("跳过") { files.answer(.skip) }
         case .invalidResume:
-            Button(upload ? String(localized: "重新上传") : String(localized: "重新下载")) { files.answer(.restart) }
+            Button(upload ? String(localized: "重新上传") : String(localized: "重新下载")) {
+                files.answer(.restart)
+            }
             Button("跳过") { files.answer(.skip) }
         case .error:
             Button("重试") { files.answer(.retry) }
@@ -169,14 +138,19 @@ private struct TransferBar: View {
     let open: () -> Void
 
     var body: some View {
-        if let entry = files.queue.head ?? files.queue.entries.first(where: { $0.state == .pending }) {
+        if let entry = files.queue.head
+            ?? files.queue.entries.first(where: { $0.state == .pending })
+        {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 10) {
                     Button(action: open) {
                         HStack(spacing: 10) {
-                            Image(systemName: entry.job.direction == .upload ? "arrow.up.circle" : "arrow.down.circle")
-                                .font(.title3)
-                                .foregroundStyle(Color.accentColor)
+                            Image(
+                                systemName: entry.job.direction == .upload
+                                    ? "arrow.up.circle" : "arrow.down.circle"
+                            )
+                            .font(.title3)
+                            .foregroundStyle(Color.accentColor)
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(verbatim: entry.job.title)
                                     .lineLimit(1)
@@ -208,7 +182,9 @@ private struct TransferBar: View {
             }
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(
+                .regularMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+            )
             .padding(.horizontal)
             .padding(.bottom, 8)
         }
@@ -218,5 +194,29 @@ private struct TransferBar: View {
     private var waiting: Int {
         files.queue.entries.filter { $0.state == .pending }.count
             - (files.queue.head == nil ? 1 : 0)
+    }
+}
+
+/// The modifier is always installed on the window. Opening SFTP never replaces
+/// the root view (and consequently never resets a navigation stack or a sheet).
+struct WindowTransferPrompts: ViewModifier {
+    let files: FilesModel?
+    let active: Bool
+
+    func body(content: Content) -> some View {
+        content.background {
+            if let files {
+                Color.clear
+                    .frame(width: 0, height: 0)
+                    .transferPrompts(files, active: active)
+                    .background {
+                        if active {
+                            Color.clear.frame(width: 0, height: 0)
+                                .modifier(
+                                    FolderPrompts(files: files, folder: files.path.last ?? "/"))
+                        }
+                    }
+            }
+        }
     }
 }

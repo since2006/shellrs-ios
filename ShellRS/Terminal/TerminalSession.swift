@@ -236,6 +236,7 @@ final class TerminalSession: Identifiable {
     }
 
     private func resize(_ size: TerminalSize) {
+        guard size.isValid else { return }
         try? terminal?.resize(
             columns: size.columns, rows: size.rows, width: size.width, height: size.height)
     }

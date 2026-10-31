@@ -23,6 +23,14 @@ final class FilesModel {
     private(set) var home = "/"
     /// The folders shown above `/`, deepest last.
     var path: [String] = []
+    @ObservationIgnored private var folderStates: [String: FolderState] = [:]
+
+    func folderState(for folder: String) -> FolderState {
+        if let state = folderStates[folder] { return state }
+        let state = FolderState()
+        folderStates[folder] = state
+        return state
+    }
     private(set) var queue = TransferQueue()
     /// What the running batch asks the user now.
     private(set) var question: TransferQuestion?
@@ -643,7 +651,8 @@ enum LocalFolders {
         else {
             return false
         }
-        return size == entry.size && Int64(date.timeIntervalSince1970.rounded(.down)) == Int64(modified)
+        return size == entry.size
+            && Int64(date.timeIntervalSince1970.rounded(.down)) == Int64(modified)
     }
 
     /// Moves what `keep` kept into `staging`, each into a folder of its own

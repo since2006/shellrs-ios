@@ -16,14 +16,16 @@ struct CredentialListView: View {
 /// navigation bar: the 凭据 tab or the sidebar.
 struct CredentialList: View {
     @Environment(AppModel.self) private var model
-    @State private var query = ""
-    @State private var editing: CredentialEditor.Subject?
-    @State private var deleting: Credential?
-    @State private var failure: String?
+    private var state: CredentialListState { model.credentialListState }
+    private var editing: CredentialEditor.Subject? {
+        get { if case .credential(let subject) = model.sheet { subject } else { nil } }
+        nonmutating set { model.sheet = newValue.map(AppSheet.credential) }
+    }
 
     var body: some View {
+        @Bindable var state = model.credentialListState
         @Bindable var hosts = model.hosts
-        let shown = hosts.credentials.filter { $0.matches(query) }
+        let shown = hosts.credentials.filter { $0.matches(state.query) }
         List {
             ForEach(shown, id: \.id) { credential in
                 Button {
@@ -34,7 +36,7 @@ struct CredentialList: View {
                 .tint(.primary)
                 .swipeActions {
                     Button("删除", role: .destructive) {
-                        deleting = credential
+                        state.deleting = credential
                     }
                 }
                 .contextMenu {
@@ -48,12 +50,12 @@ struct CredentialList: View {
                     }
                     Divider()
                     Button("删除", systemImage: "trash", role: .destructive) {
-                        deleting = credential
+                        state.deleting = credential
                     }
                 }
             }
         }
-        .searchable(text: $query, prompt: "搜索凭据")
+        .searchable(text: $state.query, prompt: "搜索凭据")
         .overlay {
             if hosts.credentials.isEmpty {
                 ContentUnavailableView {
@@ -66,7 +68,7 @@ struct CredentialList: View {
                     }
                 }
             } else if shown.isEmpty {
-                ContentUnavailableView.search(text: query)
+                ContentUnavailableView.search(text: state.query)
             }
         }
         .navigationTitle("凭据")
@@ -84,35 +86,6 @@ struct CredentialList: View {
                 }
             }
         }
-        .sheet(item: $editing) { subject in
-            CredentialEditor(subject: subject)
-        }
-        .confirmation(
-            Text(verbatim: deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
-            isPresented: Binding(
-                get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
-            presenting: deleting
-        ) { credential in
-            Button("删除", role: .destructive) {
-                do {
-                    try hosts.delete(credential)
-                } catch {
-                    failure = Describe.store(error)
-                }
-            }
-        } message: { credential in
-            if let message = Describe.deleting(credential, usedBy: users(of: credential)) {
-                Text(message)
-            }
-        }
-        .alert(
-            "出错了", isPresented: Binding(
-                get: { failure != nil }, set: { if !$0 { failure = nil } })
-        ) {
-            Button("好") {}
-        } message: {
-            Text(failure ?? "")
-        }
     }
 
     /// How many hosts log in with `credential`.
@@ -124,7 +97,7 @@ struct CredentialList: View {
         if let key = await model.hosts.store.publicKey(credential: credential.id) {
             UIPasteboard.general.string = key
         } else {
-            failure = String(localized: "这把私钥要口令才能读出公钥")
+            state.failure = String(localized: "这把私钥要口令才能读出公钥")
         }
     }
 }
@@ -143,10 +116,14 @@ private struct CredentialRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(credential.name)
                     .lineLimit(1)
-                Text(hosts == 0 ? credential.summary : String(localized: "\(credential.summary) · \(hosts) 台主机"))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                Text(
+                    hosts == 0
+                        ? credential.summary
+                        : String(localized: "\(credential.summary) · \(hosts) 台主机")
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
             }
         }
         .padding(.vertical, 2)
@@ -170,5 +147,44 @@ extension CredentialKind {
         case .key: "key"
         case .agent: "person.badge.key"
         }
+    }
+}
+
+struct CredentialListPrompts: ViewModifier {
+    @Environment(AppModel.self) private var model
+
+    func body(content: Content) -> some View {
+        let state = model.credentialListState
+        let hosts = model.hosts
+        content
+            .confirmation(
+                Text(verbatim: state.deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
+                isPresented: Binding(
+                    get: { state.deleting != nil }, set: { if !$0 { state.deleting = nil } }),
+                presenting: state.deleting
+            ) { credential in
+                Button("删除", role: .destructive) {
+                    do {
+                        try hosts.delete(credential)
+                    } catch {
+                        state.failure = Describe.store(error)
+                    }
+                }
+            } message: { credential in
+                if let message = Describe.deleting(
+                    credential, usedBy: hosts.hostsUsing(credential).count)
+                {
+                    Text(message)
+                }
+            }
+            .alert(
+                "出错了",
+                isPresented: Binding(
+                    get: { state.failure != nil }, set: { if !$0 { state.failure = nil } })
+            ) {
+                Button("好") {}
+            } message: {
+                Text(state.failure ?? "")
+            }
     }
 }

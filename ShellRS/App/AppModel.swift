@@ -11,7 +11,7 @@ enum AppTab: Hashable {
     case settings
 }
 
-/// The lists the sidebar of a wide iPad window switches between, as the
+/// The lists the sidebar of a wide window switches between, as the
 /// desktop's sidebar does.
 enum SidebarList: Hashable {
     case hosts
@@ -47,10 +47,23 @@ final class AppModel {
     private(set) var sessions: [TerminalSession] = []
     /// The terminal shown: over everything else in a narrow window, the
     /// tab in front in a wide one (none: the start page).
-    var shownSession: TerminalSession?
-    /// Whether the window is a wide iPad one: a sidebar and the terminal
+    var shownSession: TerminalSession? {
+        didSet {
+            if shownSession !== oldValue {
+                oldValue?.surface.dismissInput()
+                compactTerminalPresented = shownSession != nil
+            }
+        }
+    }
+    /// Selection survives 收起 and automatic layout changes. Presentation is separate.
+    var compactTerminalPresented = false
+    private(set) var layout = AppLayout.compact
+    var sheet: AppSheet?
+    let hostListState = HostListState()
+    let credentialListState = CredentialListState()
+    /// Whether the window is a wide one: a sidebar and the terminal
     /// tabs beside it, rather than the iPhone's tabs.
-    var isWide = false
+    var isWide: Bool { layout.isWide }
     var sidebarList = SidebarList.hosts
     /// Whether a wide window shows its sidebar; hidden, the terminal has
     /// the width.
@@ -80,6 +93,85 @@ final class AppModel {
     private var filesShown: Set<UInt64> = []
     /// The settings, over a wide window; a narrow one has a tab for them.
     var showingSettings = false
+
+    /// One stable sheet host outside both layout branches. Authentication can wait
+    /// behind an editor, but a fold never answers or cancels its prompt.
+    var presentedSheet: AppSheet? {
+        if let sheet { return sheet }
+        if showingSettings { return .settings }
+        if let session = shownSession, isWide || compactTerminalPresented,
+            let prompt = session.prompt
+        {
+            return .login(session, prompt)
+        }
+        return nil
+    }
+
+    func dismissSheet() {
+        // Authentication has explicit buttons and disallows interactive dismissal.
+        // A system presentation update must never be treated as a user cancellation.
+        if sheet != nil {
+            sheet = nil
+        } else if showingSettings {
+            showingSettings = false
+        }
+    }
+
+    func updateLayout(_ layout: AppLayout) {
+        let wasWide = isWide
+        self.layout = layout
+        if wasWide && !isWide {
+            compactTerminalPresented = shownSession != nil
+        } else if !wasWide && isWide {
+            if shownSession == nil {
+                sidebarList = tab == .credentials ? .credentials : .hosts
+            }
+            if tab == .settings {
+                showingSettings = true
+                tab = .hosts
+            }
+        }
+    }
+
+    func show(_ session: TerminalSession) {
+        shownSession = session
+        compactTerminalPresented = true
+    }
+
+    func hideTerminal() {
+        shownSession?.surface.dismissInput()
+        compactTerminalPresented = false
+    }
+
+    var sidebarVisible: Bool {
+        layout.showsSidebar(requested: sidebarShown, filesShown: showsFiles)
+    }
+
+    var filesCoverTerminal: Bool {
+        showsFiles && (isWide || compactTerminalPresented) && !layout.fitsFilesBesideTerminal
+    }
+
+    var terminalInputAllowed: Bool {
+        guard presentedSheet == nil, !filesCoverTerminal else { return false }
+        if showsFiles, let files = shownSession?.files {
+            let folder = files.folderState(for: files.path.last ?? "/")
+            if folder.naming != nil || folder.importing || !folder.deleting.isEmpty
+                || files.question != nil || files.preview != nil || files.notice != nil
+            {
+                return false
+            }
+        }
+        return hostListState.deleting == nil && credentialListState.deleting == nil
+    }
+
+    func setSidebarVisible(_ visible: Bool) {
+        // Automatic space budgeting is temporary, not a change in preference.
+        if !visible, showsFiles, !layout.fitsThreeColumns { return }
+        if visible, showsFiles, !layout.fitsThreeColumns {
+            showsFiles = false
+        }
+        sidebarShown = visible
+    }
     /// What a command asks of the host list, which does it once shown.
     var hostListRequest: HostListRequest?
     /// The terminals' text size in points, the same in all of them; this
@@ -158,7 +250,7 @@ final class AppModel {
     /// under the terminal over a narrow window, nor behind the settings
     /// over a wide one.
     var canPresent: Bool {
-        isWide ? !showingSettings : shownSession == nil
+        presentedSheet == nil && (isWide || !compactTerminalPresented)
     }
 
     /// Shows the host list, and has it do `request`: ⌘N, ⌘⇧N, ⌘K.
@@ -190,7 +282,7 @@ final class AppModel {
     /// ⌘B: only a wide window has the sidebar.
     func toggleSidebar() {
         if isWide {
-            sidebarShown.toggle()
+            setSidebarVisible(!sidebarVisible)
         }
     }
 
@@ -244,7 +336,8 @@ final class AppModel {
         end(session)
         sessions.remove(at: index)
         if shownSession === session {
-            shownSession = isWide && !sessions.isEmpty ? sessions[min(index, sessions.count - 1)] : nil
+            shownSession =
+                isWide && !sessions.isEmpty ? sessions[min(index, sessions.count - 1)] : nil
         }
     }
 
@@ -302,6 +395,14 @@ final class AppModel {
     }
 
     private func end(_ session: TerminalSession) {
+        if case .login(let owner, _) = sheet, owner === session { sheet = nil }
+        if let files = session.files {
+            switch sheet {
+            case .transfers(let owner), .downloads(let owner), .file(let owner, _):
+                if owner === files { sheet = nil }
+            default: break
+            }
+        }
         session.files?.end()
         session.disconnect()
     }

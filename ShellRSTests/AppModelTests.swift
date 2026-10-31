@@ -37,7 +37,7 @@ struct AppModelTests {
     }
 
     @Test func closingTheFrontTabBringsItsNeighbourForward() async throws {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         let tabs = try await open("a", "b", "c")
         #expect(front == "c")
 
@@ -56,7 +56,7 @@ struct AppModelTests {
     }
 
     @Test func closingTheShownTerminalOfANarrowWindowGoesBackToTheList() async throws {
-        model.isWide = false
+        model.updateLayout(.compact)
         let tabs = try await open("a", "b")
         model.close(tabs[1])
         #expect(model.shownSession == nil)
@@ -64,7 +64,7 @@ struct AppModelTests {
     }
 
     @Test func aTabsMenuClosesTheOnesAroundIt() async throws {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         var tabs = try await open("a", "b", "c", "d")
         model.close(.left, of: tabs[1])
         #expect(model.sessions.map(\.host.name) == ["b", "c", "d"])
@@ -82,7 +82,7 @@ struct AppModelTests {
     }
 
     @Test func numbersAndArrowsPickATab() async throws {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         // Nothing open: nothing to pick.
         model.selectNext()
         model.select(tab: 1)
@@ -150,7 +150,7 @@ struct AppModelTests {
     }
 
     @Test func commandsShowTheListWhereTheWindowHasIt() async throws {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         model.sidebarList = .credentials
         model.sidebarShown = false
         model.request(.newHost)
@@ -170,7 +170,7 @@ struct AppModelTests {
         model.toggleSidebar()
         #expect(!model.sidebarShown)
 
-        model.isWide = false
+        model.updateLayout(.compact)
         model.toggleSidebar()
         #expect(!model.sidebarShown)
         model.tab = .credentials
@@ -195,7 +195,7 @@ struct AppModelTests {
     }
 
     @Test func theFilesShowBesideATerminalOfAWideWindow() async throws {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         // The start page has no terminal to show the files of.
         model.toggleFiles()
         #expect(!model.showsFiles)
@@ -226,13 +226,13 @@ struct AppModelTests {
 
         // A narrow window shows them over the terminal, from its button:
         // ⌘⌥B leaves what a wide one would show as it was.
-        model.isWide = false
+        model.updateLayout(.compact)
         model.toggleFiles()
         #expect(model.showsFiles)
     }
 
     @Test func syncsReviewOpensWhereTheWindowHasTheSettings() {
-        model.isWide = true
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         model.reviewSync()
         #expect(model.showingSettings)
         #expect(model.tab == .hosts)
@@ -240,10 +240,81 @@ struct AppModelTests {
 
         model.showingSettings = false
         model.settingsPath = []
-        model.isWide = false
+        model.updateLayout(.compact)
         model.reviewSync()
         #expect(!model.showingSettings)
         #expect(model.tab == .settings)
+        #expect(model.settingsPath == [.sync])
+    }
+
+    @Test func foldingKeepsSelectionSurfaceAndFilesWhileChangingPresentation() async throws {
+        model.updateLayout(AppLayout(width: 900, regular: true))
+        let session = try await open("a")[0]
+        let surface = session.surface
+        surface.feed(Data("survives-folding".utf8))
+        let files = session.openFiles()
+        files.path = ["/tmp", "/tmp/work"]
+        let folder = files.folderState(for: "/tmp/work")
+        folder.name = "unfinished-name"
+        folder.naming = .newFolder
+        folder.selection = ["one.txt"]
+        model.showsFiles = true
+        #expect(model.sidebarShown)
+        #expect(!model.sidebarVisible)
+        // A system collapse must not erase the user's sidebar preference.
+        model.setSidebarVisible(false)
+        #expect(model.sidebarShown)
+
+        for _ in 0..<5 {
+            model.updateLayout(.compact)
+            #expect(model.compactTerminalPresented)
+            #expect(model.shownSession === session)
+            #expect(model.showsFiles)
+            model.updateLayout(AppLayout(width: 900, regular: true))
+        }
+        #expect(session.surface === surface)
+        #expect(surface.text.contains("survives-folding"))
+        #expect(session.openFiles() === files)
+        #expect(files.path == ["/tmp", "/tmp/work"])
+        #expect(files.folderState(for: "/tmp/work") === folder)
+        #expect(folder.name == "unfinished-name")
+        #expect(folder.naming == .newFolder)
+        #expect(folder.selection == ["one.txt"])
+
+        model.showsFiles = false
+        #expect(model.sidebarVisible)
+        model.updateLayout(.compact)
+        model.hideTerminal()
+        #expect(model.shownSession === session)
+        #expect(!model.compactTerminalPresented)
+        #expect(model.canPresent)
+        model.show(session)
+        #expect(model.compactTerminalPresented)
+        #expect(!model.canPresent)
+    }
+
+    @Test func sheetsSearchAndSettingsRoutesSurviveAChangeOfShell() {
+        model.hostListState.query = "production"
+        model.hostListState.foldedInSearch = [42]
+        model.credentialListState.query = "deploy"
+        model.sheet = .host(.new(group: 42))
+        let sheetID = model.presentedSheet?.id
+        model.updateLayout(AppLayout(width: 900, regular: true))
+        model.updateLayout(.compact)
+        #expect(model.presentedSheet?.id == sheetID)
+        #expect(model.hostListState.query == "production")
+        #expect(model.hostListState.foldedInSearch == [42])
+        #expect(model.credentialListState.query == "deploy")
+        model.dismissSheet()
+        #expect(model.presentedSheet == nil)
+
+        model.tab = .settings
+        model.settingsPath = [.sync]
+        model.updateLayout(AppLayout(width: 900, regular: true))
+        #expect(model.showingSettings)
+        #expect(model.presentedSheet?.id == "settings")
+        model.updateLayout(.compact)
+        #expect(model.presentedSheet?.id == "settings")
         #expect(model.settingsPath == [.sync])
     }
 }

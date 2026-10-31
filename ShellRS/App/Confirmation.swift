@@ -1,7 +1,7 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    /// Whether the window is a wide iPad one, its sidebar beside the
+    /// Whether the window is a wide one, its sidebar beside the
     /// terminals: what is shown over it may want to show otherwise.
     @Entry var wideWindow = false
 }
@@ -41,13 +41,15 @@ private struct Confirmation<T, A: View, M: View>: ViewModifier {
     let actions: (T) -> A
     let message: (T) -> M
     @Environment(\.wideWindow) private var wide
+    @State private var presentationWide: Bool?
 
     func body(content: Content) -> some View {
         // Both are always there, one of them shown: choosing between them
         // would make the content another view, its state lost, as the
         // window widens.
+        let usesAlert = presentationWide ?? wide
         content
-            .alert(title, isPresented: shown(if: wide), presenting: data) { data in
+            .alert(title, isPresented: shown(if: usesAlert), presenting: data) { data in
                 actions(data)
                 if !cancels {
                     Button("取消", role: .cancel) {}
@@ -56,8 +58,17 @@ private struct Confirmation<T, A: View, M: View>: ViewModifier {
                 message(data)
             }
             .confirmationDialog(
-                title, isPresented: shown(if: !wide), titleVisibility: .visible, presenting: data,
-                actions: actions, message: message)
+                title, isPresented: shown(if: !usesAlert), titleVisibility: .visible,
+                presenting: data,
+                actions: actions, message: message
+            )
+            .onChange(of: isPresented.wrappedValue, initial: true) { _, presented in
+                if presented {
+                    if presentationWide == nil { presentationWide = wide }
+                } else {
+                    presentationWide = nil
+                }
+            }
     }
 
     private func shown(if active: Bool) -> Binding<Bool> {

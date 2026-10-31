@@ -1,19 +1,20 @@
 import SwiftUI
 
-/// A wide iPad window, as the desktop's: the hosts in a sidebar that can
+/// A wide window, as the desktop's: the hosts in a sidebar that can
 /// be hidden, the terminal tabs beside it.
 struct WideRoot: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        @Bindable var model = model
         NavigationSplitView(
             columnVisibility: Binding(
-                get: { model.sidebarShown ? .all : .detailOnly },
-                set: { model.sidebarShown = $0 != .detailOnly })
+                get: { model.sidebarVisible ? .all : .detailOnly },
+                set: { model.setSidebarVisible($0 != .detailOnly) })
         ) {
             Sidebar()
-                .navigationSplitViewColumnWidth(min: 260, ideal: 320, max: 420)
+                .navigationSplitViewColumnWidth(
+                    min: AppLayout.sidebarMinimum, ideal: AppLayout.sidebarMinimum,
+                    max: AppLayout.sidebarMinimum)
         } detail: {
             TerminalWorkspace()
         }
@@ -24,20 +25,21 @@ struct WideRoot: View {
         // Only with a terminal: the start page has none to show files of.
         .inspector(
             isPresented: Binding(
-                get: { model.showsFiles },
-                set: { model.showsFiles = $0 })
+                get: { model.showsFiles && model.layout.fitsFilesBesideTerminal },
+                set: {
+                    if model.isWide, model.layout.fitsFilesBesideTerminal {
+                        model.showsFiles = $0
+                    }
+                })
         ) {
             Group {
                 if let session = model.shownSession {
                     FilesPane(session: session)
                 }
             }
-            .inspectorColumnWidth(min: 320, ideal: 400, max: 640)
-        }
-        .sheet(isPresented: $model.showingSettings) {
-            SettingsView {
-                model.showingSettings = false
-            }
+            .inspectorColumnWidth(
+                min: AppLayout.filesMinimum, ideal: AppLayout.filesMinimum,
+                max: AppLayout.filesMinimum)
         }
     }
 }

@@ -1,6 +1,7 @@
 import Foundation
 import ShellRSCore
 import Testing
+import UIKit
 
 @testable import ShellRS
 
@@ -85,6 +86,63 @@ struct ServerTests {
         try await expectAShell(session)
     }
 
+    @Test func foldingDuringAuthenticationDoesNotCancelAndThePtyFollowsItsViewport() async throws {
+        let server = try #require(TestServer.address)
+        let store = test.core.store()
+        let id = try await store.addHost(
+            draft: draft(address: server.address, port: server.port, user: TestServer.user),
+            password: .keep, proxyPassword: .keep)
+        let model = AppModel(core: test.core, deviceName: "Duo")
+        try model.connect(try #require(store.host(id: id)))
+        let session = try #require(model.shownSession)
+        defer { session.disconnect() }
+
+        try await waitUntil("the key is asked about") { session.prompt != nil }
+        let keyPrompt = try #require(session.prompt?.id)
+        for _ in 0..<5 {
+            model.updateLayout(AppLayout(width: 900, regular: true))
+            model.updateLayout(.compact)
+            model.dismissSheet()  // A presentation update is not a cancel button.
+            #expect(session.prompt?.id == keyPrompt)
+            #expect(session.state == .connecting)
+        }
+        session.answer(.trustAndSave)
+        try await waitUntil("the password is asked for") { session.prompt != nil }
+        let passwordPrompt = try #require(session.prompt?.id)
+        model.updateLayout(AppLayout(width: 900, regular: true))
+        model.updateLayout(.compact)
+        #expect(session.prompt?.id == passwordPrompt)
+        session.answer(.answers(answers: [TestServer.password]))
+        try await waitUntil("the shell connects") { session.state == .connected }
+
+        let scene = try #require(UIApplication.shared.connectedScenes.first as? UIWindowScene)
+        let window = UIWindow(windowScene: scene)
+        let controller = UIViewController()
+        window.rootViewController = controller
+        window.isHidden = false
+        defer { window.isHidden = true }
+        let host = TerminalSurfaceHost(surface: session.surface)
+        controller.view.addSubview(host)
+
+        for (index, width) in [350.0, 760.0, 420.0].enumerated() {
+            model.updateLayout(AppLayout(width: width, regular: width > 600))
+            host.frame = CGRect(x: 0, y: 0, width: width, height: 320)
+            host.layoutIfNeeded()
+            session.surface.view.setNeedsLayout()
+            session.surface.view.layoutIfNeeded()
+            let size = session.surface.size
+            // The marker is assembled by the shell, so the echoed input cannot
+            // accidentally satisfy the output assertion.
+            let command = "printf '__duo_size_%s__' \(index); stty size\r"
+            session.surface.onInput(Data(command.utf8))
+            try await waitUntil("the remote PTY has the viewport's rows and columns") {
+                session.surface.text.contains("__duo_size_\(index)__\(size.rows) \(size.columns)")
+            }
+            #expect(model.shownSession === session)
+            #expect(session.state == .connected)
+        }
+    }
+
     /// Through the server to a host only it reaches: the jump host's key is
     /// asked about first, and the saved passwords log both in.
     @Test(.enabled(if: TestServer.target != nil, "set SHELLRS_TEST_SSH_TARGET"))
@@ -109,9 +167,10 @@ struct ServerTests {
     }
 
     /// Through a SOCKS5 proxy, which resolves the host's address itself.
-    @Test(.enabled(
-        if: TestServer.target != nil && TestServer.socks != nil,
-        "set SHELLRS_TEST_SSH_TARGET and SHELLRS_TEST_SOCKS"))
+    @Test(
+        .enabled(
+            if: TestServer.target != nil && TestServer.socks != nil,
+            "set SHELLRS_TEST_SSH_TARGET and SHELLRS_TEST_SOCKS"))
     func goesThroughAProxy() async throws {
         let target = try #require(TestServer.target)
         let socks = try #require(TestServer.socks)
@@ -310,7 +369,8 @@ struct ServerTests {
         try await waitUntil("the upload stops with the terminal") {
             files.queue.head?.state == .stopped
         }
-        if case .disconnected = files.state {} else {
+        if case .disconnected = files.state {
+        } else {
             Issue.record("still \(files.state)")
         }
         session.start()

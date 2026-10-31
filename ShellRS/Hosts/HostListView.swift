@@ -15,24 +15,26 @@ struct HostListView: View {
 /// container gives it the navigation bar: the 主机 tab or the sidebar.
 struct HostList: View {
     @Environment(AppModel.self) private var model
-    @State private var query = ""
-    @State private var searchShown = false
     /// The groups folded in the search's results, for this search only.
-    @State private var foldedInSearch: Set<UInt64> = []
-    @State private var editMode = EditMode.inactive
-    @State private var editingHost: HostEditor.Subject?
-    @State private var editingGroup: GroupEditor.Subject?
-    @State private var deleting: Deletion?
-    @State private var failure: String?
+    private var state: HostListState { model.hostListState }
+    private var editingHost: HostEditor.Subject? {
+        get { if case .host(let subject) = model.sheet { subject } else { nil } }
+        nonmutating set { model.sheet = newValue.map(AppSheet.host) }
+    }
+    private var editingGroup: GroupEditor.Subject? {
+        get { if case .group(let subject) = model.sheet { subject } else { nil } }
+        nonmutating set { model.sheet = newValue.map(AppSheet.group) }
+    }
 
     /// How many of the latest connected go above the tree.
     private static let recentShown = 3
 
     var body: some View {
+        @Bindable var state = model.hostListState
         @Bindable var hosts = model.hosts
-        let searching = !query.trimmingCharacters(in: .whitespaces).isEmpty
-        let tree = HostTree(groups: hosts.groups, hosts: hosts.hosts, query: query)
-        let showsRecent = !searching && !editMode.isEditing && !hosts.recent.isEmpty
+        let searching = !state.query.trimmingCharacters(in: .whitespaces).isEmpty
+        let tree = HostTree(groups: hosts.groups, hosts: hosts.hosts, query: state.query)
+        let showsRecent = !searching && !state.editMode.isEditing && !hosts.recent.isEmpty
         let isEmpty = hosts.hosts.isEmpty && hosts.groups.isEmpty
         List {
             if showsRecent {
@@ -44,7 +46,7 @@ struct HostList: View {
             }
             Section {
                 HostLevel(
-                    tree: tree, searching: searching, foldedInSearch: $foldedInSearch,
+                    tree: tree, searching: searching, foldedInSearch: $state.foldedInSearch,
                     actions: actions)
             } header: {
                 if showsRecent {
@@ -52,11 +54,11 @@ struct HostList: View {
                 }
             }
         }
-        .environment(\.editMode, $editMode)
-        .searchable(text: $query, isPresented: $searchShown, prompt: "搜索主机或分组")
+        .environment(\.editMode, $state.editMode)
+        .searchable(text: $state.query, isPresented: $state.searchShown, prompt: "搜索主机或分组")
         // Each search opens every group again, as the desktop's does.
-        .onChange(of: query) {
-            foldedInSearch = []
+        .onChange(of: state.query) {
+            state.foldedInSearch = []
         }
         // ⌘N, ⌘⇧N and ⌘K, once the list is shown.
         .onChange(of: model.hostListRequest, initial: true) { _, request in
@@ -70,7 +72,7 @@ struct HostList: View {
             case .newGroup:
                 editingGroup = .new(parent: nil)
             case .search:
-                searchShown = true
+                state.searchShown = true
             }
         }
         .overlay {
@@ -85,7 +87,7 @@ struct HostList: View {
                     }
                 }
             } else if searching && tree.isEmpty {
-                ContentUnavailableView.search(text: query)
+                ContentUnavailableView.search(text: state.query)
             }
         }
         .navigationTitle("主机")
@@ -93,10 +95,11 @@ struct HostList: View {
             ToolbarItem(placement: .topBarLeading) {
                 if !isEmpty {
                     Button(
-                        editMode.isEditing
-                            ? String(localized: "完成") : String(localized: "排序")) {
+                        state.editMode.isEditing
+                            ? String(localized: "完成") : String(localized: "排序")
+                    ) {
                         withAnimation {
-                            editMode = editMode.isEditing ? .inactive : .active
+                            state.editMode = state.editMode.isEditing ? .inactive : .active
                         }
                     }
                 }
@@ -114,33 +117,6 @@ struct HostList: View {
                 }
             }
         }
-        .sheet(item: $editingHost) { subject in
-            HostEditor(subject: subject)
-        }
-        .sheet(item: $editingGroup) { subject in
-            GroupEditor(subject: subject)
-        }
-        .confirmation(
-            Text(verbatim: deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
-            isPresented: Binding(
-                get: { deleting != nil }, set: { if !$0 { deleting = nil } }),
-            presenting: deleting
-        ) { deletion in
-            Button("删除", role: .destructive) {
-                delete(deletion)
-            }
-        } message: { deletion in
-            Text(deletion.message)
-        }
-        .alert(
-            "出错了", isPresented: Binding(
-                get: { failure != nil || hosts.problem != nil },
-                set: { if !$0 { failure = nil; hosts.problem = nil } })
-        ) {
-            Button("好") {}
-        } message: {
-            Text(failure ?? hosts.problem ?? "")
-        }
     }
 
     private var actions: HostActions {
@@ -149,7 +125,7 @@ struct HostList: View {
                 do {
                     try model.connect(host)
                 } catch {
-                    failure = Describe.store(error)
+                    state.failure = Describe.store(error)
                 }
             },
             edit: { editingHost = .edit($0) },
@@ -157,16 +133,16 @@ struct HostList: View {
                 do {
                     try model.hosts.duplicate(host)
                 } catch {
-                    failure = Describe.store(error)
+                    state.failure = Describe.store(error)
                 }
             },
             delete: { node in
                 let dependents = model.hosts.dependents(of: node)
                 switch node {
                 case .host(let id):
-                    deleting = model.hosts.host(id).map { .host($0, dependents) }
+                    state.deleting = model.hosts.host(id).map { .host($0, dependents) }
                 case .group(let id):
-                    deleting = model.hosts.group(id).map { .group($0, dependents) }
+                    state.deleting = model.hosts.group(id).map { .group($0, dependents) }
                 }
             },
             newHost: { editingHost = .new(group: $0) },
@@ -175,18 +151,6 @@ struct HostList: View {
         )
     }
 
-    private func delete(_ deletion: Deletion) {
-        do {
-            switch deletion {
-            case .host(let host, _):
-                try model.hosts.delete(host)
-            case .group(let group, _):
-                try model.hosts.delete(group)
-            }
-        } catch {
-            failure = Describe.store(error)
-        }
-    }
 }
 
 /// What the rows ask the list to do.
@@ -204,7 +168,7 @@ private struct HostActions {
 }
 
 /// What is about to be deleted, and what goes with it.
-private enum Deletion {
+enum HostDeletion {
     case host(Host, Dependents)
     case group(HostGroup, Dependents)
 
@@ -216,10 +180,11 @@ private enum Deletion {
     }
 
     var message: String {
-        let goes: String? = switch self {
-        case .host(_, let dependents): Describe.deleting(host: dependents)
-        case .group(_, let dependents): Describe.deleting(group: dependents)
-        }
+        let goes: String? =
+            switch self {
+            case .host(_, let dependents): Describe.deleting(host: dependents)
+            case .group(_, let dependents): Describe.deleting(group: dependents)
+            }
         let open = String(localized: "已打开的终端不受影响。")
         return goes.map { "\($0)\n\(open)" } ?? open
     }
@@ -387,5 +352,56 @@ struct HostRow: View {
             }
         }
         .padding(.vertical, 2)
+    }
+}
+
+struct HostListPrompts: ViewModifier {
+    @Environment(AppModel.self) private var model
+    private var state: HostListState { model.hostListState }
+
+    func body(content: Content) -> some View {
+        let state = model.hostListState
+        let hosts = model.hosts
+        content
+            .confirmation(
+                Text(verbatim: state.deleting.map { String(localized: "删除“\($0.name)”？") } ?? ""),
+                isPresented: Binding(
+                    get: { state.deleting != nil }, set: { if !$0 { state.deleting = nil } }),
+                presenting: state.deleting
+            ) { deletion in
+                Button("删除", role: .destructive) {
+                    delete(deletion)
+                }
+            } message: { deletion in
+                Text(deletion.message)
+            }
+            .alert(
+                "出错了",
+                isPresented: Binding(
+                    get: { state.failure != nil || hosts.problem != nil },
+                    set: {
+                        if !$0 {
+                            state.failure = nil
+                            hosts.problem = nil
+                        }
+                    })
+            ) {
+                Button("好") {}
+            } message: {
+                Text(state.failure ?? hosts.problem ?? "")
+            }
+    }
+
+    private func delete(_ deletion: HostDeletion) {
+        do {
+            switch deletion {
+            case .host(let host, _):
+                try model.hosts.delete(host)
+            case .group(let group, _):
+                try model.hosts.delete(group)
+            }
+        } catch {
+            state.failure = Describe.store(error)
+        }
     }
 }

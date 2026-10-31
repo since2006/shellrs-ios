@@ -10,7 +10,7 @@ struct SessionsView: View {
             List {
                 ForEach(model.sessions) { session in
                     Button {
-                        model.shownSession = session
+                        model.show(session)
                     } label: {
                         SessionRow(session: session)
                     }
