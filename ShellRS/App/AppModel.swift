@@ -40,6 +40,7 @@ enum TabsAround {
 final class AppModel {
     let core: Core
     let hosts: HostsModel
+    let purchases: PurchaseModel
     let sync: SyncModel
     var tab = AppTab.hosts
     var settingsPath: [SettingsRoute] = []
@@ -104,6 +105,7 @@ final class AppModel {
         {
             return .login(session, prompt)
         }
+        if purchases.presentationRequested { return .purchase }
         return nil
     }
 
@@ -114,6 +116,8 @@ final class AppModel {
             sheet = nil
         } else if showingSettings {
             showingSettings = false
+        } else {
+            purchases.presentationRequested = false
         }
     }
 
@@ -185,15 +189,23 @@ final class AppModel {
         }
     }
 
+    /// Kept locally with the terminal size, independent of cloud sync.
+    var appearance: AppAppearance {
+        didSet { defaults.set(appearance.rawValue, forKey: Self.appearanceKey) }
+    }
+
     /// The desktop's default text size and range.
     static let defaultFontSize = 13.0
     static let fontSizes = 10.0...28.0
     private static let fontSizeKey = "terminalFontSize"
+    private static let appearanceKey = "appAppearance"
     @ObservationIgnored private let defaults: UserDefaults
 
-    init(core: Core, deviceName: String, defaults: UserDefaults = .standard) {
+    init(core: Core, deviceName: String, defaults: UserDefaults = .standard, purchases: PurchaseModel = PurchaseModel()) {
+        self.purchases = purchases
         self.core = core
         self.defaults = defaults
+        appearance = defaults.string(forKey: Self.appearanceKey).flatMap(AppAppearance.init(rawValue:)) ?? .system
         let saved = defaults.double(forKey: Self.fontSizeKey)
         fontSize = Self.fontSizes.contains(saved) ? saved : Self.defaultFontSize
         hosts = HostsModel(store: core.store())
@@ -224,7 +236,8 @@ final class AppModel {
         guard host.isSsh else {
             throw StoreError.NotSsh
         }
-        let session = TerminalSession(host: host, core: core, fontSize: fontSize)
+        guard purchases.authorizeConnection() else { return }
+        let session = TerminalSession(host: host, core: core, purchases: purchases, fontSize: fontSize)
         session.onClose = { [weak self, weak session] in
             if let self, let session {
                 close(session)
@@ -238,6 +251,8 @@ final class AppModel {
     /// The app came back to the foreground: the connections may have died
     /// while it was away, and sync may be due.
     func cameForward() {
+        purchases.tick()
+        Task { await purchases.refresh() }
         for session in sessions {
             Task {
                 await session.checkAlive()

@@ -1,0 +1,89 @@
+{
+  "device": "iPhone Duo",
+  "display": "inner",
+  "orientation": "landscape",
+  "appearance": "light",
+  "app_source_commit": "e18750e",
+  "files": [
+    {
+      "file": "zh-Hans/01-terminal.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "ae46b3dfe619d7e2a70fe4d64818e7a2fa13855d0aa1141819870f05cb7be61e"
+    },
+    {
+      "file": "zh-Hans/02-hosts.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "a3a64f836a7e3975d2b95158cdda50951d95a7607b06ecaeb4923df7ce3ce87d"
+    },
+    {
+      "file": "zh-Hans/03-files.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "fdff9f45768fd881786f9c90882654be9e56e06f133e3bb3b7e4a837e1541bd3"
+    },
+    {
+      "file": "zh-Hans/04-sync.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "4e6e666289002f0851232900c3c4db0dd839d7266cb9c6ef5ef58c4faeb1abcf"
+    },
+    {
+      "file": "en/01-terminal.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "2b868dd65bffb4f7101ccd68b84544d5839934672bf65fef5db9b9df811535e5"
+    },
+    {
+      "file": "en/02-hosts.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "e394561ae6303bd9abaf9dafcc89ff5811db5ac3f629fe6af0af03c13457acd3"
+    },
+    {
+      "file": "en/03-files.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "1aa3b603caa42f6a0d877200248aaac9b737b37b63ce48c8847d506472dcf478"
+    },
+    {
+      "file": "en/04-sync.png",
+      "width": 2853,
+      "height": 2007,
+      "bit_depth": 8,
+      "format": "RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "4da10144859bbe067cc5ce2d90fe9f0a7b1b9d7077e31f791144542265df5684"
+    }
+  ]
+}

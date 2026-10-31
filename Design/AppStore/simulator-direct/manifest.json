@@ -1,0 +1,32 @@
+{
+  "method": "Unmodified simctl screenshot --display=3 --mask=ignored",
+  "device": "iPhone Duo",
+  "runtime": "iOS 27.1",
+  "app_commit": "e18750e",
+  "screenshots": [
+    {
+      "file": "en/01-terminal.png",
+      "width": 2853,
+      "height": 2007,
+      "sha256": "32bea5bf38350ed8e5771b2eee5ac2f73ab618c2ea81980f030a897803f3e004"
+    },
+    {
+      "file": "en/02-files.png",
+      "width": 2853,
+      "height": 2007,
+      "sha256": "384dd966ed242ab187df13c82b4bb4a65138e6481650cb65f8e60557785f9f3a"
+    },
+    {
+      "file": "zh-Hans/01-terminal.png",
+      "width": 2853,
+      "height": 2007,
+      "sha256": "31b482fae900a9556abc77658dc542374dd405d589a8dbde6dff54a537cf35e5"
+    },
+    {
+      "file": "zh-Hans/02-files.png",
+      "width": 2853,
+      "height": 2007,
+      "sha256": "ddb56c2e011ecf3aa4bc6445ff7b163349af327e26a2e7b8ee5524a8614b2af0"
+    }
+  ]
+}

@@ -66,7 +66,9 @@ struct RootView: View {
         .modifier(ActiveTransferPrompts())
         .modifier(HostListPrompts())
         .modifier(CredentialListPrompts())
+        .task { await model.purchases.start() }
         .focusedSceneValue(\.appModel, model)
+        .preferredColorScheme(model.appearance.colorScheme)
         .onChange(of: scenePhase, initial: true) { _, phase in
             switch phase {
             case .active:

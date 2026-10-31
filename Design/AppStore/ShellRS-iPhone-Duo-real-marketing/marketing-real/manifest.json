@@ -1,0 +1,57 @@
+{
+  "type": "App Store promotional artwork based on native simulator screenshots",
+  "files": [
+    {
+      "file": "zh-Hans/01-terminal.png",
+      "size": [
+        2853,
+        2007
+      ],
+      "format": "8-bit RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "e93e5ed0e3750775ed64053bb4f8953fe40f293d28c04f40995a27f865e3bd30",
+      "source": "simulator-direct/zh-Hans/01-terminal.png",
+      "source_sha256": "31b482fae900a9556abc77658dc542374dd405d589a8dbde6dff54a537cf35e5"
+    },
+    {
+      "file": "zh-Hans/02-files.png",
+      "size": [
+        2853,
+        2007
+      ],
+      "format": "8-bit RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "4edbf2301fef7f8f3b4aedbecb769be70c878515336fd748edcc5fdbbbf524ab",
+      "source": "simulator-direct/zh-Hans/02-files.png",
+      "source_sha256": "ddb56c2e011ecf3aa4bc6445ff7b163349af327e26a2e7b8ee5524a8614b2af0"
+    },
+    {
+      "file": "en/01-terminal.png",
+      "size": [
+        2853,
+        2007
+      ],
+      "format": "8-bit RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "4fe1955b495fdcd8b75d12f1649ba3b9722254bb1e055c1e90a2d6f7c75658b4",
+      "source": "simulator-direct/en/01-terminal.png",
+      "source_sha256": "32bea5bf38350ed8e5771b2eee5ac2f73ab618c2ea81980f030a897803f3e004"
+    },
+    {
+      "file": "en/02-files.png",
+      "size": [
+        2853,
+        2007
+      ],
+      "format": "8-bit RGB PNG",
+      "alpha": false,
+      "color_space": "sRGB",
+      "sha256": "3e043de315c75f6d60dc73205bc2f9bcc5655f325309346184d957991478d2fa",
+      "source": "simulator-direct/en/02-files.png",
+      "source_sha256": "384dd966ed242ab187df13c82b4bb4a65138e6481650cb65f8e60557785f9f3a"
+    }
+  ]
+}

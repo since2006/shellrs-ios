@@ -29,6 +29,10 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 
 模拟器换成本机装了的（`xcrun simctl list devices available`）；不写 `OS=` 时 xcodebuild 找最新 SDK 的运行时，没装就报找不到设备。
 
+## 试用与永久解锁
+
+iOS/iPadOS 通过 StoreKit 2 提供一次 30 天全功能免费试用及非消耗型永久解锁；到期只限制新建 SSH 会话或首次打开 SFTP，已有会话可继续使用和重连。商品配置、离线策略、本地内购测试和上线验收见 [iOS 内购说明](docs/IOS_IAP.md)。
+
 ## 测试
 
 `ShellRSTests` 用 Swift Testing，宿主是 App 本身：
@@ -94,6 +98,7 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - **拖文件进来上传**：从别的 App 拖到文件列表上，落下时先拷一份（来源 App 随后就收回），同一次拖进来的是一批。
 - **文件列表只在「选择」时给选择绑定**：iPad 上的 `List(selection:)` 不进编辑模式也能选，点文件夹就成了选中这一行，进不去（iPhone 要进编辑模式才选，所以没这个问题）。
 - **硬件键盘**：切标签、打开终端后，接着键盘才把焦点给终端，直接就能打字；没接不抢，免得弹出软键盘。
+- **外观**在设置里选择跟随系统、浅色或深色，默认跟随系统；选择保存在本机，重启后继续使用。
 - **终端字号**在设置里，10–28、默认 13（同电脑版），存在本机、不同步。
 
 快捷键的名字和按键照电脑版，按住 ⌘ 看得到；SwiftTerm 不处理带 ⌘ 的键，终端里也能用，⌘C、⌘V 是系统「编辑」菜单的，到终端自己的拷贝、粘贴：
@@ -114,14 +119,14 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 
 ## 目录
 
-- `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端、窗口的状态和快捷键做的事）、`AppKeychain`、`RootView`（按窗口宽窄选布局；前后台切换时告诉同步，回到前台时检查终端的连接）、宽窗口的分栏（`WideRoot`、`Sidebar`）、快捷键（`AppCommands`）、确认框（`Confirmation`）、设置页（云同步、终端字号、关于）、表单里带标签的输入框。
+- `ShellRS/App`：入口、`AppModel`（核心、主机、同步、打开的终端、窗口的状态和快捷键做的事）、`AppKeychain`、`RootView`（按窗口宽窄选布局；前后台切换时告诉同步，回到前台时检查终端的连接）、宽窗口的分栏（`WideRoot`、`Sidebar`）、快捷键（`AppCommands`）、确认框（`Confirmation`）、设置页（云同步、外观模式、终端字号、关于）、表单里带标签的输入框。
 - `ShellRS/Hosts`：`HostsModel`（主机、分组、凭据的快照和改动）、主机树（`HostTree`：分组在前、主机在后，搜索同电脑版：结果里分组全部展开，折叠只管这次搜索，不改存着的展开状态）、主机列表、主机表单（认证、跳板、代理、分组）、分组表单、主机标记（`HostMark`：探测到系统后是它的图标和品牌色）。
 - `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、窄窗口的终端页（`TerminalScreen`）、宽窗口的标签条和终端（`TerminalWorkspace`、`TerminalTabs`）、开始页、问答、打开的终端列表。
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览（拖进来上传）、文件简介（`FileInfoView`：点文件先看这里，预览和下载都从这里开始）、传输队列页（`TransferControls`：传输条、队列和简介共用的停止 / 继续 / 取消按钮）、已下载的文件。
 - `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）。
 - `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`，同步的在 `DescribeSync.swift`），删除前说的连带。
-- `ShellRS/About`：「开源许可」页和它的清单 `Licenses.json`（`scripts/licenses.py` 生成，不手改）。
+- `ShellRS/About`：随 App 打包的开源许可清单 `Licenses.json`（`scripts/licenses.py` 生成，不手改）及读取模型。设置不再提供许可列表页面。
 - `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。
 - `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
 - `ShellRS/Localizable.xcstrings`：全部文案。

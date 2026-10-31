@@ -2,14 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIFileSharingEnabled</key>
-	<true/>
-	<!-- One window for now: a terminal's view can be in one window only,
-	     and the terminals are the app's, not a window's. -->
+	<key>ShellRSLifetimeProductID</key>
+	<string>$(SHELLRS_LIFETIME_PRODUCT_ID)</string>
+	<key>ShellRSTrialProductID</key>
+	<string>$(SHELLRS_TRIAL_PRODUCT_ID)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 	</dict>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 </dict>
 </plist>

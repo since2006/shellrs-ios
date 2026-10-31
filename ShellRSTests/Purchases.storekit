@@ -1,0 +1,38 @@
+{
+  "identifier" : "ACDB2119-898F-45FD-BC2B-A30D6E0CB1D1",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "0",
+      "familyShareable" : false,
+      "internalID" : "1000001",
+      "localizations" : [
+        { "description" : "30 days of all SSH and SFTP features. No subscription or automatic renewal.", "displayName" : "30-day Trial", "locale" : "en_US" },
+        { "description" : "领取后试用全部功能 30 天，无需订阅，不自动续费。", "displayName" : "30 天试用", "locale" : "zh_CN" }
+      ],
+      "productID" : "com.shellrs.ios.trial30",
+      "referenceName" : "30-day Trial",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "1000002",
+      "localizations" : [
+        { "description" : "One-time unlock for ShellRS on iPhone and iPad.", "displayName" : "Lifetime Unlock", "locale" : "en_US" },
+        { "description" : "一次购买，永久解锁 iPhone 和 iPad 版本。", "displayName" : "永久解锁", "locale" : "zh_CN" }
+      ],
+      "productID" : "com.shellrs.ios.lifetime",
+      "referenceName" : "Lifetime Unlock",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 3, "minor" : 0 }
+}

@@ -4,7 +4,7 @@ import SwiftUI
 /// What can be pushed in the settings.
 enum SettingsRoute: Hashable {
     case sync
-    case licenses
+    case purchase
 }
 
 /// The settings: sync, and what the app is.
@@ -19,11 +19,30 @@ struct SettingsView: View {
         NavigationStack(path: $model.settingsPath) {
             Form {
                 Section {
+                    NavigationLink(value: SettingsRoute.purchase) {
+                        PurchaseStatus(purchases: model.purchases)
+                    }
+                    Button("恢复购买") {
+                        Task { await model.purchases.restore() }
+                    }
+                    .disabled(model.purchases.working)
+                    if let notice = model.purchases.notice {
+                        Text(notice).font(.footnote)
+                    }
+                }
+                Section {
                     NavigationLink(value: SettingsRoute.sync) {
                         LabeledContent {
                             SyncSummary(sync: model.sync)
                         } label: {
                             Label("云同步", systemImage: "arrow.triangle.2.circlepath.icloud")
+                        }
+                    }
+                }
+                Section("外观") {
+                    Picker("模式", selection: $model.appearance) {
+                        ForEach(AppAppearance.allCases, id: \.self) { appearance in
+                            Text(appearance.title).tag(appearance)
                         }
                     }
                 }
@@ -41,13 +60,18 @@ struct SettingsView: View {
                     LabeledContent("版本", value: Self.version)
                     Link(destination: Self.website) {
                         LabeledContent {
-                            Text(verbatim: "shellrs.com")
+                            HStack(spacing: 6) {
+                                Text(verbatim: "shellrs.com")
+                                Image(systemName: "arrow.up.right.square")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityHidden(true)
+                            }
                         } label: {
                             Text("官网")
                                 .foregroundStyle(Color.primary)
                         }
                     }
-                    NavigationLink("开源许可", value: SettingsRoute.licenses)
                 }
             }
             .navigationTitle("设置")
@@ -60,10 +84,10 @@ struct SettingsView: View {
             }
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
+                case .purchase:
+                    PurchaseContent(purchases: model.purchases)
                 case .sync:
                     SyncView(sync: model.sync)
-                case .licenses:
-                    LicensesView()
                 }
             }
         }

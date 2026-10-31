@@ -349,16 +349,6 @@
         }
       }
     },
-    "ShellRS 用到的开源软件，点开看许可证全文。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The open-source software in ShellRS. Tap one to read its license."
-          }
-        }
-      }
-    },
     "Telnet 主机暂时只能在电脑上连接。": {
       "localizations": {
         "en": {
@@ -2985,16 +2975,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Turn on sync"
-          }
-        }
-      }
-    },
-    "开源许可": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open-source licenses"
           }
         }
       }
@@ -6781,6 +6761,424 @@
           "stringUnit": {
             "state": "translated",
             "value": "(Top level)"
+          }
+        }
+      }
+    },
+    "试用与解锁": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trial & Unlock"
+          }
+        }
+      }
+    },
+    "正在读取购买记录…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading purchases…"
+          }
+        }
+      }
+    },
+    "尚未领取试用": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trial not started"
+          }
+        }
+      }
+    },
+    "试用剩余 %lld 天": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld days left in trial"
+          }
+        }
+      }
+    },
+    "到期时间：%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires: %@"
+          }
+        }
+      }
+    },
+    "30 天试用已到期": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30-day trial expired"
+          }
+        }
+      }
+    },
+    "已永久解锁": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanently unlocked"
+          }
+        }
+      }
+    },
+    "暂时无法验证购买，请刷新或恢复购买": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to verify purchases. Refresh or restore purchases."
+          }
+        }
+      }
+    },
+    "暂时无法刷新验证，沿用本机已验证的授权": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to refresh verification. Using purchases already verified on this device."
+          }
+        }
+      }
+    },
+    "30 天全功能免费试用": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30-day free trial of all features"
+          }
+        }
+      }
+    },
+    "领取 30 天试用 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start 30-day trial · %@"
+          }
+        }
+      }
+    },
+    "领取 30 天免费试用": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start 30-day free trial"
+          }
+        }
+      }
+    },
+    "永久解锁 · %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime unlock · %@"
+          }
+        }
+      }
+    },
+    "永久解锁价格暂不可用": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lifetime unlock price is unavailable"
+          }
+        }
+      }
+    },
+    "一次性非消耗型购买，永久解锁此 App 的 iPhone 与 iPad 版本，不自动扣费。macOS、Windows 和 Linux 桌面端永久免费。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A one-time, non-consumable purchase permanently unlocks this app on iPhone and iPad. No automatic charges. The macOS, Windows, and Linux desktop apps remain free."
+          }
+        }
+      }
+    },
+    "恢复购买": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Purchases"
+          }
+        }
+      }
+    },
+    "刷新授权与商品": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh Purchases & Products"
+          }
+        }
+      }
+    },
+    "试用及购买使用当前 App Store 账户，可在同一账户的设备上恢复。到期后仍可管理主机和访问设置。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trials and purchases use your current App Store account and can be restored on devices using that account. Host management and settings remain available after the trial expires."
+          }
+        }
+      }
+    },
+    "请领取免费试用或永久解锁后再建立连接": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start a free trial or unlock the app to open new connections"
+          }
+        }
+      }
+    },
+    "暂时无法验证购买，请稍后恢复购买": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to verify purchases. Try restoring purchases later."
+          }
+        }
+      }
+    },
+    "部分商品暂不可用，请稍后重试": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some products are unavailable. Try again later."
+          }
+        }
+      }
+    },
+    "无法加载 App Store 商品，请检查网络后重试": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load App Store products. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "购买商品尚未配置，请稍后重试": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchases are not configured yet. Try again later."
+          }
+        }
+      }
+    },
+    "这笔购买已撤销": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This purchase has been revoked"
+          }
+        }
+      }
+    },
+    "购买已处理，授权状态已更新": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase processed. Your access has been updated."
+          }
+        }
+      }
+    },
+    "购买已取消": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase cancelled"
+          }
+        }
+      }
+    },
+    "购买待批准，批准后会自动更新授权": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase pending approval. Access will update automatically after approval."
+          }
+        }
+      }
+    },
+    "购买未完成或未能验证，请稍后重试或恢复购买": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchase incomplete or unverified. Try again later or restore purchases."
+          }
+        }
+      }
+    },
+    "购买已恢复": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Purchases restored"
+          }
+        }
+      }
+    },
+    "已恢复试用记录，30 天试用已到期": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trial restored. The 30-day trial has expired."
+          }
+        }
+      }
+    },
+    "没有可恢复的购买": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No purchases to restore"
+          }
+        }
+      }
+    },
+    "恢复购买失败，请检查网络后重试": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to restore purchases. Check your connection and try again."
+          }
+        }
+      }
+    },
+    "无需收费，无需注册账号。试用期间可使用全部功能，不会自动扣费。也可以先体验完全开源&免费的桌面版（macOS、Windows、Linux），请到官网下载。": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No payment or account registration required. All features are available during the trial, with no automatic charges. You can also try the completely open-source and free desktop app (macOS, Windows, Linux). Download it from our website."
+          }
+        }
+      }
+    },
+    "外观": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        }
+      }
+    },
+    "模式": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        }
+      }
+    },
+    "跟随系统": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "浅色": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        }
+      }
+    },
+    "深色": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
           }
         }
       }

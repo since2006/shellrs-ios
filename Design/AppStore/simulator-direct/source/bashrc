@@ -1,0 +1,11 @@
+PS1='demo$ '
+export BASH_SILENCE_DEPRECATION_WARNING=1
+clear
+set -v
+uname -s
+uname -m
+date '+%Y-%m-%d %H:%M:%S %Z'
+stty size
+ls -lh
+wc -l README.md
+set +v

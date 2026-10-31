@@ -4,11 +4,15 @@
 // keychain keeps the passwords under it.
 PRODUCT_BUNDLE_IDENTIFIER = com.shellrs.ios
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
-MARKETING_VERSION = 0.1.0
+MARKETING_VERSION = 1.0
 CURRENT_PROJECT_VERSION = 1
 
 // The ShellRS logo, made full-bleed from Design/AppIcon.svg.
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+
+// App Store Connect non-consumable products. Local.xcconfig may override for testing.
+SHELLRS_TRIAL_PRODUCT_ID = com.shellrs.ios.trial30
+SHELLRS_LIFETIME_PRODUCT_ID = com.shellrs.ios.lifetime
 
 // DEVELOPMENT_TEAM = <your team id>, to run on an iPhone; not committed.
 #include? "Local.xcconfig"
