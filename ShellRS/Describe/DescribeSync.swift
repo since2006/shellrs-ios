@@ -61,6 +61,12 @@ extension Describe {
             return String(localized: "同步里没有这台设备。")
         case .LocationNotSaved(let detail):
             return String(localized: "同步已设好，但没能记下同步的位置，下次打开 ShellRS 时同步是关闭的：\(detail)")
+        case .BadSetupCode:
+            return String(localized: "这不是有效的配置码，可能没有复制完整。")
+        case .SetupCodeTooNew:
+            return String(localized: "这个配置码来自更新版本的 ShellRS，升级后才能使用。")
+        case .SetupCodeWrongPassword:
+            return String(localized: "同步密码不对，或者这个配置码是更换同步密码之前生成的。")
         case .Closed:
             return String(localized: "已关闭")
         case .Internal(let detail):

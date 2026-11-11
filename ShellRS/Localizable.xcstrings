@@ -2003,6 +2003,16 @@
         }
       }
     },
+    "同步密码不对，或者这个配置码是更换同步密码之前生成的。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s not the sync password, or the setup code was made before the password was changed."
+          }
+        }
+      }
+    },
     "同步密码已在别的设备上更改。": {
       "localizations": {
         "en": {
@@ -5979,6 +5989,16 @@
         }
       }
     },
+    "这不是有效的配置码，可能没有复制完整。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That’s not a valid setup code. It may not have been copied whole."
+          }
+        }
+      }
+    },
     "这个文件夹里已有同步。输入创建时设的同步密码，这台设备上的数据会和其他设备的合并。": {
       "localizations": {
         "en": {
@@ -6025,6 +6045,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "This terminal was opened by a bastion host and can’t run commands beside the shell"
+          }
+        }
+      }
+    },
+    "这个配置码来自更新版本的 ShellRS，升级后才能使用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This setup code is from a newer ShellRS. Update to use it."
           }
         }
       }
