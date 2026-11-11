@@ -5,29 +5,25 @@ import Testing
 
 @MainActor
 final class FakeAdsService: AdsService {
+    var formats: Set<AdFormat> = [.banner, .native]
     var canRequestAds = true
-    var privacyOptionsRequired = false
     var failLoads = false
     var consentRequests = 0
     var starts = 0
-    var loads = 0
-    var privacyOptionsShown = 0
+    var loaded: [AdFormat] = []
+    var loads: Int { loaded.count }
 
     func gatherConsent() async -> Bool {
         consentRequests += 1
         return canRequestAds
     }
 
-    func presentPrivacyOptions() async {
-        privacyOptionsShown += 1
-    }
-
     func startSDK() {
         starts += 1
     }
 
-    func loadNativeAd() async throws -> AnyObject {
-        loads += 1
+    func loadAd(_ format: AdFormat) async throws -> AnyObject {
+        loaded.append(format)
         if failLoads { throw PurchaseStoreError.unavailable }
         return NSObject()
     }
@@ -39,7 +35,8 @@ final class AdsTestClock {
 }
 
 /// The ads wait for StoreKit, never start for whoever bought them away,
-/// and load one ad per placement, again only once it is old.
+/// and load one ad per placement: a native ad again once it is old, a
+/// banner never (the SDK refreshes it).
 @MainActor
 struct AdsModelTests {
     let service = FakeAdsService()
@@ -70,19 +67,19 @@ struct AdsModelTests {
     }
 
     @Test func consentThenTheSDKThenAnAdPerPlacement() async {
-        service.privacyOptionsRequired = true
         let ads = make()
         await ads.purchaseChanged(.notPurchased)
         #expect(service.consentRequests == 1)
         #expect(service.starts == 1)
         #expect(ads.ready)
-        #expect(ads.privacyOptionsRequired)
         await ads.prepare(.hosts)
         await ads.prepare(.sessions)
-        #expect(service.loads == 2)
+        #expect(service.loaded == [.banner, .native])
         #expect(ads.ad(for: .hosts) != nil)
         #expect(ads.ad(for: .sessions) != nil)
         #expect(ads.ad(for: .start) == nil)
+        await ads.prepare(.start)
+        #expect(service.loaded == [.banner, .native, .native])
         // Starting again changes nothing.
         await ads.cameForward()
         #expect(service.starts == 1)
@@ -102,39 +99,60 @@ struct AdsModelTests {
         #expect(ads.ready)
     }
 
-    @Test func anAdIsKeptForAnHourThenLoadedAgain() async throws {
+    @Test func aNativeAdIsKeptForAnHourThenLoadedAgain() async throws {
+        let ads = make()
+        await ads.purchaseChanged(.notPurchased)
+        await ads.prepare(.sessions)
+        let first = try #require(ads.ad(for: .sessions))
+        clock.date += AdsModel.lifetime - 1
+        await ads.prepare(.sessions)
+        #expect(service.loads == 1)
+        #expect(ads.ad(for: .sessions)?.id == first.id)
+        clock.date += 1
+        await ads.prepare(.sessions)
+        #expect(service.loads == 2)
+        #expect(ads.ad(for: .sessions)?.id != first.id)
+    }
+
+    @Test func aBannerIsKeptAsTheSDKRefreshesIt() async throws {
         let ads = make()
         await ads.purchaseChanged(.notPurchased)
         await ads.prepare(.hosts)
-        let first = try #require(ads.ad(for: .hosts))
-        clock.date += AdsModel.lifetime - 1
+        let banner = try #require(ads.ad(for: .hosts))
+        clock.date += AdsModel.lifetime * 3
         await ads.prepare(.hosts)
-        #expect(service.loads == 1)
-        #expect(ads.ad(for: .hosts)?.id == first.id)
-        clock.date += 1
-        await ads.prepare(.hosts)
-        #expect(service.loads == 2)
-        #expect(ads.ad(for: .hosts)?.id != first.id)
+        #expect(service.loaded == [.banner])
+        #expect(ads.ad(for: .hosts)?.id == banner.id)
     }
 
     @Test func aFailedLoadWaitsAMinuteAndDropsAnExpiredAd() async {
         let ads = make()
         await ads.purchaseChanged(.notPurchased)
-        await ads.prepare(.hosts)
-        #expect(ads.ad(for: .hosts) != nil)
+        await ads.prepare(.sessions)
+        #expect(ads.ad(for: .sessions) != nil)
         service.failLoads = true
         clock.date += AdsModel.lifetime
-        await ads.prepare(.hosts)
+        await ads.prepare(.sessions)
         #expect(service.loads == 2)
-        #expect(ads.ad(for: .hosts) == nil)
+        #expect(ads.ad(for: .sessions) == nil)
         clock.date += AdsModel.retryDelay - 1
-        await ads.prepare(.hosts)
+        await ads.prepare(.sessions)
         #expect(service.loads == 2)
         service.failLoads = false
         clock.date += 1
-        await ads.prepare(.hosts)
+        await ads.prepare(.sessions)
         #expect(service.loads == 3)
-        #expect(ads.ad(for: .hosts) != nil)
+        #expect(ads.ad(for: .sessions) != nil)
+    }
+
+    @Test func aBuildWithoutABannerUnitLeavesTheHostsWithout() async {
+        service.formats = [.native]
+        let ads = make()
+        await ads.purchaseChanged(.notPurchased)
+        await ads.prepare(.hosts)
+        await ads.prepare(.sessions)
+        #expect(service.loaded == [.native])
+        #expect(ads.ad(for: .hosts) == nil)
     }
 
     @Test func buyingThemAwayDropsTheAdsAndARefundBringsThemBack() async {
@@ -151,21 +169,18 @@ struct AdsModelTests {
         #expect(ads.ad(for: .hosts) != nil)
     }
 
-    @Test func privacyOptionsAreShownAndReadAgain() async {
-        service.privacyOptionsRequired = true
-        let ads = make()
-        await ads.purchaseChanged(.notPurchased)
-        service.privacyOptionsRequired = false
-        await ads.presentPrivacyOptions()
-        #expect(service.privacyOptionsShown == 1)
-        #expect(!ads.privacyOptionsRequired)
-    }
-
     @Test func aBuildWithoutAnAdUnitHasNoAds() {
-        #expect(!AdsConfiguration(nativeAdUnitID: "").isEnabled)
-        #expect(!AdsConfiguration(nativeAdUnitID: "$(SHELLRS_NATIVE_AD_UNIT_ID)").isEnabled)
-        #expect(AdsConfiguration(nativeAdUnitID: "ca-app-pub-3940256099942544/3986624511").isEnabled)
-        #expect(AdsModel.bundledService(AdsConfiguration(nativeAdUnitID: "")) == nil)
+        let banner = "ca-app-pub-3940256099942544/2934735716"
+        let native = "ca-app-pub-3940256099942544/3986624511"
+        #expect(!AdsConfiguration().isEnabled)
+        #expect(
+            !AdsConfiguration(
+                bannerAdUnitID: "$(SHELLRS_BANNER_AD_UNIT_ID)", nativeAdUnitID: "$(SHELLRS_NATIVE_AD_UNIT_ID)"
+            ).isEnabled)
+        #expect(AdsConfiguration(bannerAdUnitID: banner).formats == [.banner])
+        #expect(AdsConfiguration(nativeAdUnitID: native).formats == [.native])
+        #expect(AdsConfiguration(bannerAdUnitID: banner, nativeAdUnitID: native).unitID(for: .banner) == banner)
+        #expect(AdsModel.bundledService(AdsConfiguration()) == nil)
         #expect(!AdsModel(service: nil).isAvailable)
     }
 
@@ -173,7 +188,7 @@ struct AdsModelTests {
     /// IDs come from the release workflow, or Local.xcconfig for Release, so
     /// that no build from a clone ever counts against the AdMob account.
     @Test func debugBuildsAskForGoogleTestAdsOnly() {
-        for key in ["GADApplicationIdentifier", "ShellRSNativeAdUnitID"] {
+        for key in ["GADApplicationIdentifier", "ShellRSBannerAdUnitID", "ShellRSNativeAdUnitID"] {
             if let id = Bundle.main.object(forInfoDictionaryKey: key) as? String, !id.isEmpty {
                 #expect(id.hasPrefix("ca-app-pub-3940256099942544"), "\(key) is \(id)")
             }

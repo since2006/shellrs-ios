@@ -31,24 +31,28 @@ jobs:
       # Secrets not because the app hides them (anyone can read them out of
       # it) but so that the public run logs show *** in their place.
       ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+      ADMOB_BANNER_AD_UNIT_ID: ${{ secrets.ADMOB_BANNER_AD_UNIT_ID }}
       ADMOB_NATIVE_AD_UNIT_ID: ${{ secrets.ADMOB_NATIVE_AD_UNIT_ID }}
     steps:
       # Never upload a build with test ads (no revenue) or without ads.
       - name: AdMob IDs
         run: |
           test_publisher=3940256099942544
+          unit='^ca-app-pub-[0-9]{16}/[0-9]{10}$'
           if ! [[ "$ADMOB_APP_ID" =~ ^ca-app-pub-[0-9]{16}~[0-9]{10}$ ]] \
-            || ! [[ "$ADMOB_NATIVE_AD_UNIT_ID" =~ ^ca-app-pub-[0-9]{16}/[0-9]{10}$ ]]; then
-            echo "::error::Set the secrets ADMOB_APP_ID (ca-app-pub-…~…) and ADMOB_NATIVE_AD_UNIT_ID (ca-app-pub-…/…)"
+            || ! [[ "$ADMOB_BANNER_AD_UNIT_ID" =~ $unit ]] \
+            || ! [[ "$ADMOB_NATIVE_AD_UNIT_ID" =~ $unit ]]; then
+            echo "::error::Set the secrets ADMOB_APP_ID (ca-app-pub-…~…), ADMOB_BANNER_AD_UNIT_ID and ADMOB_NATIVE_AD_UNIT_ID (ca-app-pub-…/…)"
             exit 1
           fi
-          if [[ "$ADMOB_APP_ID$ADMOB_NATIVE_AD_UNIT_ID" == *"$test_publisher"* ]]; then
-            echo "::error::ADMOB_APP_ID and ADMOB_NATIVE_AD_UNIT_ID are Google's test IDs, not this app's"
+          if [[ "$ADMOB_APP_ID$ADMOB_BANNER_AD_UNIT_ID$ADMOB_NATIVE_AD_UNIT_ID" == *"$test_publisher"* ]]; then
+            echo "::error::The AdMob secrets have Google's test IDs, not this app's"
             exit 1
           fi
           # A secret is masked only as written, and the build log prints the
           # app ID escaped (`\~`): mask the numbers in the IDs on their own.
-          for number in ${ADMOB_APP_ID//[!0-9]/ } ${ADMOB_NATIVE_AD_UNIT_ID//[!0-9]/ }; do
+          for number in ${ADMOB_APP_ID//[!0-9]/ } ${ADMOB_BANNER_AD_UNIT_ID//[!0-9]/ } \
+            ${ADMOB_NATIVE_AD_UNIT_ID//[!0-9]/ }; do
             echo "::add-mask::$number"
           done
 
@@ -93,16 +97,19 @@ jobs:
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
             CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build }}" \
             SHELLRS_ADMOB_APP_ID="$ADMOB_APP_ID" \
+            SHELLRS_BANNER_AD_UNIT_ID="$ADMOB_BANNER_AD_UNIT_ID" \
             SHELLRS_NATIVE_AD_UNIT_ID="$ADMOB_NATIVE_AD_UNIT_ID"
 
       - name: The archive has the real AdMob IDs
         run: |
           plist="$RUNNER_TEMP/ShellRS.xcarchive/Products/Applications/ShellRS.app/Info.plist"
           app_id=$(plutil -extract GADApplicationIdentifier raw "$plist")
-          unit_id=$(plutil -extract ShellRSNativeAdUnitID raw "$plist")
+          banner_id=$(plutil -extract ShellRSBannerAdUnitID raw "$plist")
+          native_id=$(plutil -extract ShellRSNativeAdUnitID raw "$plist")
           # What is not the secrets prints as is: a test ID, for one.
-          if [ "$app_id" != "$ADMOB_APP_ID" ] || [ "$unit_id" != "$ADMOB_NATIVE_AD_UNIT_ID" ]; then
-            echo "::error::The archive has GADApplicationIdentifier $app_id, ShellRSNativeAdUnitID $unit_id, not the secrets"
+          if [ "$app_id" != "$ADMOB_APP_ID" ] || [ "$banner_id" != "$ADMOB_BANNER_AD_UNIT_ID" ] \
+            || [ "$native_id" != "$ADMOB_NATIVE_AD_UNIT_ID" ]; then
+            echo "::error::The archive has GADApplicationIdentifier $app_id, ShellRSBannerAdUnitID $banner_id, ShellRSNativeAdUnitID $native_id, not the secrets"
             exit 1
           fi
           echo "The archive has the IDs from the secrets"

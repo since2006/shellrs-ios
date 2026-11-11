@@ -6957,16 +6957,6 @@
         }
       }
     },
-    "广告隐私选项": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ad Privacy Options"
-          }
-        }
-      }
-    },
     "ShellRS 的全部功能免费，广告用来支持开发。去除广告是一次性购买，同一 Apple 账户的设备都可以恢复。": {
       "localizations": {
         "en": {

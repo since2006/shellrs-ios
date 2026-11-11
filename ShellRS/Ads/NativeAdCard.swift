@@ -35,13 +35,19 @@ import SwiftUI
     /// The SDK's view of a native ad. Every asset the ad has is shown: the
     /// media at least 120 by 120 points, as the SDK requires; the AdChoices
     /// mark in the top right, inside the padding so that a list row's
-    /// rounded corner never clips it, and the words clear of it.
+    /// rounded corner never clips it, and the first line of words clear of it.
     final class NativeAdCardView: NativeAdView {
         private static let padding: CGFloat = 12
         private static let mediaSide: CGFloat = 120
+        private static let choicesSide: CGFloat = 15
 
         private let media = MediaView()
         private let choices = AdChoicesView()
+        /// The SDK centres what it puts in the AdChoices view on it, and that
+        /// can be wider than the view (谷歌广告 is 49 points): the view takes
+        /// its width, so that it stays inside the padding.
+        private lazy var choicesWidth = choices.widthAnchor.constraint(
+            equalToConstant: Self.choicesSide)
         private let badge = InsetLabel(insets: UIEdgeInsets(top: 1, left: 4, bottom: 1, right: 4))
         private let advertiser = UILabel()
         private let headline = UILabel()
@@ -103,12 +109,14 @@ import SwiftUI
 
                 choices.topAnchor.constraint(equalTo: topAnchor, constant: padding),
                 choices.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
-                choices.widthAnchor.constraint(equalToConstant: 15),
-                choices.heightAnchor.constraint(equalToConstant: 15),
+                choicesWidth,
+                choices.heightAnchor.constraint(equalToConstant: Self.choicesSide),
 
                 words.leadingAnchor.constraint(equalTo: media.trailingAnchor, constant: padding),
                 words.topAnchor.constraint(equalTo: topAnchor, constant: padding),
-                words.trailingAnchor.constraint(equalTo: choices.leadingAnchor, constant: -4),
+                words.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -padding),
+                // Only the line beside the mark gives way to it.
+                marks.trailingAnchor.constraint(lessThanOrEqualTo: choices.leadingAnchor, constant: -4),
                 bottomAnchor.constraint(greaterThanOrEqualTo: words.bottomAnchor, constant: padding),
             ])
 
@@ -124,6 +132,16 @@ import SwiftUI
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+            let content = choices.subviews.map(\.frame.width).max() ?? 0
+            let width = max(Self.choicesSide, content.rounded(.up))
+            if choicesWidth.constant != width {
+                choicesWidth.constant = width
+                super.layoutSubviews()
+            }
         }
 
         func show(_ ad: NativeAd) {

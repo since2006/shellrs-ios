@@ -1,22 +1,26 @@
-// The only file that talks to Google's SDKs, with NativeAdCard.swift. A
+// The only file that talks to Google's SDKs, with the cards that show the
+// ads (NativeAdCard.swift, BannerAdCard.swift). A
 // fork that takes the two packages out builds without it, and without ads.
 #if canImport(GoogleMobileAds) && canImport(UserMessagingPlatform)
     import Foundation
     import GoogleMobileAds
     import UserMessagingPlatform
+    import os
 
-    /// AdMob native ads, after Google's consent form (UMP) where the law
-    /// asks for one. No App Tracking Transparency prompt: the ads never use
-    /// the advertising identifier.
+    /// AdMob banners and native ads, after Google's consent form (UMP)
+    /// where the law asks for one. No App Tracking Transparency prompt: the
+    /// ads never use the advertising identifier.
     @MainActor
     final class GoogleAdsService: AdsService {
-        private let nativeAdUnitID: String
-        /// The loads in flight: an ad loader holds its delegate weakly.
-        private var requests: Set<NativeAdRequest> = []
+        private let configuration: AdsConfiguration
+        /// The loads in flight: the SDK holds their delegates weakly.
+        private var requests: Set<NSObject> = []
 
-        init(nativeAdUnitID: String) {
-            self.nativeAdUnitID = nativeAdUnitID
+        init(configuration: AdsConfiguration) {
+            self.configuration = configuration
         }
+
+        var formats: Set<AdFormat> { configuration.formats }
 
         func gatherConsent() async -> Bool {
             let parameters = RequestParameters()
@@ -33,27 +37,73 @@
                 try await ConsentForm.loadAndPresentIfRequired(from: nil)
             } catch {
                 // Offline, or the form would not show: what was agreed before holds.
+                Logger.ads.error("Consent (UMP) failed: \(error.localizedDescription, privacy: .public)")
             }
-            return ConsentInformation.shared.canRequestAds
-        }
-
-        var privacyOptionsRequired: Bool {
-            ConsentInformation.shared.privacyOptionsRequirementStatus == .required
-        }
-
-        func presentPrivacyOptions() async {
-            try? await ConsentForm.presentPrivacyOptionsForm(from: nil)
+            let consent = ConsentInformation.shared
+            Logger.ads.notice(
+                "Consent status \(consent.consentStatus.rawValue, privacy: .public), can request ads: \(consent.canRequestAds, privacy: .public)"
+            )
+            return consent.canRequestAds
         }
 
         func startSDK() {
             MobileAds.shared.start(completionHandler: nil)
         }
 
-        func loadNativeAd() async throws -> AnyObject {
-            let request = NativeAdRequest(adUnitID: nativeAdUnitID)
-            requests.insert(request)
-            defer { requests.remove(request) }
-            return try await request.load()
+        func loadAd(_ format: AdFormat) async throws -> AnyObject {
+            guard let unitID = configuration.unitID(for: format) else {
+                throw AdsServiceError.noAdUnit
+            }
+            switch format {
+            case .banner:
+                let request = BannerRequest(adUnitID: unitID)
+                requests.insert(request)
+                defer { requests.remove(request) }
+                return try await request.load()
+            case .native:
+                let request = NativeAdRequest(adUnitID: unitID)
+                requests.insert(request)
+                defer { requests.remove(request) }
+                return try await request.load()
+            }
+        }
+    }
+
+    enum AdsServiceError: Error {
+        case noAdUnit
+    }
+
+    /// One banner, loaded: the standard 320 by 50 points, which fits beside
+    /// the hosts on every iPhone. After that the SDK refreshes it itself, as
+    /// the ad unit says, while it shows.
+    @MainActor
+    private final class BannerRequest: NSObject, BannerViewDelegate {
+        private let banner: BannerView
+        private var continuation: CheckedContinuation<Void, any Error>?
+
+        init(adUnitID: String) {
+            banner = BannerView(adSize: AdSizeBanner)
+            banner.adUnitID = adUnitID
+            super.init()
+            banner.delegate = self
+        }
+
+        func load() async throws -> BannerView {
+            try await withCheckedThrowingContinuation { continuation in
+                self.continuation = continuation
+                banner.load(Request())
+            }
+            return banner
+        }
+
+        func bannerViewDidReceiveAd(_ bannerView: BannerView) {
+            continuation?.resume()
+            continuation = nil
+        }
+
+        func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: any Error) {
+            continuation?.resume(throwing: error)
+            continuation = nil
         }
     }
 

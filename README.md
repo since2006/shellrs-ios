@@ -31,9 +31,9 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 
 ## 免费与广告
 
-全部功能免费。「主机」页、「终端」页和宽窗口的开始页各有一条 AdMob 高级原生广告；非消耗型内购「去除广告」（设置第一节）把它们去掉，买过的设备从此不初始化广告 SDK。不弹 App Tracking Transparency、不读广告标识符；欧洲经济区等地按 Google UMP 弹同意书，设置里有「广告隐私选项」。仓库里只有 Google 的测试广告 ID，从仓库编出的任何构建都只请求测试广告；真实 ID 只在发布工作流里从 GitHub Secret 注入（本机 Release 写在不进库的 `Config/Local.xcconfig` 里）。
+全部功能免费。「主机」页有一条 AdMob 横幅广告，「终端」页和宽窗口的开始页各有一条 AdMob 高级原生广告；非消耗型内购「去除广告」（设置第一节）把它们去掉，买过的设备从此不初始化广告 SDK。不弹 App Tracking Transparency、不读广告标识符；欧洲经济区等地按 Google UMP 弹同意书。仓库里只有 Google 的测试广告 ID，从仓库编出的任何构建都只请求测试广告；真实 ID 只在发布工作流里从 GitHub Secret 注入（本机 Release 写在不进库的 `Config/Local.xcconfig` 里）。
 
-不想要广告：在 `Config/Local.xcconfig` 里写 `SHELLRS_NATIVE_AD_UNIT_ID =`（留空），或在 Xcode 里移除两个 Google 的 Swift 包，代码都不用改。广告位置、加载时机、配置、内购和上线清单见 [广告与去除广告](docs/ADS.md)。
+不想要广告：在 `Config/Local.xcconfig` 里写 `SHELLRS_BANNER_AD_UNIT_ID =` 和 `SHELLRS_NATIVE_AD_UNIT_ID =`（留空），或在 Xcode 里移除两个 Google 的 Swift 包，代码都不用改。广告位置、加载时机、配置、内购和上线清单见 [广告与去除广告](docs/ADS.md)。
 
 ## CI 与发布
 
@@ -138,7 +138,7 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览（拖进来上传）、文件简介（`FileInfoView`：点文件先看这里，预览和下载都从这里开始）、传输队列页（`TransferControls`：传输条、队列和简介共用的停止 / 继续 / 取消按钮）、已下载的文件。
 - `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）。
 - `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`，同步的在 `DescribeSync.swift`），删除前说的连带。
-- `ShellRS/Ads`：`AdsModel`（什么时候弹同意书、初始化 SDK、给每个位置加载广告）、`GoogleAdsService`（Google Mobile Ads 与 UMP，**只有它和 `NativeAdCard` import Google 的 SDK**，都包在 `#if canImport` 里）、原生广告的视图（`NativeAdCard`）、列表里的广告一节和开始页的卡片（`AdViews`）。
+- `ShellRS/Ads`：`AdsModel`（什么时候弹同意书、初始化 SDK、给每个位置加载广告）、`GoogleAdsService`（Google Mobile Ads 与 UMP，**只有它和两个广告视图 import Google 的 SDK**，都包在 `#if canImport` 里）、横幅和原生广告的视图（`BannerAdCard`、`NativeAdCard`）、列表里的广告一节和开始页的卡片（`AdViews`）。
 - `ShellRS/Purchases`：「去除广告」的 StoreKit 2 适配层（`PurchaseStore`）和状态（`PurchaseModel`）。
 - `ShellRS/About`：随 App 打包的开源许可清单 `Licenses.json`（`scripts/licenses.py` 生成，不手改）及读取模型。设置不再提供许可列表页面。
 - `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。

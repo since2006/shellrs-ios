@@ -31,9 +31,10 @@
    | `ASC_KEY_P8` | Secret | `.p8` 文件的全部内容，包括 `-----BEGIN PRIVATE KEY-----` 那两行 |
    | `DEVELOPMENT_TEAM` | Variable | Team ID（10 位） |
    | `ADMOB_APP_ID` | Secret | AdMob 的 App ID，`ca-app-pub-…~…` |
-   | `ADMOB_NATIVE_AD_UNIT_ID` | Secret | 高级原生广告单元 ID，`ca-app-pub-…/…` |
+   | `ADMOB_BANNER_AD_UNIT_ID` | Secret | 横幅广告单元 ID（主机页），`ca-app-pub-…/…` |
+   | `ADMOB_NATIVE_AD_UNIT_ID` | Secret | 高级原生广告单元 ID（终端页、开始页），`ca-app-pub-…/…` |
 
-   仓库里只有 Google 的测试 ID（见 [广告与去除广告](ADS.md#真实-id-不进仓库)），App Store 构建的真实 ID 只从这两个 Secret 来。ID 本身算不上秘密，发布的 App 里读得到；用 Secret 是因为仓库公开后谁都能看 Actions 的运行日志，Secret 在日志里显示成 `***`。没设、格式不对或还是测试 ID 时，工作流在构建前就失败。
+   仓库里只有 Google 的测试 ID（见 [广告与去除广告](ADS.md#真实-id-不进仓库)），App Store 构建的真实 ID 只从这三个 Secret 来。ID 本身算不上秘密，发布的 App 里读得到；用 Secret 是因为仓库公开后谁都能看 Actions 的运行日志，Secret 在日志里显示成 `***`。没设、格式不对或还是测试 ID 时，工作流在构建前就失败。
 
 3. App Store Connect 里已有 Bundle ID 为 `com.shellrs.ios` 的 App 记录。
 
@@ -42,7 +43,7 @@
 1. 改 `Config/ShellRS.xcconfig` 的 `MARKETING_VERSION`（例如 `1.1`），提交并推到 `main`。
 2. 打 tag 推上去：`git tag v1.1 && git push origin v1.1`。tag 必须是 `v` 加 `MARKETING_VERSION`，不一样时工作流直接失败。
 3. 工作流做这几件事：
-   - 检查两个 AdMob Secret 是这个 App 的真实 ID；
+   - 检查三个 AdMob Secret 是这个 App 的真实 ID；
    - 构建号用 UTC 日期和时间（例如 `20261110.1537`），每次上传都更大，不用手改 `CURRENT_PROJECT_VERSION`；
    - `xcodebuild archive` 自动签名：`-allowProvisioningUpdates` 加 API 密钥；同时把真实的 AdMob ID 作为构建参数传进去，archive 后再核对 Info.plist；
    - `xcodebuild -exportArchive` 用 `Config/ExportOptions.plist`（`method = app-store-connect`、`destination = upload`），导出时直接上传；

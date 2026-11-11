@@ -207,6 +207,8 @@
 			<string>3qcr597p9d.skadnetwork</string>
 		</dict>
 	</array>
+	<key>ShellRSBannerAdUnitID</key>
+	<string>$(SHELLRS_BANNER_AD_UNIT_ID)</string>
 	<key>ShellRSNativeAdUnitID</key>
 	<string>$(SHELLRS_NATIVE_AD_UNIT_ID)</string>
 	<key>ShellRSRemoveAdsProductID</key>

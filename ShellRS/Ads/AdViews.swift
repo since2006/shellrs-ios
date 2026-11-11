@@ -1,7 +1,8 @@
 import SwiftUI
 
 /// The ad of `placement` as a list section of its own, with the way to
-/// remove the ads under it. Nothing while there is no ad.
+/// remove the ads under it. Nothing while there is no ad. A native ad is a
+/// card; a banner has its own look, so its row has no background.
 struct AdSection: View {
     let placement: AdPlacement
     @Environment(AppModel.self) private var model
@@ -9,9 +10,17 @@ struct AdSection: View {
     var body: some View {
         if let ad = model.ads.ad(for: placement) {
             Section {
-                NativeAdCard(ad: ad)
-                    .id(ad.id)
-                    .listRowInsets(EdgeInsets())
+                switch placement.format {
+                case .native:
+                    NativeAdCard(ad: ad)
+                        .id(ad.id)
+                        .listRowInsets(EdgeInsets())
+                case .banner:
+                    BannerAdCard(ad: ad)
+                        .id(ad.id)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
             } footer: {
                 RemoveAdsLink()
             }
@@ -30,9 +39,15 @@ struct AdCard: View {
     var body: some View {
         if let ad = model.ads.ad(for: placement) {
             VStack(alignment: .leading, spacing: 6) {
-                NativeAdCard(ad: ad)
-                    .id(ad.id)
-                    .background(fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                switch placement.format {
+                case .native:
+                    NativeAdCard(ad: ad)
+                        .id(ad.id)
+                        .background(fill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                case .banner:
+                    BannerAdCard(ad: ad)
+                        .id(ad.id)
+                }
                 RemoveAdsLink()
                     .padding(.horizontal, 4)
             }

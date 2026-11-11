@@ -16,15 +16,16 @@ ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
 // purchase offered.
 SHELLRS_REMOVE_ADS_PRODUCT_ID = com.shellrs.ios.lifetime
 
-// AdMob (docs/ADS.md): Google's sample app and test native ad unit, in
-// every configuration. Whatever is built from the repository shows test ads
-// only and never counts against an AdMob account. The App Store build gets
-// the real IDs from the release workflow (the GitHub secrets ADMOB_APP_ID
-// and ADMOB_NATIVE_AD_UNIT_ID); a Release build on a Mac, from
-// Local.xcconfig, as `SHELLRS_ADMOB_APP_ID[config=Release] = …`. A fork that
-// wants no ads sets SHELLRS_NATIVE_AD_UNIT_ID to nothing in Local.xcconfig:
-// the ads SDK then never starts.
+// AdMob (docs/ADS.md): Google's sample app and test banner and native ad
+// units, in every configuration. Whatever is built from the repository shows
+// test ads only and never counts against an AdMob account. The App Store
+// build gets the real IDs from the release workflow (the GitHub secrets
+// ADMOB_APP_ID, ADMOB_BANNER_AD_UNIT_ID and ADMOB_NATIVE_AD_UNIT_ID); a
+// Release build on a Mac, from Local.xcconfig, as
+// `SHELLRS_ADMOB_APP_ID[config=Release] = …`. A fork that wants no ads sets
+// both ad units to nothing in Local.xcconfig: the ads SDK then never starts.
 SHELLRS_ADMOB_APP_ID = ca-app-pub-3940256099942544~1458002511
+SHELLRS_BANNER_AD_UNIT_ID = ca-app-pub-3940256099942544/2934735716
 SHELLRS_NATIVE_AD_UNIT_ID = ca-app-pub-3940256099942544/3986624511
 
 // DEVELOPMENT_TEAM = <your team id>, to run on an iPhone; not committed.

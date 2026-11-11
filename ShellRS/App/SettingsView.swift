@@ -136,11 +136,6 @@ private struct AdsSection: View {
                 }
                 .disabled(purchases.working)
             }
-            if model.ads.privacyOptionsRequired, !purchases.adsRemoved {
-                Button("广告隐私选项") {
-                    Task { await model.ads.presentPrivacyOptions() }
-                }
-            }
             if let notice = purchases.notice {
                 Text(notice).font(.footnote)
             }
