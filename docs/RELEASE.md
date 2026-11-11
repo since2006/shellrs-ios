@@ -22,7 +22,7 @@
 ## 一次性设置
 
 1. **App Store Connect API 密钥**：「用户和访问 › 集成 › App Store Connect API」，新建一个团队密钥，角色选 **Admin**。自动签名要在云端创建、取用分发证书，App Manager 角色不够。下载 `.p8` 文件，它只能下载一次。
-2. **GitHub**：仓库的 Settings › Environments 新建 `app-store`，可以加 Required reviewers，每次上传前要人点一下批准。在这个 environment（或仓库）里加：
+2. **GitHub**：仓库的 Settings › Environments 新建 `app-store`。「Deployment branches and tags」选 Selected，只加分支 `main` 和 tag `v*`：别的分支上改过的工作流就拿不到这些值。也可以加 Required reviewers，每次上传前要人点一下批准。下面这些都加在这个 environment 里，不要加在仓库级：
 
    | 名称 | 类型 | 内容 |
    | --- | --- | --- |
