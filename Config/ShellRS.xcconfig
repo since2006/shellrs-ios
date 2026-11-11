@@ -6,7 +6,7 @@ PRODUCT_BUNDLE_IDENTIFIER = com.shellrs.ios
 IPHONEOS_DEPLOYMENT_TARGET = 17.0
 // The version on the App Store; a release tag v<MARKETING_VERSION> uploads
 // it (.github/workflows/release.yml), which sets the build number itself.
-MARKETING_VERSION = 1.0
+MARKETING_VERSION = 1.0.1
 CURRENT_PROJECT_VERSION = 1
 
 // The ShellRS logo, made full-bleed from Design/AppIcon.svg.
