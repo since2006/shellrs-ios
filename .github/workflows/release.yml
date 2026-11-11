@@ -46,6 +46,11 @@ jobs:
             echo "::error::ADMOB_APP_ID and ADMOB_NATIVE_AD_UNIT_ID are Google's test IDs, not this app's"
             exit 1
           fi
+          # A secret is masked only as written, and the build log prints the
+          # app ID escaped (`\~`): mask the numbers in the IDs on their own.
+          for number in ${ADMOB_APP_ID//[!0-9]/ } ${ADMOB_NATIVE_AD_UNIT_ID//[!0-9]/ }; do
+            echo "::add-mask::$number"
+          done
 
       - uses: actions/checkout@v7
 
