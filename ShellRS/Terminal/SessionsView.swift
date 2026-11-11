@@ -21,14 +21,23 @@ struct SessionsView: View {
                         }
                     }
                 }
+                if !model.sessions.isEmpty {
+                    AdSection(placement: .sessions)
+                }
             }
             .overlay {
                 if model.sessions.isEmpty {
-                    ContentUnavailableView(
-                        "没有打开的终端", systemImage: "terminal",
-                        description: Text("在「主机」里点一台主机连接。"))
+                    VStack(spacing: 0) {
+                        ContentUnavailableView(
+                            "没有打开的终端", systemImage: "terminal",
+                            description: Text("在「主机」里点一台主机连接。"))
+                        // Over the plain background of an empty list.
+                        AdCard(placement: .sessions, fill: Color(.secondarySystemBackground))
+                            .padding()
+                    }
                 }
             }
+            .loadsAd(.sessions)
             .navigationTitle("终端")
         }
     }

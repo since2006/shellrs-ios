@@ -9,7 +9,6 @@ enum AppSheet: Identifiable {
     case group(GroupEditor.Subject)
     case credential(CredentialEditor.Subject)
     case settings
-    case purchase
     case sync(SyncView.Sheet)
     case login(TerminalSession, Prompt)
     case transfers(FilesModel)
@@ -21,7 +20,6 @@ enum AppSheet: Identifiable {
         case .host(let subject): "host:\(subject.id)"
         case .group(let subject): "group:\(subject.id)"
         case .credential(let subject): "credential:\(subject.id)"
-        case .purchase: "purchase"
         case .settings: "settings"
         case .sync(let sheet): "sync:\(sheet.id)"
         case .login(let session, let prompt): "login:\(session.id):\(prompt.id)"
@@ -41,7 +39,6 @@ struct AppSheetView: View {
         case .host(let subject): HostEditor(subject: subject)
         case .group(let subject): GroupEditor(subject: subject)
         case .credential(let subject): CredentialEditor(subject: subject)
-        case .purchase: PurchaseView()
         case .settings:
             SettingsView { model.showingSettings = false }
         case .sync(let sheet):

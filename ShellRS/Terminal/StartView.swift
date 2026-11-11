@@ -14,9 +14,14 @@ struct StartView: View {
         let recent = model.hosts.recent.prefix(Self.recentShown)
         Group {
             if recent.isEmpty {
-                ContentUnavailableView(
-                    "没有打开的终端", systemImage: "terminal",
-                    description: Text("在左边点一台主机连接。"))
+                VStack(spacing: 0) {
+                    ContentUnavailableView(
+                        "没有打开的终端", systemImage: "terminal",
+                        description: Text("在左边点一台主机连接。"))
+                    AdCard(placement: .start)
+                        .padding(24)
+                        .frame(maxWidth: 720)
+                }
             } else {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
@@ -43,6 +48,8 @@ struct StartView: View {
                         Text("在左边点一台主机连接。")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+                        AdCard(placement: .start)
+                            .padding(.top, 12)
                     }
                     .padding(24)
                     .frame(maxWidth: 720, alignment: .leading)
@@ -52,6 +59,7 @@ struct StartView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemGroupedBackground))
+        .loadsAd(.start)
         .alert(
             "出错了", isPresented: Binding(
                 get: { failure != nil }, set: { if !$0 { failure = nil } })

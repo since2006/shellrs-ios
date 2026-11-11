@@ -21,7 +21,7 @@ struct TerminalSessionTests {
             draft: draft(port: port, auth: .noPassword), password: .keep, proxyPassword: .keep)
         let host = try #require(store.host(id: id))
 
-        let session = TerminalSession(host: host, core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: host, core: test.core)
         session.start()
         try await waitUntil("the terminal closes") { session.isClosed }
 
@@ -40,7 +40,7 @@ struct TerminalSessionTests {
         let host = try #require(store.host(id: id))
         try store.deleteHost(id: id)
 
-        let session = TerminalSession(host: host, core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: host, core: test.core)
         session.start()
         #expect(session.state == .closed(Describe.store(StoreError.NotFound)))
     }

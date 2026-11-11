@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		5E11000000000000000B0001 /* ShellRSCore in Frameworks */ = {isa = PBXBuildFile; productRef = 5E11000000000000000C0001 /* ShellRSCore */; };
 		5E11000000000000000B0002 /* SwiftTerm in Frameworks */ = {isa = PBXBuildFile; productRef = 5E11000000000000000C0002 /* SwiftTerm */; };
+		5E11000000000000000B0003 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 5E11000000000000000C0003 /* GoogleMobileAds */; };
+		5E11000000000000000B0004 /* GoogleUserMessagingPlatform in Frameworks */ = {isa = PBXBuildFile; productRef = 5E11000000000000000C0004 /* GoogleUserMessagingPlatform */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,8 @@
 			files = (
 				5E11000000000000000B0001 /* ShellRSCore in Frameworks */,
 				5E11000000000000000B0002 /* SwiftTerm in Frameworks */,
+				5E11000000000000000B0003 /* GoogleMobileAds in Frameworks */,
+				5E11000000000000000B0004 /* GoogleUserMessagingPlatform in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -111,6 +115,8 @@
 			packageProductDependencies = (
 				5E11000000000000000C0001 /* ShellRSCore */,
 				5E11000000000000000C0002 /* SwiftTerm */,
+				5E11000000000000000C0003 /* GoogleMobileAds */,
+				5E11000000000000000C0004 /* GoogleUserMessagingPlatform */,
 			);
 			productName = ShellRS;
 			productReference = 5E1100000000000000010001 /* ShellRS.app */;
@@ -171,6 +177,8 @@
 			packageReferences = (
 				5E1100000000000000090001 /* XCLocalSwiftPackageReference "Packages/ShellRSCore" */,
 				5E1100000000000000090002 /* XCRemoteSwiftPackageReference "SwiftTerm" */,
+				5E1100000000000000090003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				5E1100000000000000090004 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 5E1100000000000000040003 /* Products */;
@@ -278,7 +286,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J57N366627;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShellRS;
@@ -292,7 +299,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -307,7 +313,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J57N366627;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Config/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ShellRS;
@@ -321,7 +326,6 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -408,6 +412,22 @@
 				version = 1.99.1;
 			};
 		};
+		5E1100000000000000090003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = exactVersion;
+				version = 13.12.0;
+			};
+		};
+		5E1100000000000000090004 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git";
+			requirement = {
+				kind = exactVersion;
+				version = 3.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -420,6 +440,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5E1100000000000000090002 /* XCRemoteSwiftPackageReference "SwiftTerm" */;
 			productName = SwiftTerm;
+		};
+		5E11000000000000000C0003 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E1100000000000000090003 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+		5E11000000000000000C0004 /* GoogleUserMessagingPlatform */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5E1100000000000000090004 /* XCRemoteSwiftPackageReference "swift-package-manager-google-user-messaging-platform" */;
+			productName = GoogleUserMessagingPlatform;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

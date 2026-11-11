@@ -1,0 +1,46 @@
+# Builds the app with its core and runs the tests on an iPhone simulator.
+# ServerTests skip themselves without an SSH server, and the StoreKit test
+# without SHELLRS_TEST_STOREKIT; forks run this as it is, without secrets.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/core
+
+      # An iPhone on the runtime of the selected Xcode's SDK.
+      - name: Simulator
+        id: simulator
+        run: |
+          xcodebuild -version
+          sdk=$(xcrun --sdk iphonesimulator --show-sdk-version)
+          runtime="com.apple.CoreSimulator.SimRuntime.iOS-${sdk//./-}"
+          udid=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"].get(sys.argv[1], [])
+          print(next(d["udid"] for d in devices if d["name"].startswith("iPhone")))
+          ' "$runtime")
+          echo "udid=$udid" >> "$GITHUB_OUTPUT"
+
+      - name: Test
+        run: |
+          xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
+            -destination "id=${{ steps.simulator.outputs.udid }}" \
+            -skipPackagePluginValidation test

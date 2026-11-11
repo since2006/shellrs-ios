@@ -10,7 +10,7 @@ import UIKit
 struct PresentationContinuityTests {
     @Test func anEditorAndItsTypedTextSurviveReplacingTheLayoutBranch() async throws {
         let test = try TestCore()
-        let model = AppModel(core: test.core, deviceName: "Duo", purchases: .unlockedForTesting())
+        let model = AppModel(core: test.core, deviceName: "Duo")
         let size = WindowSize()
         let scene = try #require(UIApplication.shared.connectedScenes.first as? UIWindowScene)
         let window = UIWindow(windowScene: scene)

@@ -41,6 +41,7 @@ final class AppModel {
     let core: Core
     let hosts: HostsModel
     let purchases: PurchaseModel
+    let ads: AdsModel
     let sync: SyncModel
     var tab = AppTab.hosts
     var settingsPath: [SettingsRoute] = []
@@ -105,7 +106,6 @@ final class AppModel {
         {
             return .login(session, prompt)
         }
-        if purchases.presentationRequested { return .purchase }
         return nil
     }
 
@@ -116,8 +116,6 @@ final class AppModel {
             sheet = nil
         } else if showingSettings {
             showingSettings = false
-        } else {
-            purchases.presentationRequested = false
         }
     }
 
@@ -201,8 +199,12 @@ final class AppModel {
     private static let appearanceKey = "appAppearance"
     @ObservationIgnored private let defaults: UserDefaults
 
-    init(core: Core, deviceName: String, defaults: UserDefaults = .standard, purchases: PurchaseModel = PurchaseModel()) {
+    init(
+        core: Core, deviceName: String, defaults: UserDefaults = .standard,
+        purchases: PurchaseModel = PurchaseModel(), ads: AdsModel = AdsModel()
+    ) {
         self.purchases = purchases
+        self.ads = ads
         self.core = core
         self.defaults = defaults
         appearance = defaults.string(forKey: Self.appearanceKey).flatMap(AppAppearance.init(rawValue:)) ?? .system
@@ -236,8 +238,7 @@ final class AppModel {
         guard host.isSsh else {
             throw StoreError.NotSsh
         }
-        guard purchases.authorizeConnection() else { return }
-        let session = TerminalSession(host: host, core: core, purchases: purchases, fontSize: fontSize)
+        let session = TerminalSession(host: host, core: core, fontSize: fontSize)
         session.onClose = { [weak self, weak session] in
             if let self, let session {
                 close(session)
@@ -251,8 +252,10 @@ final class AppModel {
     /// The app came back to the foreground: the connections may have died
     /// while it was away, and sync may be due.
     func cameForward() {
-        purchases.tick()
-        Task { await purchases.refresh() }
+        Task {
+            await purchases.refresh()
+            await ads.cameForward()
+        }
         for session in sessions {
             Task {
                 await session.checkAlive()
@@ -292,6 +295,12 @@ final class AppModel {
         } else {
             tab = .settings
         }
+    }
+
+    /// 去除广告 under an ad: the settings, where the purchase is.
+    func openAdSettings() {
+        settingsPath = []
+        openSettings()
     }
 
     /// ⌘B: only a wide window has the sidebar.

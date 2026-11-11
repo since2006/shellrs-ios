@@ -26,7 +26,7 @@ struct ServerTests {
         let id = try await store.addHost(
             draft: draft(address: server.address, port: server.port, user: TestServer.user),
             password: .keep, proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
 
         try await waitUntil("the server's key is asked about") { session.prompt != nil }
@@ -79,7 +79,7 @@ struct ServerTests {
                 address: server.address, port: server.port, user: "",
                 auth: .credential(id: credential)),
             password: .keep, proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
 
         #expect(try await trustEachKey(session) == [nil])
@@ -92,7 +92,7 @@ struct ServerTests {
         let id = try await store.addHost(
             draft: draft(address: server.address, port: server.port, user: TestServer.user),
             password: .keep, proxyPassword: .keep)
-        let model = AppModel(core: test.core, deviceName: "Duo", purchases: .unlockedForTesting())
+        let model = AppModel(core: test.core, deviceName: "Duo")
         try model.connect(try #require(store.host(id: id)))
         let session = try #require(model.shownSession)
         defer { session.disconnect() }
@@ -159,7 +159,7 @@ struct ServerTests {
                 name: "target", address: target.address, port: target.port,
                 user: TestServer.user, route: .jump(hosts: [jump])),
             password: .set(value: TestServer.password), proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
 
         #expect(try await trustEachKey(session) == ["jump", nil])
@@ -181,7 +181,7 @@ struct ServerTests {
                 address: target.address, port: target.port, user: TestServer.user,
                 route: .proxy(proxy: proxy)),
             password: .set(value: TestServer.password), proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
 
         #expect(try await trustEachKey(session) == [nil])
@@ -197,7 +197,7 @@ struct ServerTests {
         let id = try await store.addHost(
             draft: draft(address: server.address, port: server.port, user: TestServer.user),
             password: .set(value: TestServer.password), proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
         #expect(try await trustEachKey(session) == [nil])
         try await waitUntil("the shell starts") { session.state == .connected }
@@ -321,7 +321,7 @@ struct ServerTests {
         let id = try await store.addHost(
             draft: draft(address: server.address, port: server.port, user: TestServer.user),
             password: .set(value: TestServer.password), proxyPassword: .keep)
-        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core, purchases: .unlockedForTesting())
+        let session = TerminalSession(host: try #require(store.host(id: id)), core: test.core)
         session.start()
         #expect(try await trustEachKey(session) == [nil])
         try await waitUntil("the shell starts") { session.state == .connected }

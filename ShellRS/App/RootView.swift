@@ -67,6 +67,10 @@ struct RootView: View {
         .modifier(HostListPrompts())
         .modifier(CredentialListPrompts())
         .task { await model.purchases.start() }
+        // The ads wait for StoreKit: whoever bought them away never starts the SDK.
+        .onChange(of: model.purchases.adRemoval, initial: true) { _, removal in
+            Task { await model.ads.purchaseChanged(removal) }
+        }
         .focusedSceneValue(\.appModel, model)
         .preferredColorScheme(model.appearance.colorScheme)
         .onChange(of: scenePhase, initial: true) { _, phase in

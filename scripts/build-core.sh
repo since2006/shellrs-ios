@@ -32,6 +32,8 @@ IPHONEOS_DEPLOYMENT_TARGET=17.0 "$shellrs/scripts/build-ios.sh"
 built="$shellrs/target/mobile/ios"
 rm -rf "$package/ShellRSCore.xcframework"
 cp -R "$built/ShellRSCore.xcframework" "$package/"
+# Not in git when nothing has been built yet, as in a fresh clone.
+mkdir -p "$package/Sources/ShellRSCore"
 cp "$built/Sources/ShellRSCore.swift" "$package/Sources/ShellRSCore/"
 echo "The core is in $package"
 

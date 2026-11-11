@@ -27,17 +27,14 @@ final class TerminalSession: Identifiable {
     /// The host's files over SFTP on this terminal's connection, once
     /// asked for; it outlives reconnecting, its transfers with it.
     private(set) var files: FilesModel?
-    @ObservationIgnored private var hasOpenedFiles = false
 
-    @ObservationIgnored private let purchases: PurchaseModel
     @ObservationIgnored private let core: Core
     @ObservationIgnored private var connection: Connection?
     @ObservationIgnored private var terminal: Terminal?
     /// Events from an earlier attempt are dropped.
     @ObservationIgnored private var attempt = 0
 
-    init(host: Host, core: Core, purchases: PurchaseModel, fontSize: Double = AppModel.defaultFontSize) {
-        self.purchases = purchases
+    init(host: Host, core: Core, fontSize: Double = AppModel.defaultFontSize) {
         self.host = host
         self.core = core
         surface = TerminalSurface(fontSize: fontSize)
@@ -125,13 +122,8 @@ final class TerminalSession: Identifiable {
             downloadsFolder: downloadsFolder ?? LocalFolders.downloads(for: host)
         ) { [weak self] in
             guard let self else { throw SshError.NotConnected }
-            // Only the first SFTP session needs new access; subsequent reconnects
-            // belong to the already-open workspace, like SSH reconnects.
-            if !hasOpenedFiles, !purchases.authorizeConnection() { throw PurchaseAccessError() }
             guard let connection = self.connection else { throw SshError.NotConnected }
-            let session = try await connection.openSftp()
-            hasOpenedFiles = true
-            return session
+            return try await connection.openSftp()
         }
         self.files = files
         return files

@@ -1,41 +1,41 @@
 import Foundation
 import StoreKit
 
-/// IDs come from build configuration, never inferred from the bundle identifier.
-struct PurchaseConfiguration: Codable, Equatable {
-    let trialID: String
-    let lifetimeID: String
+/// The product that removes the ads. Its ID comes from the build
+/// configuration (`SHELLRS_REMOVE_ADS_PRODUCT_ID`), never inferred from the
+/// bundle identifier.
+struct PurchaseConfiguration: Equatable {
+    let removeAdsID: String
 
     static var bundled: Self {
         Self(
-            trialID: Bundle.main.object(forInfoDictionaryKey: "ShellRSTrialProductID") as? String ?? "",
-            lifetimeID: Bundle.main.object(forInfoDictionaryKey: "ShellRSLifetimeProductID") as? String ?? "")
+            removeAdsID: Bundle.main.object(forInfoDictionaryKey: "ShellRSRemoveAdsProductID")
+                as? String ?? "")
     }
 
-    var isConfigured: Bool {
-        !trialID.isEmpty && !lifetimeID.isEmpty && trialID != lifetimeID
-            && !trialID.contains("$(") && !lifetimeID.contains("$(")
-    }
-    var ids: Set<String> { [trialID, lifetimeID] }
+    /// A fork may leave it empty; an unexpanded `$(…)` means the build
+    /// setting is missing.
+    var isConfigured: Bool { !removeAdsID.isEmpty && !removeAdsID.contains("$(") }
 }
 
 struct PurchaseProduct: Identifiable, Equatable {
     let id: String
     let displayPrice: String
-    let isFree: Bool
 }
 
-/// Only the StoreKit adapter constructs these from verified, matching non-consumables.
-struct PurchaseRecord: Codable, Equatable {
+/// Only the StoreKit adapter constructs these, from verified non-consumables
+/// of this app.
+struct PurchaseRecord: Equatable {
     let id: UInt64
     let productID: String
-    let originalPurchaseDate: Date
     let signedDate: Date
     let revoked: Bool
 }
 
 struct PurchaseSnapshot {
     let records: [PurchaseRecord]
+    /// False when StoreKit returned an entitlement for the product that did
+    /// not verify.
     let complete: Bool
 }
 
@@ -56,7 +56,7 @@ enum PurchaseUpdate {
 
 @MainActor
 protocol PurchaseStore: AnyObject {
-    func products() async throws -> [PurchaseProduct]
+    func product() async throws -> PurchaseProduct?
     func entitlements() async throws -> PurchaseSnapshot
     func purchase(_ id: String) async throws -> PurchaseOutcome
     func sync() async throws
@@ -67,16 +67,16 @@ protocol PurchaseStore: AnyObject {
 @MainActor
 final class StoreKitPurchaseStore: PurchaseStore {
     private let configuration: PurchaseConfiguration
-    private var loaded: [String: Product] = [:]
+    private var loaded: Product?
     private var unfinished: [UInt64: StoreKit.Transaction] = [:]
 
     init(configuration: PurchaseConfiguration) { self.configuration = configuration }
 
-    func products() async throws -> [PurchaseProduct] {
+    func product() async throws -> PurchaseProduct? {
         guard configuration.isConfigured else { throw PurchaseStoreError.configuration }
-        let products = try await Product.products(for: configuration.ids)
-        loaded = Dictionary(uniqueKeysWithValues: products.filter { $0.type == .nonConsumable }.map { ($0.id, $0) })
-        return loaded.values.map { PurchaseProduct(id: $0.id, displayPrice: $0.displayPrice, isFree: $0.price == 0) }
+        loaded = try await Product.products(for: [configuration.removeAdsID])
+            .first { $0.type == .nonConsumable }
+        return loaded.map { PurchaseProduct(id: $0.id, displayPrice: $0.displayPrice) }
     }
 
     func entitlements() async throws -> PurchaseSnapshot {
@@ -89,31 +89,23 @@ final class StoreKitPurchaseStore: PurchaseStore {
             case .verified(let transaction):
                 if let record = record(transaction) { records.append(record) }
             case .unverified(let transaction, _):
-                if configuration.ids.contains(transaction.productID) { failed = true }
+                if transaction.productID == configuration.removeAdsID { failed = true }
             }
-        }
-        // A partial or unverified query must never erase a previously verified purchase.
-        if records.contains(where: { $0.productID == configuration.trialID }),
-            let start = await earliestTrialStart()
-        {
-            records = records.map { withTrialStart($0, start: start) }
         }
         return PurchaseSnapshot(records: records, complete: !failed)
     }
 
     func purchase(_ id: String) async throws -> PurchaseOutcome {
-        guard let product = loaded[id], configuration.ids.contains(id),
-            product.type == .nonConsumable,
-            id != configuration.trialID || product.price == 0
-        else { throw PurchaseStoreError.unavailable }
+        guard let product = loaded, product.id == id, id == configuration.removeAdsID else {
+            throw PurchaseStoreError.unavailable
+        }
         switch try await product.purchase() {
         case .success(let result):
             guard case .verified(let transaction) = result, let record = record(transaction) else {
                 throw PurchaseStoreError.verification
             }
             unfinished[transaction.id] = transaction
-            let start = record.productID == configuration.trialID ? await earliestTrialStart() : nil
-            return .verified(withTrialStart(record, start: start))
+            return .verified(record)
         case .userCancelled: return .cancelled
         case .pending: return .pending
         @unknown default: throw PurchaseStoreError.unavailable
@@ -131,11 +123,10 @@ final class StoreKitPurchaseStore: PurchaseStore {
                     case .verified(let transaction):
                         if let record = self.record(transaction) {
                             unfinished[transaction.id] = transaction
-                            let start = record.productID == configuration.trialID ? await earliestTrialStart() : nil
-                            continuation.yield(.verified(withTrialStart(record, start: start)))
+                            continuation.yield(.verified(record))
                         }
                     case .unverified(let transaction, _):
-                        if configuration.ids.contains(transaction.productID) {
+                        if transaction.productID == configuration.removeAdsID {
                             continuation.yield(.unverified)
                         }
                     }
@@ -151,33 +142,13 @@ final class StoreKitPurchaseStore: PurchaseStore {
         await transaction.finish()
     }
 
-    private func earliestTrialStart() async -> Date? {
-        var earliest: Date?
-        // Includes revoked history: a later repurchase must not reset the 30 days.
-        for await result in StoreKit.Transaction.all {
-            guard case .verified(let transaction) = result,
-                transaction.productID == configuration.trialID,
-                record(transaction) != nil else { continue }
-            earliest = min(earliest ?? transaction.originalPurchaseDate, transaction.originalPurchaseDate)
-        }
-        return earliest
-    }
-
-    private func withTrialStart(_ record: PurchaseRecord, start: Date?) -> PurchaseRecord {
-        guard record.productID == configuration.trialID, let start else { return record }
-        return PurchaseRecord(id: record.id, productID: record.productID,
-                              originalPurchaseDate: min(start, record.originalPurchaseDate),
-                              signedDate: record.signedDate, revoked: record.revoked)
-    }
-
     private func record(_ transaction: StoreKit.Transaction) -> PurchaseRecord? {
-        guard configuration.ids.contains(transaction.productID),
+        guard transaction.productID == configuration.removeAdsID,
             transaction.appBundleID == Bundle.main.bundleIdentifier,
             transaction.productType == .nonConsumable
         else { return nil }
         return PurchaseRecord(
             id: transaction.id, productID: transaction.productID,
-            originalPurchaseDate: transaction.originalPurchaseDate,
             signedDate: transaction.signedDate, revoked: transaction.revocationDate != nil)
     }
 }

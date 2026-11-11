@@ -15,7 +15,7 @@ struct AppModelTests {
     init() throws {
         test = try TestCore()
         defaults = try #require(UserDefaults(suiteName: "AppModelTests.\(UUID().uuidString)"))
-        model = AppModel(core: test.core, deviceName: "iPad", defaults: defaults, purchases: .unlockedForTesting())
+        model = AppModel(core: test.core, deviceName: "iPad", defaults: defaults)
     }
 
     /// Opens a terminal on each of `names`, saved on a port nothing listens
@@ -144,9 +144,9 @@ struct AppModelTests {
         let b = try #require(try await open("b").last)
         #expect(b.surface.fontSize == 16)
         // This device's, kept for the next launch.
-        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults, purchases: .unlockedForTesting()).fontSize == 16)
+        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults).fontSize == 16)
         defaults.set(99.0, forKey: "terminalFontSize")
-        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults, purchases: .unlockedForTesting()).fontSize == 13)
+        #expect(AppModel(core: test.core, deviceName: "iPad", defaults: defaults).fontSize == 13)
     }
 
     @Test func commandsShowTheListWhereTheWindowHasIt() async throws {

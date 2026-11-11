@@ -140,8 +140,6 @@ final class FilesModel {
             pump(session)
             resumeIfReady()
             startNextIfIdle()
-        } catch let error as PurchaseAccessError {
-            state = .disconnected(error.localizedDescription)
         } catch SshError.NotConnected {
             state = .disconnected(String(localized: "终端未连接，重新连接终端后才能浏览文件"))
         } catch {

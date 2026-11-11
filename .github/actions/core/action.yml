@@ -1,0 +1,51 @@
+name: ShellRS core
+description: >
+  Puts the Rust core where Packages/ShellRSCore looks for it: built from
+  shell-rs at the commit in Packages/ShellRSCore/core-revision (as
+  scripts/build-core.sh does on a Mac), or the build of that commit from the
+  cache.
+
+runs:
+  using: composite
+  steps:
+    - id: revision
+      shell: bash
+      run: echo "sha=$(cat Packages/ShellRSCore/core-revision)" >> "$GITHUB_OUTPUT"
+
+    - id: cache
+      uses: actions/cache@v6
+      with:
+        path: |
+          Packages/ShellRSCore/ShellRSCore.xcframework
+          Packages/ShellRSCore/Sources/ShellRSCore/ShellRSCore.swift
+        key: shellrs-core-${{ steps.revision.outputs.sha }}-${{ hashFiles('scripts/build-core.sh') }}
+
+    - if: steps.cache.outputs.cache-hit != 'true'
+      uses: actions/checkout@v7
+      with:
+        repository: since2006/shell-rs
+        ref: ${{ steps.revision.outputs.sha }}
+        path: shell-rs
+
+    # rust-toolchain.toml in shell-rs picks the toolchain.
+    - if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: shell-rs
+      run: |
+        rustup toolchain install
+        rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+
+    - if: steps.cache.outputs.cache-hit != 'true'
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: shell-rs
+
+    - if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: SHELLRS_DIR=shell-rs scripts/build-core.sh
+
+    # build-core.sh writes the list of open-source licenses again: a change
+    # in the core's dependencies must come with the list, committed.
+    - if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: git diff --exit-code -- ShellRS/About/Licenses.json

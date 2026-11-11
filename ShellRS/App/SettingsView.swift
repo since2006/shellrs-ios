@@ -4,10 +4,9 @@ import SwiftUI
 /// What can be pushed in the settings.
 enum SettingsRoute: Hashable {
     case sync
-    case purchase
 }
 
-/// The settings: sync, and what the app is.
+/// The settings: the ads, sync, and what the app is.
 struct SettingsView: View {
     /// Closes them, when they are shown over a wide window rather than in
     /// a tab.
@@ -18,17 +17,8 @@ struct SettingsView: View {
         @Bindable var model = model
         NavigationStack(path: $model.settingsPath) {
             Form {
-                Section {
-                    NavigationLink(value: SettingsRoute.purchase) {
-                        PurchaseStatus(purchases: model.purchases)
-                    }
-                    Button("恢复购买") {
-                        Task { await model.purchases.restore() }
-                    }
-                    .disabled(model.purchases.working)
-                    if let notice = model.purchases.notice {
-                        Text(notice).font(.footnote)
-                    }
+                if model.ads.isAvailable {
+                    AdsSection()
                 }
                 Section {
                     NavigationLink(value: SettingsRoute.sync) {
@@ -58,6 +48,20 @@ struct SettingsView: View {
                 }
                 Section("关于") {
                     LabeledContent("版本", value: Self.version)
+                    Link(destination: Self.source) {
+                        LabeledContent {
+                            HStack(spacing: 6) {
+                                Text(verbatim: "GitHub")
+                                Image(systemName: "arrow.up.right.square")
+                                    .font(.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .accessibilityHidden(true)
+                            }
+                        } label: {
+                            Text("源代码")
+                                .foregroundStyle(Color.primary)
+                        }
+                    }
                     Link(destination: Self.website) {
                         LabeledContent {
                             HStack(spacing: 6) {
@@ -84,8 +88,6 @@ struct SettingsView: View {
             }
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
-                case .purchase:
-                    PurchaseContent(purchases: model.purchases)
                 case .sync:
                     SyncView(sync: model.sync)
                 }
@@ -94,12 +96,57 @@ struct SettingsView: View {
     }
 
     private static let website = URL(string: "https://shellrs.com")!
+    private static let source = URL(string: "https://github.com/since2006/shellrs-ios")!
 
     private static var version: String {
         let info = Bundle.main.infoDictionary
         let version = info?["CFBundleShortVersionString"] as? String ?? "?"
         let build = info?["CFBundleVersion"] as? String ?? "?"
         return "\(version) (\(build))"
+    }
+}
+
+/// The ads: buying them away, restoring that, and changing the answer
+/// given to the consent form where the law asks for one.
+private struct AdsSection: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        let purchases = model.purchases
+        Section {
+            if purchases.configuration.isConfigured {
+                if purchases.adsRemoved {
+                    Label("已去除广告", systemImage: "checkmark.seal.fill")
+                } else {
+                    Button {
+                        Task { await purchases.purchase() }
+                    } label: {
+                        LabeledContent {
+                            if let price = purchases.product?.displayPrice {
+                                Text(price)
+                            }
+                        } label: {
+                            Text("去除广告")
+                        }
+                    }
+                    .disabled(purchases.working || purchases.adRemoval == .unknown)
+                }
+                Button("恢复购买") {
+                    Task { await purchases.restore() }
+                }
+                .disabled(purchases.working)
+            }
+            if model.ads.privacyOptionsRequired, !purchases.adsRemoved {
+                Button("广告隐私选项") {
+                    Task { await model.ads.presentPrivacyOptions() }
+                }
+            }
+            if let notice = purchases.notice {
+                Text(notice).font(.footnote)
+            }
+        } footer: {
+            Text("ShellRS 的全部功能免费，广告用来支持开发。去除广告是一次性购买，同一 Apple 账户的设备都可以恢复。")
+        }
     }
 }
 

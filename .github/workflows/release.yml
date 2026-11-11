@@ -1,0 +1,123 @@
+# A tag v<MARKETING_VERSION>, or a manual run, builds the app for the App
+# Store, signs it and uploads it to App Store Connect, where it shows in
+# TestFlight. Submitting it for review stays a click in App Store Connect.
+# The repository has Google's test AdMob IDs only; this is the one build that
+# gets the real ones. See docs/RELEASE.md for the secrets and variables.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  upload:
+    # Forks have neither the signing secrets nor this app's App Store record.
+    if: github.repository == 'since2006/shellrs-ios'
+    runs-on: xcode-27
+    environment: app-store
+    timeout-minutes: 90
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      DEVELOPMENT_TEAM: ${{ vars.DEVELOPMENT_TEAM }}
+      # Secrets not because the app hides them (anyone can read them out of
+      # it) but so that the public run logs show *** in their place.
+      ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
+      ADMOB_NATIVE_AD_UNIT_ID: ${{ secrets.ADMOB_NATIVE_AD_UNIT_ID }}
+    steps:
+      # Never upload a build with test ads (no revenue) or without ads.
+      - name: AdMob IDs
+        run: |
+          test_publisher=3940256099942544
+          if ! [[ "$ADMOB_APP_ID" =~ ^ca-app-pub-[0-9]{16}~[0-9]{10}$ ]] \
+            || ! [[ "$ADMOB_NATIVE_AD_UNIT_ID" =~ ^ca-app-pub-[0-9]{16}/[0-9]{10}$ ]]; then
+            echo "::error::Set the secrets ADMOB_APP_ID (ca-app-pub-…~…) and ADMOB_NATIVE_AD_UNIT_ID (ca-app-pub-…/…)"
+            exit 1
+          fi
+          if [[ "$ADMOB_APP_ID$ADMOB_NATIVE_AD_UNIT_ID" == *"$test_publisher"* ]]; then
+            echo "::error::ADMOB_APP_ID and ADMOB_NATIVE_AD_UNIT_ID are Google's test IDs, not this app's"
+            exit 1
+          fi
+
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/core
+
+      # The version is Config/ShellRS.xcconfig's; a tag must name it. The
+      # build number goes up with every upload: the UTC date and time.
+      - name: Version
+        id: version
+        run: |
+          version=$(xcodebuild -project ShellRS.xcodeproj -target ShellRS -configuration Release \
+            -showBuildSettings | awk '$1 == "MARKETING_VERSION" { print $3 }')
+          if [ "$GITHUB_REF_TYPE" = tag ] && [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match MARKETING_VERSION $version in Config/ShellRS.xcconfig"
+            exit 1
+          fi
+          build="$(date -u +%Y%m%d).$((10#$(date -u +%H%M)))"
+          echo "Version $version ($build)"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+
+      - name: App Store Connect key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          key="$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8"
+          printf '%s\n' "$ASC_KEY_P8" > "$key"
+          echo "ASC_KEY_PATH=$key" >> "$GITHUB_ENV"
+
+      # Automatic signing with the key: Xcode makes or fetches the
+      # distribution certificate and profile itself (the key needs the
+      # Admin role for that).
+      - name: Archive
+        run: |
+          xcodebuild archive -project ShellRS.xcodeproj -scheme ShellRS -configuration Release \
+            -destination generic/platform=iOS -archivePath "$RUNNER_TEMP/ShellRS.xcarchive" \
+            -skipPackagePluginValidation -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" \
+            CURRENT_PROJECT_VERSION="${{ steps.version.outputs.build }}" \
+            SHELLRS_ADMOB_APP_ID="$ADMOB_APP_ID" \
+            SHELLRS_NATIVE_AD_UNIT_ID="$ADMOB_NATIVE_AD_UNIT_ID"
+
+      - name: The archive has the real AdMob IDs
+        run: |
+          plist="$RUNNER_TEMP/ShellRS.xcarchive/Products/Applications/ShellRS.app/Info.plist"
+          app_id=$(plutil -extract GADApplicationIdentifier raw "$plist")
+          unit_id=$(plutil -extract ShellRSNativeAdUnitID raw "$plist")
+          # What is not the secrets prints as is: a test ID, for one.
+          if [ "$app_id" != "$ADMOB_APP_ID" ] || [ "$unit_id" != "$ADMOB_NATIVE_AD_UNIT_ID" ]; then
+            echo "::error::The archive has GADApplicationIdentifier $app_id, ShellRSNativeAdUnitID $unit_id, not the secrets"
+            exit 1
+          fi
+          echo "The archive has the IDs from the secrets"
+
+      - name: Upload to App Store Connect
+        run: |
+          options="$RUNNER_TEMP/ExportOptions.plist"
+          cp Config/ExportOptions.plist "$options"
+          plutil -replace teamID -string "$DEVELOPMENT_TEAM" "$options"
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/ShellRS.xcarchive" \
+            -exportOptionsPlist "$options" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dSYMs-${{ steps.version.outputs.build }}
+          path: ${{ runner.temp }}/ShellRS.xcarchive/dSYMs
+
+      - if: always()
+        run: rm -f "$RUNNER_TEMP"/AuthKey_*.p8
