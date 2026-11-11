@@ -10,6 +10,11 @@ struct SyncView: View {
     /// What opens over the page.
     enum Sheet: Identifiable {
         case setUp(RemoteKind)
+        /// Join with the setup code another device shows, scanned or
+        /// pasted.
+        case useCode
+        /// This sync's setup code, for another device to join with.
+        case showCode
         case signIn(SyncLocation)
         case password(PasswordStep)
 
@@ -17,6 +22,8 @@ struct SyncView: View {
             switch self {
             case .setUp(.webDav): "set-up-webdav"
             case .setUp(.s3): "set-up-s3"
+            case .useCode: "use-code"
+            case .showCode: "show-code"
             case .signIn: "sign-in"
             case .password: "password"
             }
@@ -157,6 +164,14 @@ struct SyncView: View {
     private var setUp: some View {
         Section {
             Button {
+                sheet = .useCode
+            } label: {
+                OptionRow(
+                    title: "配置码", detail: "扫描或粘贴另一台设备显示的配置码，再输入同步密码，不用重填地址和密钥。",
+                    symbol: "qrcode.viewfinder")
+            }
+            .tint(.primary)
+            Button {
                 sheet = .setUp(.webDav)
             } label: {
                 OptionRow(
@@ -257,6 +272,16 @@ struct SyncView: View {
                         ? "\(bucket) · \(endpoint)" : "\(bucket)/\(prefix) · \(endpoint)")
                 loginRow("S3 访问密钥", value: accessKey, location: location)
             }
+            // A folder's path is this device's: it has no setup code.
+            if location.signsIn {
+                Button("显示配置码…") {
+                    sheet = .showCode
+                }
+            }
+        } footer: {
+            if location.signsIn {
+                Text("在另一台设备上扫描或粘贴配置码，再输入同步密码，就能加入这个同步。")
+            }
         }
     }
 
@@ -354,6 +379,17 @@ struct SyncView: View {
     }
 }
 
+extension SyncLocation {
+    /// Whether getting there takes a login the keychain keeps: a server
+    /// or a bucket, not a folder.
+    var signsIn: Bool {
+        if case .folder = self {
+            return false
+        }
+        return true
+    }
+}
+
 /// A WebDAV server or an S3 bucket.
 enum RemoteKind: Hashable {
     case webDav
@@ -440,6 +476,10 @@ struct SyncSheetView: View {
             switch sheet {
             case .setUp(let kind):
                 SyncLoginView(sync: sync, kind: kind, signingIn: nil, close: close)
+            case .useCode:
+                SyncCodeScanView(sync: sync, close: close)
+            case .showCode:
+                SyncCodeShowView(sync: sync, close: close)
             case .signIn(let location):
                 SyncLoginView(
                     sync: sync, kind: RemoteKind(location),
@@ -448,6 +488,7 @@ struct SyncSheetView: View {
                 SyncPasswordView(sync: sync, step: step, cancellable: true, close: close)
             }
         }
-        .interactiveDismissDisabled()
+        // The setup code is only looked at: it goes with a swipe as well.
+        .interactiveDismissDisabled(sheet.id != SyncView.Sheet.showCode.id)
     }
 }

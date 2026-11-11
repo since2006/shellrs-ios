@@ -349,6 +349,16 @@
         }
       }
     },
+    "ShellRS 没有相机权限。在系统设置里允许后可以扫码，也可以粘贴配置码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ShellRS can’t use the camera. Allow it in Settings to scan, or paste the setup code."
+          }
+        }
+      }
+    },
     "Telnet 主机暂时只能在电脑上连接。": {
       "localizations": {
         "en": {
@@ -2245,6 +2255,16 @@
         }
       }
     },
+    "同步配置码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync setup code"
+          }
+        }
+      }
+    },
     "同步里没有这台设备。": {
       "localizations": {
         "en": {
@@ -2355,12 +2375,52 @@
         }
       }
     },
+    "在另一台设备上扫描或粘贴配置码，再输入同步密码，就能加入这个同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan or paste the setup code on another device, then enter the sync password there to join this sync."
+          }
+        }
+      }
+    },
+    "在另一台设备上扫描这个二维码，或者粘贴配置码，再输入同步密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On another device, scan this QR code or paste the setup code, then enter the sync password."
+          }
+        }
+      }
+    },
     "在左边点一台主机连接。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Tap a host on the left to connect."
+          }
+        }
+      }
+    },
+    "在已开启同步的设备上打开「云同步」，点「显示配置码…」，复制配置码后在这里粘贴。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On a device that syncs, open “Cloud sync” and choose “Show setup code…”, then copy the setup code and paste it here."
+          }
+        }
+      }
+    },
+    "在已开启同步的设备上打开「云同步」，点「显示配置码…」，把二维码放进取景框。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On a device that syncs, open “Cloud sync” and choose “Show setup code…”, then point the camera at the QR code."
           }
         }
       }
@@ -2483,6 +2543,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copy path"
+          }
+        }
+      }
+    },
+    "复制配置码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy setup code"
           }
         }
       }
@@ -2829,6 +2899,16 @@
         }
       }
     },
+    "已复制配置码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup code copied"
+          }
+        }
+      }
+    },
     "已存在": {
       "localizations": {
         "en": {
@@ -3019,6 +3099,16 @@
         }
       }
     },
+    "或者粘贴配置码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or paste the setup code"
+          }
+        }
+      }
+    },
     "所有者": {
       "localizations": {
         "en": {
@@ -3065,6 +3155,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Open settings"
+          }
+        }
+      }
+    },
+    "扫描二维码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan the QR code"
+          }
+        }
+      }
+    },
+    "扫描或粘贴另一台设备显示的配置码，再输入同步密码，不用重填地址和密钥。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan or paste the setup code another device shows, then enter the sync password. Nothing else to fill in."
           }
         }
       }
@@ -3919,6 +4029,16 @@
         }
       }
     },
+    "显示配置码…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show setup code…"
+          }
+        }
+      }
+    },
     "显示隐藏文件": {
       "localizations": {
         "en": {
@@ -4417,6 +4537,16 @@
         }
       }
     },
+    "未能生成配置码：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn’t make the setup code: %@"
+          }
+        }
+      }
+    },
     "未连接": {
       "localizations": {
         "en": {
@@ -4603,6 +4733,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Generating the key…"
+          }
+        }
+      }
+    },
+    "正在生成配置码…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Making the setup code…"
           }
         }
       }
@@ -4823,6 +4963,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Username prompt"
+          }
+        }
+      }
+    },
+    "用配置码加入同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join sync with a setup code"
           }
         }
       }
@@ -5887,6 +6037,16 @@
         }
       }
     },
+    "输入这个同步的同步密码，这台设备上的数据会和其他设备的合并。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter this sync’s password; what’s on this device is merged with the other devices’."
+          }
+        }
+      }
+    },
     "输出太快，跳过了 %@ 字节": {
       "localizations": {
         "en": {
@@ -6117,6 +6277,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "What’s on this device stays as it is; later changes aren’t synced."
+          }
+        }
+      }
+    },
+    "这台设备不能扫码，可以粘贴配置码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device can’t scan codes. Paste the setup code instead."
           }
         }
       }
@@ -6501,6 +6671,36 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "配置码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setup code"
+          }
+        }
+      }
+    },
+    "配置码的二维码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code of the setup code"
+          }
+        }
+      }
+    },
+    "配置码里有同步位置的地址和登录密钥，已用同步密码加密。不要发到公开的地方。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The setup code holds the sync location and its login, encrypted with the sync password. Don’t post it anywhere public."
           }
         }
       }

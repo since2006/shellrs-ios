@@ -52,7 +52,7 @@ GitHub Actions：每个 PR 和 `main` 编核心、跑测试（`ci.yml`）；推 
 - 主机树（`HostTree`）是纯函数，照电脑版的规则建树、搜索；
 - 传输队列（`TransferQueue`）照电脑版的规则：一次一批、停止的批次占着队头、移出和清除；SFTP 的失败链在「无法上传：…」这种自己说原因的一节停下（同电脑版）；没连上时文件页说原因，要传的在队列里等下一次会话；下载按主机和服务器上的完整路径放，不同目录的同名文件各是各的；「已下载的文件」里同一位置的那份大小和修改时间都和服务器上的一样才算同一个，预览直接打开它、不再排队；取消预览不碰「已下载的文件」里的东西；权限照 `ls -l` 显示；
 - 连一个没人监听的本机端口，看断开的原因是「连接被拒绝」那一句；关掉的终端检查连接时直接说不在；
-- 同步（`SyncModel`）用两个 `Core` 经临时文件夹同步（核心的文件夹存储，测试里不上网）：创建、加入、密码不对；一边改了停一会儿自己同步出去，另一边回到前台时拿到；别处改了同步密码时等用户输入，期间改动和回到前台都不同步；被别的设备移出后重新加入；关闭后数据留着、不再同步；
+- 同步（`SyncModel`）用两个 `Core` 经临时文件夹同步（核心的文件夹存储，测试里不上网）：创建、加入、密码不对；一边改了停一会儿自己同步出去，另一边回到前台时拿到；别处改了同步密码时等用户输入，期间改动和回到前台都不同步；被别的设备移出后重新加入；关闭后数据留着、不再同步；配置码（`SetupCodeTests`）用核心自己的金样码（shell-rs 的 `crates/shellrs-sync/testdata/v1/setup-code.txt`，里面的 WebDAV 地址没人应答，不上网）：不是配置码、没复制完整、更新版本的码在问密码前就说；密码不对打不开；密码对了就去连码里的位置（连不上，但说明解开了），失败后什么都不留；文件夹同步没有配置码；画出来的二维码读回来还是那段码。两台设备之间出码、凭码加入的全程在 shell-rs 那边测（测试里只有文件夹存储，而文件夹没有配置码）；
 - 开源许可的清单（`Licenses.json`）里有 SwiftTerm、russh、tokio、UniFFI 和 Simple Icons，没有 shell-rs 自己的 crate，每一项都有许可证和全文；
 - 去除广告（`PurchaseModel`，用假的 StoreKit）：StoreKit 回答前是未知、不显示广告；买了、恢复了去掉广告并 finish 交易；取消、待批准、验证失败不变；退款的更新比滞后的权益快照新；未验证的权益既不去广告也不抹掉已验证的；查询期间到了购买，不用查询的旧快照。给了 `SHELLRS_TEST_STOREKIT=1` 时 `StoreKitPurchaseTests` 用 `ShellRSTests/Purchases.storekit` 的本地交易买、恢复、退款；
 - 广告（`AdsModel`，用假的 SDK）：StoreKit 回答前、买过去除广告时都不弹同意书、不初始化 SDK、不加载；同意书说不能请求就不加载，回到前台再试；每个位置一条，保留一小时后重新加载，失败后一分钟内不再试并丢掉过期的；购买后清掉、退款后回来；测试宿主里没有广告；
@@ -103,7 +103,7 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 
 模拟器测试使用正常的临时签名，不要加 `CODE_SIGNING_ALLOWED=NO`，否则钥匙串测试会因缺少授权失败。`AppLayoutTests` 验证布局预算及折叠区域避让；`AppModelTests` 验证连续切换、文件状态、搜索和呈现路由；`TerminalSurfaceTests` 验证旧宿主无法移走新宿主的终端、表单后的终端不会抢焦点，以及像素尺寸变化与无效尺寸过滤；`PresentationContinuityTests` 用真实呈现的编辑器验证宽窄切换后仍是同一表单、未提交输入保持。设置上文真实服务器变量后，`ServerTests` 还会验证认证期间切换布局不会取消连接，并用远端 `stty size` 检查终端尺寸。
 
-人工验收覆盖：关闭、展开、半折叠及两种方向，内屏左右分屏，连续快速折叠；分别在编辑主机/凭据、认证输入、同步登录、文件详情/预览、目录重命名和传输期间切换。检查输入、焦点、当前目录与进度保留，系统竖向栏、终端标签和断开提示均可操作且无遮挡。接外接键盘和使用中文输入法各验证一次，运行持续输出与全屏终端程序确认重绘正常；同时回归 iOS 17、普通 iPhone 和 iPad 宽窄窗口。
+人工验收覆盖：关闭、展开、半折叠及两种方向，内屏左右分屏，连续快速折叠；分别在编辑主机/凭据、认证输入、同步登录、扫配置码、文件详情/预览、目录重命名和传输期间切换。扫码要在真机上验：模拟器没有相机，扫码页只剩粘贴。检查输入、焦点、当前目录与进度保留，系统竖向栏、终端标签和断开提示均可操作且无遮挡。接外接键盘和使用中文输入法各验证一次，运行持续输出与全屏终端程序确认重绘正常；同时回归 iOS 17、普通 iPhone 和 iPad 宽窄窗口。
 
 - **只开一个窗口**（`Config/Info.plist` 显式禁用多场景，检查构建产物仍为 `false`）：一个终端只有一个 SwiftTerm 视图，两个窗口会抢。
 - **确认框**：宽窗口里用居中的 alert，窄窗口用底部的动作表（`View.confirmation`）；`confirmationDialog` 在 iPad 上是弹出框，挂在整个列表上就指着列表正中，和要删的那一行对不上。
@@ -136,17 +136,17 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - `ShellRS/Credentials`：凭据列表和表单（密码；私钥粘贴、从文件读、生成）。
 - `ShellRS/Terminal`：`TerminalSession`（连接、问答、终端的事件）、`TerminalSurface`（SwiftTerm 的视图和委托，**只有这个文件 import SwiftTerm**：它的 `Terminal`、`TerminalOptions` 和核心的重名）、窄窗口的终端页（`TerminalScreen`）、宽窗口的标签条和终端（`TerminalWorkspace`、`TerminalTabs`）、开始页、问答、打开的终端列表。
 - `ShellRS/Files`：`FilesModel`（终端连接上的 SFTP 会话、传输队列、断开后接着传）、`TransferQueue`（照电脑版的队列）、目录浏览（拖进来上传）、文件简介（`FileInfoView`：点文件先看这里，预览和下载都从这里开始）、传输队列页（`TransferControls`：传输条、队列和简介共用的停止 / 继续 / 取消按钮）、已下载的文件。
-- `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）。
+- `ShellRS/Sync`：`SyncModel`（什么时候同步、等用户处理的事、建立和加入等操作）、云同步页、WebDAV / S3 的登录表单、同步密码（创建、加入、更换）、配置码（`SyncCodeShowView`：把这个同步的配置码显示成二维码，可复制、分享；`SyncCodeScanView`：扫码或粘贴别的设备的配置码，再去输同步密码；`CodeScanner`：系统的扫码器，**只有这个文件 import VisionKit**）。
 - `ShellRS/Describe`：核心的错误和失败翻成文案（SFTP 的在 `DescribeSftp.swift`，同步的在 `DescribeSync.swift`），删除前说的连带。
 - `ShellRS/Ads`：`AdsModel`（什么时候弹同意书、初始化 SDK、给每个位置加载广告）、`GoogleAdsService`（Google Mobile Ads 与 UMP，**只有它和两个广告视图 import Google 的 SDK**，都包在 `#if canImport` 里）、横幅和原生广告的视图（`BannerAdCard`、`NativeAdCard`）、列表里的广告一节和开始页的卡片（`AdViews`）。
 - `ShellRS/Purchases`：「去除广告」的 StoreKit 2 适配层（`PurchaseStore`）和状态（`PurchaseModel`）。
 - `ShellRS/About`：随 App 打包的开源许可清单 `Licenses.json`（`scripts/licenses.py` 生成，不手改）及读取模型。设置不再提供许可列表页面。
 - `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。
 - `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
-- `ShellRS/Localizable.xcstrings`：全部文案。
+- `ShellRS/Localizable.xcstrings`：全部文案。`ShellRS/InfoPlist.xcstrings`：`Info.plist` 里给用户看的话的英文（要相机权限时说的那句）。
 - `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
 - `ShellRS/PrivacyInfo.xcprivacy`：App 自己的隐私清单（不跟踪；required-reason API）。
-- `Config`：`ShellRS.xcconfig`（Bundle ID、版本、广告和内购的 ID）、`Info.plist`、`ExportOptions.plist`（上传 App Store 时导出用）；`Local.xcconfig` 不进库。
+- `Config`：`ShellRS.xcconfig`（Bundle ID、版本、广告和内购的 ID）、`Info.plist`（含扫配置码要的 `NSCameraUsageDescription`）、`ExportOptions.plist`（上传 App Store 时导出用）；`Local.xcconfig` 不进库。
 - `.github`：CI 和发布的工作流，两者共用的编核心一步（`actions/core`）。
 - `scripts`：`build-core.sh`（编核心）、`licenses.py`（开源许可的清单）、`license-texts`（crate 没带许可证文件时用的标准全文）。
 
@@ -163,5 +163,6 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - **SFTP 开在终端自己的连接上**（同电脑版右侧栏的「文件」，堡垒机上不用再登录一次）：终端断开它就断，终端重连后它自己开回来，传到一半的批次接着传，不再问是否续传（已经说过「继续」）。手机上的连接断了不会回来，所以不等引擎重试，终端一断就放下会话。
 - **传输一次一批**，排队在 App 里（同电脑版）。下载放 `Documents/Downloads/<主机名>/<服务器上的完整路径>`（「文件」App 的「我的 iPhone › ShellRS」里看得到；主机名里的 `/`、`:` 换成 `-`；文件页里的「已下载的文件」直接打开这台主机的文件夹）：只按文件名放的话，不同目录、不同主机的同名文件会撞在一起，问覆盖时也分不清本机那份是哪来的。点文件先弹出简介（大小、修改时间、权限、所有者、位置），预览就是下载到「已下载的文件」、下完用快速查看打开（不另设缓存，预览过的留在那里，用户自己删），超过 20 MB 的先问一句：那里同一位置已有一样的（大小、修改时间都和服务器上的一样，下载会带上服务器的修改时间）就直接打开，不一样（服务器上改过）就和下载一样问要不要覆盖，跳过就打开本机那份。传输条、队列和简介里都有按钮：传输可以停止（留着进度，之后继续）或取消（连下了一半的一起丢掉），预览只能取消，关掉简介时没下完的预览也取消；上传先把选的文件拷进临时目录（选的文件到时可能已经拿不到；拖进来的在落下时拷），批次结束就删，启动时清掉上次留下的。
 - **什么时候同步**（照核心 README，同电脑版）：启动和回到前台（一分钟内只一次）、改了要同步的东西后停 5 秒（`status().hasChanges` 为真才排）、进后台前有改动就借系统给的后台时间同步一轮；不定时轮询。出错只写在云同步页；要用户处理的（别处改了同步密码、被重置、被移出、一次删很多、登录被拒）弹一次提示、设置标签上有标记，处理完之前不自动同步。位置只有 WebDAV 和 S3，WebDAV 密码、S3 Secret Key 和同步密钥只进钥匙串（账户名同电脑版）。
+- **配置码**（同电脑版，格式在 shell-rs 的 `crates/shellrs-sync/FORMAT.md`）：开着同步的设备在云同步页「显示配置码…」，是一段文本和同一段文本的二维码，里面是同步位置和登录密钥，用同步密码加密；导出不问密码，但要联网读一次同步位置。没开同步的设备在「开启同步」里选「配置码」，扫码或粘贴后只输同步密码。解开和加入都在核心里（`joinWithSetupCode`），登录密钥不经过 App；App 只用 `isSyncSetupCode` 认出是不是配置码（相机读到别的二维码不理会）、用 `checkSyncSetupCode` 在问密码前说出不对的地方。扫码用 VisionKit 的 `DataScannerViewController`：没有它的设备（A10 的旧 iPad、模拟器）和没给相机权限时只能粘贴；粘贴用系统的 `PasteButton`，不弹「允许粘贴」。二维码用 Core Image 生成，白底黑码，深色模式下也一样（颜色是给相机读的数据）。
 - **开源许可**：清单只列 iOS 上真链接进 App 的（shellrs-mobile 的普通依赖，不含过程宏和 shell-rs 自己的 crate，加上 SwiftTerm 和 Simple Icons）；可以选许可证的（`MIT OR Apache-2.0`）列选用的那个，MIT 优先；同时适用几个的全列。升级依赖后重跑 `scripts/build-core.sh`，`Licenses.json` 跟着改动一起提交。
 - 核心接口缺东西就改 shell-rs 的 `crates/shellrs-mobile`（单独提交、照那边的规矩测），再更新 `core-revision`、重跑 `scripts/build-core.sh`。

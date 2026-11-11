@@ -276,6 +276,22 @@ final class SyncModel {
         joined()
     }
 
+    /// Join the sync a setup code is of, with its sync password, then
+    /// sync: the place and the login come out of the code.
+    func join(code: String, password: String) async throws {
+        try await job { [service] in
+            try await service.joinWithSetupCode(code: code, password: password)
+        }
+        joined()
+    }
+
+    /// The setup code of this sync, for another device to join with: where
+    /// sync goes and the login to it, sealed with the sync password. It
+    /// only reads the place, beside a round as well.
+    func setupCode() async throws -> String {
+        try await service.setupCode()
+    }
+
     /// Sign in anew to where sync goes, then sync.
     func changeLogin(_ location: SyncLocation, login: String) async throws {
         try await job { [service] in

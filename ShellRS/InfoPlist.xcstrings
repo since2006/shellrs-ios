@@ -1,0 +1,24 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "NSCameraUsageDescription": {
+      "comment": "Privacy - Camera Usage Description",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan the sync setup code shown on another device."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "扫描另一台设备上显示的同步配置码。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}
