@@ -1713,6 +1713,16 @@
         }
       }
     },
+    "加入已有的同步": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join an existing sync"
+          }
+        }
+      }
+    },
     "区域": {
       "localizations": {
         "en": {
@@ -3169,12 +3179,12 @@
         }
       }
     },
-    "扫描或粘贴另一台设备显示的配置码，再输入同步密码，不用重填地址和密钥。": {
+    "扫描或粘贴另一台设备显示的配置码，快速加入现有同步服务器。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scan or paste the setup code another device shows, then enter the sync password. Nothing else to fill in."
+            "value": "Scan or paste the setup code another device shows to quickly join an existing sync server."
           }
         }
       }

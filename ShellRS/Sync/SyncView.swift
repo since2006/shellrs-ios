@@ -65,6 +65,7 @@ struct SyncView: View {
             if let location = sync.location {
                 thisDevice
                 place(location)
+                setupCode(location)
                 others
                 Section {
                     Button("更换同步密码…") {
@@ -161,16 +162,9 @@ struct SyncView: View {
 
     // MARK: Off
 
+    @ViewBuilder
     private var setUp: some View {
         Section {
-            Button {
-                sheet = .useCode
-            } label: {
-                OptionRow(
-                    title: "配置码", detail: "扫描或粘贴另一台设备显示的配置码，再输入同步密码，不用重填地址和密钥。",
-                    symbol: "qrcode.viewfinder")
-            }
-            .tint(.primary)
             Button {
                 sheet = .setUp(.webDav)
             } label: {
@@ -192,6 +186,20 @@ struct SyncView: View {
             Text("开启同步")
         } footer: {
             Text("在几台设备之间同步数据，数据使用端到端加密（E2EE）：离开这台设备前就已加密，远端只有密文，只有拥有密码的设备能解开。")
+        }
+        // A group of its own, as on the desktop: the ways above start a
+        // sync or sign in to one, this takes all of it from another device.
+        Section {
+            Button {
+                sheet = .useCode
+            } label: {
+                OptionRow(
+                    title: "加入已有的同步", detail: "扫描或粘贴另一台设备显示的配置码，快速加入现有同步服务器。",
+                    symbol: "qrcode.viewfinder")
+            }
+            .tint(.primary)
+        } header: {
+            Text("配置码")
         }
     }
 
@@ -272,14 +280,22 @@ struct SyncView: View {
                         ? "\(bucket) · \(endpoint)" : "\(bucket)/\(prefix) · \(endpoint)")
                 loginRow("S3 访问密钥", value: accessKey, location: location)
             }
-            // A folder's path is this device's: it has no setup code.
-            if location.signsIn {
+        }
+    }
+
+    /// This sync's setup code, for another device to join with: a group of
+    /// its own, as on the desktop. A folder's path is this device's: it
+    /// has no setup code, and no such group.
+    @ViewBuilder
+    private func setupCode(_ location: SyncLocation) -> some View {
+        if location.signsIn {
+            Section {
                 Button("显示配置码…") {
                     sheet = .showCode
                 }
-            }
-        } footer: {
-            if location.signsIn {
+            } header: {
+                Text("配置码")
+            } footer: {
                 Text("在另一台设备上扫描或粘贴配置码，再输入同步密码，就能加入这个同步。")
             }
         }
