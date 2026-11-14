@@ -107,9 +107,15 @@ func closedPort() throws -> UInt16 {
 }
 
 /// Waits for `condition`, checking it on the main actor.
+///
+/// A minute by default: CI runs every test at once on a few cores, where
+/// one that takes a second here takes 40, and what the wait is for comes
+/// through the main actor all of them share. A refused connection there
+/// took 15 seconds to be seen. The wait ends as soon as the condition holds,
+/// so only a test that fails waits it out.
 @MainActor
 func waitUntil(
-    _ what: Comment, timeout: Duration = .seconds(15), _ condition: () -> Bool
+    _ what: Comment, timeout: Duration = .seconds(60), _ condition: () -> Bool
 ) async throws {
     let clock = ContinuousClock()
     let deadline = clock.now + timeout
