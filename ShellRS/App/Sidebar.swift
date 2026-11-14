@@ -1,8 +1,8 @@
 import ShellRSCore
 import SwiftUI
 
-/// The sidebar of a wide window: the hosts or the credentials, as the
-/// desktop's sidebar switches between its lists, and the settings below.
+/// The sidebar of a wide window: the hosts or 状态, and the settings below,
+/// where the credentials are.
 struct Sidebar: View {
     @Environment(AppModel.self) private var model
 
@@ -12,8 +12,8 @@ struct Sidebar: View {
             switch model.sidebarList {
             case .hosts:
                 HostList()
-            case .credentials:
-                CredentialList()
+            case .status:
+                StatusList()
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -28,7 +28,7 @@ struct Sidebar: View {
             ToolbarItemGroup(placement: .bottomBar) {
                 Picker("列表", selection: $model.sidebarList) {
                     Text("主机").tag(SidebarList.hosts)
-                    Text("凭据").tag(SidebarList.credentials)
+                    Text("状态").tag(SidebarList.status)
                 }
                 .pickerStyle(.segmented)
                 .fixedSize()

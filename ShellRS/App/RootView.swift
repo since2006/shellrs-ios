@@ -65,7 +65,6 @@ struct RootView: View {
         }
         .modifier(ActiveTransferPrompts())
         .modifier(HostListPrompts())
-        .modifier(CredentialListPrompts())
         .task { await model.purchases.start() }
         // The ads wait for StoreKit: whoever bought them away never starts the SDK.
         .onChange(of: model.purchases.adRemoval, initial: true) { _, removal in
@@ -78,7 +77,7 @@ struct RootView: View {
             case .active:
                 model.cameForward()
             case .background:
-                model.sync.goingToBackground()
+                model.wentToBackground()
             default:
                 break
             }
@@ -93,6 +92,9 @@ private struct CompactRoot: View {
     var body: some View {
         @Bindable var model = model
         TabView(selection: $model.tab) {
+            StatusTab()
+                .tabItem { Label("状态", systemImage: "gauge.with.dots.needle.50percent") }
+                .tag(AppTab.status)
             HostListView()
                 .tabItem { Label("主机", systemImage: "server.rack") }
                 .tag(AppTab.hosts)
@@ -100,9 +102,6 @@ private struct CompactRoot: View {
                 .tabItem { Label("终端", systemImage: "terminal") }
                 .badge(model.sessions.count)
                 .tag(AppTab.terminals)
-            CredentialListView()
-                .tabItem { Label("凭据", systemImage: "key") }
-                .tag(AppTab.credentials)
             SettingsView()
                 .tabItem { Label("设置", systemImage: "gear") }
                 .badge(model.sync.attention == nil ? 0 : 1)

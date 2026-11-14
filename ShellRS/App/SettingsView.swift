@@ -3,10 +3,11 @@ import SwiftUI
 
 /// What can be pushed in the settings.
 enum SettingsRoute: Hashable {
+    case credentials
     case sync
 }
 
-/// The settings: the ads, sync, and what the app is.
+/// The settings: the ads, the credentials, sync, and what the app is.
 struct SettingsView: View {
     /// Closes them, when they are shown over a wide window rather than in
     /// a tab.
@@ -19,6 +20,19 @@ struct SettingsView: View {
             Form {
                 if model.ads.isAvailable {
                     AdsSection()
+                }
+                Section {
+                    NavigationLink(value: SettingsRoute.credentials) {
+                        LabeledContent {
+                            if !model.hosts.credentials.isEmpty {
+                                Text(model.hosts.credentials.count.formatted())
+                            }
+                        } label: {
+                            Label("凭据", systemImage: "key")
+                        }
+                    }
+                } footer: {
+                    Text("用户名和密码或私钥，多台主机可以共用。")
                 }
                 Section {
                     NavigationLink(value: SettingsRoute.sync) {
@@ -88,6 +102,8 @@ struct SettingsView: View {
             }
             .navigationDestination(for: SettingsRoute.self) { route in
                 switch route {
+                case .credentials:
+                    CredentialList()
                 case .sync:
                     SyncView(sync: model.sync)
                 }

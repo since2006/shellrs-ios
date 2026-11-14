@@ -3,19 +3,19 @@ import Observation
 import ShellRSCore
 import UIKit
 
-/// The app's tabs, on an iPhone or a narrow iPad window.
+/// The app's tabs, on an iPhone or a narrow iPad window. The credentials
+/// are in the settings.
 enum AppTab: Hashable {
+    case status
     case hosts
     case terminals
-    case credentials
     case settings
 }
 
-/// The lists the sidebar of a wide window switches between, as the
-/// desktop's sidebar does.
+/// The lists the sidebar of a wide window switches between.
 enum SidebarList: Hashable {
     case hosts
-    case credentials
+    case status
 }
 
 /// What a command asks of the host list.
@@ -43,8 +43,11 @@ final class AppModel {
     let purchases: PurchaseModel
     let ads: AdsModel
     let sync: SyncModel
+    let status: StatusModel
+    /// 状态 first, once it has hosts to show; the hosts until then.
     var tab = AppTab.hosts
     var settingsPath: [SettingsRoute] = []
+    var statusPath: [StatusRoute] = []
     /// The terminals open, oldest first: the tabs of a wide window.
     private(set) var sessions: [TerminalSession] = []
     /// The terminal shown: over everything else in a narrow window, the
@@ -126,7 +129,7 @@ final class AppModel {
             compactTerminalPresented = shownSession != nil
         } else if !wasWide && isWide {
             if shownSession == nil {
-                sidebarList = tab == .credentials ? .credentials : .hosts
+                sidebarList = tab == .status ? .status : .hosts
             }
             if tab == .settings {
                 showingSettings = true
@@ -212,8 +215,14 @@ final class AppModel {
         fontSize = Self.fontSizes.contains(saved) ? saved : Self.defaultFontSize
         hosts = HostsModel(store: core.store())
         sync = SyncModel(service: core.sync(), deviceName: deviceName)
-        hosts.onChange = { [sync] in
+        let status = StatusModel(core: core, hosts: hosts, defaults: defaults)
+        self.status = status
+        hosts.onChange = { [sync, status] in
             sync.storeChanged()
+            status.hostsChanged()
+        }
+        if !status.shownHosts.isEmpty {
+            tab = .status
         }
     }
 
@@ -262,6 +271,13 @@ final class AppModel {
             }
         }
         sync.cameForward()
+        status.cameForward()
+    }
+
+    /// The app is going to the background, where iOS soon suspends it.
+    func wentToBackground() {
+        sync.goingToBackground()
+        status.wentToBackground()
     }
 
     /// Whether a command may show the host list or the settings now: not

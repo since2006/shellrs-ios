@@ -14,6 +14,8 @@ enum AppSheet: Identifiable {
     case transfers(FilesModel)
     case downloads(FilesModel)
     case file(FilesModel, FileShown)
+    /// A host's details on 状态, by its public id, over a wide window.
+    case hostStatus(String)
 
     var id: String {
         switch self {
@@ -26,6 +28,7 @@ enum AppSheet: Identifiable {
         case .transfers(let files): "transfers:\(ObjectIdentifier(files))"
         case .downloads(let files): "downloads:\(ObjectIdentifier(files))"
         case .file(let files, let file): "file:\(ObjectIdentifier(files)):\(file.path)"
+        case .hostStatus(let id): "host-status:\(id)"
         }
     }
 }
@@ -58,6 +61,19 @@ struct AppSheetView: View {
             }
         case .file(let files, let file):
             FileInfoView(files: files, file: file) { model.sheet = nil }
+        case .hostStatus(let id):
+            NavigationStack {
+                if let host = model.status.shownHosts.first(where: { $0.publicId == id }) {
+                    HostStatusView(monitor: model.status.monitor(for: host)) { model.sheet = nil }
+                } else {
+                    ContentUnavailableView("这台主机已不在状态页", systemImage: "server.rack")
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("完成") { model.sheet = nil }
+                            }
+                        }
+                }
+            }
         }
     }
 }

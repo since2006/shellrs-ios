@@ -53,6 +53,16 @@
         }
       }
     },
+    "%@ 运行 / 共 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ running of %2$@"
+          }
+        }
+      }
+    },
     "%@（%@ 字节）": {
       "localizations": {
         "en": {
@@ -159,6 +169,60 @@
         }
       }
     },
+    "%lld 核": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld core"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld cores"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld 线程": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld thread"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld threads"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "1 分钟负载已超过核数，有进程在排队等 CPU 或磁盘。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The 1-minute load is above the number of cores: processes are waiting for the CPU or the disks."
+          }
+        }
+      }
+    },
     "AWS S3，或 Cloudflare R2、MinIO、阿里云 OSS、腾讯云 COS 等兼容 S3 的对象存储。": {
       "localizations": {
         "en": {
@@ -179,12 +243,52 @@
         }
       }
     },
+    "CPU 型号": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU model"
+          }
+        }
+      }
+    },
+    "CPU 按单个核计，多线程的进程可以超过一个核；内存为常驻内存。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "CPU is counted per core: a process with several threads can take more than one. Memory is resident memory."
+          }
+        }
+      }
+    },
     "HTTP 代理": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "HTTP proxy"
+          }
+        }
+      }
+    },
+    "I/O 等待": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I/O wait"
+          }
+        }
+      }
+    },
+    "I/O 等待高说明磁盘跟不上；虚拟机窃取高说明宿主机超售，CPU 被别的虚拟机占用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High I/O wait means the disks can’t keep up; high steal means the host is oversold, and other virtual machines are taking its CPU."
           }
         }
       }
@@ -355,6 +459,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "ShellRS can’t use the camera. Allow it in Settings to scan, or paste the setup code."
+          }
+        }
+      }
+    },
+    "TCP 已建立连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TCP established"
+          }
+        }
+      }
+    },
+    "TIME_WAIT": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TIME_WAIT"
           }
         }
       }
@@ -569,6 +693,16 @@
         }
       }
     },
+    "不在状态页显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Status"
+          }
+        }
+      }
+    },
     "不支持上传设备、套接字或其他特殊文件": {
       "localizations": {
         "en": {
@@ -699,6 +833,16 @@
         }
       }
     },
+    "主机名": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Host name"
+          }
+        }
+      }
+    },
     "主机名太长，SOCKS5 最多 255 个字节": {
       "localizations": {
         "en": {
@@ -715,6 +859,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hostname or IP address"
+          }
+        }
+      }
+    },
+    "主机密钥已变更，轻点查看": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The host key changed: tap to review it"
           }
         }
       }
@@ -755,6 +909,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Keyboard-interactive authentication cancelled"
+          }
+        }
+      }
+    },
+    "交换空间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap"
           }
         }
       }
@@ -1089,6 +1253,16 @@
         }
       }
     },
+    "使用率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage"
+          }
+        }
+      }
+    },
     "例如 127.0.0.1": {
       "localizations": {
         "en": {
@@ -1249,6 +1423,26 @@
         }
       }
     },
+    "僵尸进程": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zombie"
+          }
+        }
+      }
+    },
+    "先在「主机」页新建一台 SSH 主机。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create an SSH host in the Hosts tab first."
+          }
+        }
+      }
+    },
     "全部主机": {
       "localizations": {
         "en": {
@@ -1285,6 +1479,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "Skip all"
+          }
+        }
+      }
+    },
+    "共 %lld 个": {
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld in all"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld in all"
+                }
+              }
+            }
           }
         }
       }
@@ -1435,6 +1651,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Other devices list it as “%@”."
+          }
+        }
+      }
+    },
+    "内存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory"
+          }
+        }
+      }
+    },
+    "内核": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kernel"
           }
         }
       }
@@ -1803,6 +2039,16 @@
         }
       }
     },
+    "发送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent"
+          }
+        }
+      }
+    },
     "取消": {
       "localizations": {
         "en": {
@@ -1939,6 +2185,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "You can sign in again only to the location sync uses."
+          }
+        }
+      }
+    },
+    "可用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available"
           }
         }
       }
@@ -2365,12 +2621,32 @@
         }
       }
     },
+    "图表为主网卡 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The chart shows the main interface, %@"
+          }
+        }
+      }
+    },
     "在「主机」里点一台主机连接。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Tap a host in Hosts to connect."
+          }
+        }
+      }
+    },
+    "在「状态」页查看这台主机的 CPU、内存、网络和磁盘，只支持 Linux 主机。只保存在这台设备上，不同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See this host’s CPU, memory, network and disks in the Status tab. Linux hosts only. Kept on this device, not synced."
           }
         }
       }
@@ -2453,6 +2729,36 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "在状态页查看所选主机的 CPU、内存、网络和磁盘，只支持 Linux 主机。选择只保存在这台设备上。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See the CPU, memory, network and disks of the hosts chosen here on Status. Linux hosts only. The choice stays on this device."
+          }
+        }
+      }
+    },
+    "在状态页面中显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show on Status"
+          }
+        }
+      }
+    },
+    "在线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Online"
           }
         }
       }
@@ -3159,6 +3465,16 @@
         }
       }
     },
+    "打开终端": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Terminal"
+          }
+        }
+      }
+    },
     "打开设置": {
       "localizations": {
         "en": {
@@ -3229,12 +3545,52 @@
         }
       }
     },
+    "排列方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort By"
+          }
+        }
+      }
+    },
     "排序": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Reorder"
+          }
+        }
+      }
+    },
+    "接收": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received"
+          }
+        }
+      }
+    },
+    "接收 %@，发送 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received %1$@, sent %2$@"
+          }
+        }
+      }
+    },
+    "搜索主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Hosts"
           }
         }
       }
@@ -4009,6 +4365,16 @@
         }
       }
     },
+    "时间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
+          }
+        }
+      }
+    },
     "显示密码": {
       "localizations": {
         "en": {
@@ -4039,6 +4405,16 @@
         }
       }
     },
+    "显示更多": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show More"
+          }
+        }
+      }
+    },
     "显示配置码…": {
       "localizations": {
         "en": {
@@ -4055,6 +4431,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show hidden files"
+          }
+        }
+      }
+    },
+    "暂不支持 %@ 的监控，目前只支持 Linux 主机。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring %@ isn’t supported yet. Only Linux hosts are supported."
+          }
+        }
+      }
+    },
+    "暂不支持这台主机的监控，目前只支持 Linux 主机。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring this host isn’t supported yet. Only Linux hosts are supported."
           }
         }
       }
@@ -4135,6 +4531,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Something else created the destination during the replace. The destination, backup and temporary file are kept"
+          }
+        }
+      }
+    },
+    "最近 3 分钟，按住拖动查看每个时刻": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The last 3 minutes. Touch and drag to read a moment."
           }
         }
       }
@@ -4253,6 +4659,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hosts use it as a jump host or port forwards go through it, so it stays an SSH host"
+          }
+        }
+      }
+    },
+    "服务": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Services"
           }
         }
       }
@@ -4467,6 +4883,16 @@
         }
       }
     },
+    "未启用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
     "未填写密码": {
       "localizations": {
         "en": {
@@ -4657,12 +5083,32 @@
         }
       }
     },
+    "架构": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Architecture"
+          }
+        }
+      }
+    },
     "查看…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Review…"
+          }
+        }
+      }
+    },
+    "核 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Core %@"
           }
         }
       }
@@ -4757,6 +5203,16 @@
         }
       }
     },
+    "正在读取…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading…"
+          }
+        }
+      }
+    },
     "正在读取目录…": {
       "localizations": {
         "en": {
@@ -4807,6 +5263,16 @@
         }
       }
     },
+    "每个核": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Each Core"
+          }
+        }
+      }
+    },
     "没有传输": {
       "localizations": {
         "en": {
@@ -4827,6 +5293,26 @@
         }
       }
     },
+    "没有在用的网卡": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No interfaces in use"
+          }
+        }
+      }
+    },
+    "没有失败的服务": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No failed services"
+          }
+        }
+      }
+    },
     "没有打开的终端": {
       "localizations": {
         "en": {
@@ -4843,6 +5329,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "permission denied"
+          }
+        }
+      }
+    },
+    "没有读到磁盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No disks found"
           }
         }
       }
@@ -4907,6 +5403,16 @@
         }
       }
     },
+    "物理内存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Physical memory"
+          }
+        }
+      }
+    },
     "状态": {
       "localizations": {
         "en": {
@@ -4947,12 +5453,32 @@
         }
       }
     },
+    "用户": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "User"
+          }
+        }
+      }
+    },
     "用户名": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Username"
+          }
+        }
+      }
+    },
+    "用户名和密码或私钥，多台主机可以共用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A user name with a password or a private key, which several hosts can share."
           }
         }
       }
@@ -4973,6 +5499,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Username prompt"
+          }
+        }
+      }
+    },
+    "用表单里现在的设置登录一次，不保存主机。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs in once with the settings above, without saving the host."
           }
         }
       }
@@ -5113,6 +5649,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Trust it once the fingerprint matches the server’s. ShellRS keeps it and won’t ask again."
+          }
+        }
+      }
+    },
+    "磁盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disks"
+          }
+        }
+      }
+    },
+    "磁盘 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk %@"
           }
         }
       }
@@ -5367,6 +5923,16 @@
         }
       }
     },
+    "等待磁盘": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "waiting on disk"
+          }
+        }
+      }
+    },
     "等待输入": {
       "localizations": {
         "en": {
@@ -5417,12 +5983,42 @@
         }
       }
     },
+    "系列": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Series"
+          }
+        }
+      }
+    },
+    "系统": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
     "系统的随机数源出错了。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The system’s random number source failed."
+          }
+        }
+      }
+    },
+    "累计 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ in all"
           }
         }
       }
@@ -5567,6 +6163,16 @@
         }
       }
     },
+    "缓存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        }
+      }
+    },
     "编辑": {
       "localizations": {
         "en": {
@@ -5627,6 +6233,16 @@
         }
       }
     },
+    "网络": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network"
+          }
+        }
+      }
+    },
     "网络不可达": {
       "localizations": {
         "en": {
@@ -5643,6 +6259,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Focus search"
+          }
+        }
+      }
+    },
+    "虚拟机窃取": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steal"
           }
         }
       }
@@ -5857,6 +6483,16 @@
         }
       }
     },
+    "读 %@  写 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read %1$@  write %2$@"
+          }
+        }
+      }
+    },
     "读写同步文件夹失败：%@": {
       "localizations": {
         "en": {
@@ -5883,6 +6519,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Couldn’t resize the remote terminal"
+          }
+        }
+      }
+    },
+    "负载 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load %@"
+          }
+        }
+      }
+    },
+    "负载（1、5、15 分钟）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load (1, 5, 15 min)"
           }
         }
       }
@@ -6067,6 +6723,26 @@
         }
       }
     },
+    "运行 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Up %@"
+          }
+        }
+      }
+    },
+    "运行时长": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uptime"
+          }
+        }
+      }
+    },
     "还有 %lld 批": {
       "localizations": {
         "en": {
@@ -6139,22 +6815,32 @@
         }
       }
     },
-    "还没有凭据，可在「凭据」页新建": {
+    "还没有凭据，可在「设置 › 凭据」新建": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No credentials yet. Create one in the Credentials tab"
+            "value": "No credentials yet. Create one in Settings › Credentials"
           }
         }
       }
     },
-    "还没有密码凭据，可在「凭据」页新建": {
+    "还没有密码凭据，可在「设置 › 凭据」新建": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No password credentials yet. Create one in the Credentials tab"
+            "value": "No password credentials yet. Create one in Settings › Credentials"
+          }
+        }
+      }
+    },
+    "还没有要显示的主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Hosts to Show"
           }
         }
       }
@@ -6257,6 +6943,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "This isn’t an SSH host. For now, it connects only from a computer"
+          }
+        }
+      }
+    },
+    "这台主机已不在状态页": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This host is no longer on Status"
           }
         }
       }
@@ -6379,6 +7075,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "进程": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processes"
           }
         }
       }
@@ -6573,12 +7279,32 @@
         }
       }
     },
+    "连接成功": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected"
+          }
+        }
+      }
+    },
     "连接成功，可以在这里读写。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Connected. Sync can read and write there."
+          }
+        }
+      }
+    },
+    "连接成功，延迟 %@ ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected, %@ ms round trip"
           }
         }
       }
@@ -6649,6 +7375,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Select"
+          }
+        }
+      }
+    },
+    "选择主机": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Hosts"
+          }
+        }
+      }
+    },
+    "选择主机后，这里显示它们的 CPU、内存、网络和磁盘。目前只支持 Linux 主机。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose hosts to see their CPU, memory, network and disks here. Only Linux hosts are supported for now."
           }
         }
       }
@@ -6855,6 +7601,16 @@
         }
       }
     },
+    "重新读取": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read Again"
+          }
+        }
+      }
+    },
     "重新连接": {
       "localizations": {
         "en": {
@@ -6945,6 +7701,26 @@
         }
       }
     },
+    "需要登录，轻点输入密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Login needed: tap to enter the password"
+          }
+        }
+      }
+    },
+    "需要私钥口令，轻点输入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passphrase needed: tap to enter it"
+          }
+        }
+      }
+    },
     "预览": {
       "localizations": {
         "en": {
@@ -6971,6 +7747,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "First connection to this host"
+          }
+        }
+      }
+    },
+    "首次连接，轻点确认主机密钥": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First connection: tap to check the host key"
           }
         }
       }

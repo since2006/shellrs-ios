@@ -68,6 +68,10 @@ struct HostEditor: View {
     @State private var savedProxyPassword: String?
     @State private var group: UInt64?
     @State private var notes = ""
+    /// Whether 状态 shows the host, once switched here; it says so as it
+    /// did until then.
+    @State private var showsStatus: Bool?
+    @State private var test = ConnectionTest()
     @State private var saving = false
     @State private var problem: String?
 
@@ -141,6 +145,14 @@ struct HostEditor: View {
                     telnetLogin
                 }
                 route
+                if kind == .ssh {
+                    testSection
+                    Section {
+                        Toggle("在状态页面中显示", isOn: showsStatusBinding)
+                    } footer: {
+                        Text("在「状态」页查看这台主机的 CPU、内存、网络和磁盘，只支持 Linux 主机。只保存在这台设备上，不同步。")
+                    }
+                }
                 Section {
                     Picker("分组", selection: $group) {
                         Text("（无分组）").tag(UInt64?.none)
@@ -199,8 +211,100 @@ struct HostEditor: View {
             .task {
                 await loadSecrets()
             }
+            // What was tried is not what the form holds any more.
+            .onChange(of: loginFields) {
+                test.reset()
+            }
+            .onDisappear {
+                test.stop()
+            }
+            .sheet(
+                isPresented: Binding(
+                    get: { test.prompt != nil },
+                    set: { if !$0, test.prompt != nil { test.answer(.cancel) } })
+            ) {
+                if let prompt = test.prompt {
+                    PromptSheet(prompt: prompt) { test.answer($0) }
+                        .id(prompt.id)
+                }
+            }
         }
         .interactiveDismissDisabled()
+    }
+
+    // MARK: Testing
+
+    /// 测试连接, as the desktop's host form has it: log in with what the
+    /// form holds, saving nothing.
+    private var testSection: some View {
+        Section {
+            if test.running {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text("正在连接…")
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Button("停止") {
+                        test.stop()
+                    }
+                }
+            } else {
+                Button {
+                    runTest()
+                } label: {
+                    Label("测试连接", systemImage: "bolt.horizontal.circle")
+                }
+            }
+            switch test.outcome {
+            case .connected(let latency)?:
+                Label {
+                    Text(
+                        latency.map { String(localized: "连接成功，延迟 \(String($0)) ms") }
+                            ?? String(localized: "连接成功"))
+                } icon: {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                }
+            case .failed(let reason)?:
+                Label {
+                    Text(verbatim: reason)
+                        .textSelection(.enabled)
+                } icon: {
+                    Image(systemName: "xmark.octagon.fill")
+                        .foregroundStyle(.red)
+                }
+            case nil:
+                EmptyView()
+            }
+        } footer: {
+            Text("用表单里现在的设置登录一次，不保存主机。")
+        }
+    }
+
+    private func runTest() {
+        if auth == .credential && credential == nil {
+            test.fail(String(localized: "请选择凭据"))
+            return
+        }
+        test.run(
+            core: model.core, editing: subject.host?.id, draft: draft,
+            password: auth == .password && !password.isEmpty ? password : nil)
+    }
+
+    /// What the form logs in with: a change to any of it makes the last
+    /// test's outcome stale.
+    private var loginFields: [String] {
+        [
+            "\(kind)", address, port, user, "\(auth)", credential.map(String.init) ?? "",
+            password, "\(routeKind)", jumps.map { $0.map(String.init) ?? "-" }.joined(separator: ","),
+            "\(proxyKind)", proxyAddress, proxyPort, proxyUser, proxyPassword,
+        ]
+    }
+
+    private var showsStatusBinding: Binding<Bool> {
+        Binding(
+            get: { showsStatus ?? subject.host.map { model.status.isShown($0) } ?? false },
+            set: { showsStatus = $0 })
     }
 
     // MARK: Logging in
@@ -319,7 +423,8 @@ struct HostEditor: View {
         } else if usableCredentials.isEmpty {
             Text(
                 kind == .ssh
-                    ? String(localized: "还没有凭据，可在「凭据」页新建") : String(localized: "还没有密码凭据，可在「凭据」页新建"))
+                    ? String(localized: "还没有凭据，可在「设置 › 凭据」新建")
+                    : String(localized: "还没有密码凭据，可在「设置 › 凭据」新建"))
         }
     }
 
@@ -458,7 +563,26 @@ struct HostEditor: View {
         }
         saving = true
         defer { saving = false }
-        let draft = HostDraft(
+        do {
+            let id = try await model.hosts.save(
+                id: subject.host?.id, draft: draft,
+                password: Self.change(password, saved: savedPassword, applies: auth == .password),
+                proxyPassword: Self.change(
+                    proxyPassword, saved: savedProxyPassword,
+                    applies: routeKind == .proxy && !trimmed(proxyUser).isEmpty))
+            if let showsStatus, let host = model.hosts.host(id) {
+                model.status.setShown(showsStatus && host.isSsh, for: host)
+            }
+            dismiss()
+        } catch {
+            problem = Describe.store(error)
+        }
+    }
+
+    /// The host as the form has it; its passwords go apart.
+    private var draft: HostDraft {
+        let trimmed = { (text: String) in text.trimmingCharacters(in: .whitespaces) }
+        return HostDraft(
             name: trimmed(name),
             protocol: kind == .ssh
                 ? .ssh
@@ -471,17 +595,6 @@ struct HostEditor: View {
             group: group,
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines)
         )
-        do {
-            try await model.hosts.save(
-                id: subject.host?.id, draft: draft,
-                password: Self.change(password, saved: savedPassword, applies: auth == .password),
-                proxyPassword: Self.change(
-                    proxyPassword, saved: savedProxyPassword,
-                    applies: routeKind == .proxy && !trimmed(proxyUser).isEmpty))
-            dismiss()
-        } catch {
-            problem = Describe.store(error)
-        }
     }
 
     private var hostAuth: HostAuth {

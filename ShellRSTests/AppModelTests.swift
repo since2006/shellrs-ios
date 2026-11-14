@@ -151,7 +151,7 @@ struct AppModelTests {
 
     @Test func commandsShowTheListWhereTheWindowHasIt() async throws {
         model.updateLayout(AppLayout(width: 1200, regular: true))
-        model.sidebarList = .credentials
+        model.sidebarList = .status
         model.sidebarShown = false
         model.request(.newHost)
         #expect(model.sidebarList == .hosts)
@@ -173,7 +173,7 @@ struct AppModelTests {
         model.updateLayout(.compact)
         model.toggleSidebar()
         #expect(!model.sidebarShown)
-        model.tab = .credentials
+        model.tab = .status
         model.request(.newGroup)
         #expect(model.tab == .hosts)
         #expect(model.hostListRequest == .newGroup)
