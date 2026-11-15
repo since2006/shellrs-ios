@@ -37,7 +37,7 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 
 ## CI 与发布
 
-GitHub Actions：每个 PR 和 `main` 编核心、跑测试（`ci.yml`）；推 `v<版本>` tag 时签名并上传到 App Store Connect / TestFlight（`release.yml`），提交审核手动点。要配的密钥和发版步骤见 [构建与发布](docs/RELEASE.md)。
+GitHub Actions：编核心、跑测试（`ci.yml`）只在手动运行和推 `v<版本>` tag 时跑，推 `main` 和 PR 不跑；推 `v<版本>` tag 时签名并上传到 App Store Connect / TestFlight（`release.yml`），提交审核手动点。要配的密钥和发版步骤见 [构建与发布](docs/RELEASE.md)。
 
 ## 许可
 

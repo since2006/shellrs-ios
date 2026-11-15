@@ -1,12 +1,13 @@
 # Builds the app with its core and runs the tests on an iPhone simulator.
 # ServerTests skip themselves without an SSH server, and the StoreKit test
 # without SHELLRS_TEST_STOREKIT; forks run this as it is, without secrets.
+# Run by hand (Actions → ci → Run workflow), and on a release's v* tag
+# beside release.yml; pushes to main and pull requests run nothing.
 name: ci
 
 on:
   push:
-    branches: [main]
-  pull_request:
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:

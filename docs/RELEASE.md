@@ -2,7 +2,7 @@
 
 两个工作流都跑在 GitHub 托管的 `xcode-27` runner 上（Apple 芯片，macOS 27，默认 Xcode 27.1，带 Rust）。
 
-- `.github/workflows/ci.yml`：推到 `main` 和每个 PR 时编核心、编 App，在 iPhone 模拟器上跑测试。不要 secrets，fork 里也能跑。
+- `.github/workflows/ci.yml`：手动运行（Actions → ci → Run workflow）和推 `v*` tag 时编核心、编 App，在 iPhone 模拟器上跑测试；推 `main` 和 PR 不跑。不要 secrets，fork 里也能跑。
 - `.github/workflows/release.yml`：推 `v*` tag，或在 Actions 页手动运行时，编 Release、签名、上传到 App Store Connect，构建随后出现在 TestFlight。提交审核仍在 App Store Connect 里手动点。只在 `since2006/shellrs-ios` 里跑，fork 不会跑。
 
 ## 核心
