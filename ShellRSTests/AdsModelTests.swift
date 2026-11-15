@@ -114,10 +114,10 @@ struct AdsModelTests {
         #expect(ads.ad(for: .sessions)?.id != first.id)
     }
 
-    /// A phone's lists of hosts have a banner, which pushes them down less;
-    /// a wide window's the native ad it has room for.
-    @Test func thePhonesListsOfHostsHaveBanners() {
-        #expect(AdPlacement.allCases.filter { $0.format == .banner } == [.status, .hosts])
+    /// A phone's 主机 has a banner, which pushes the hosts down less; a
+    /// wide window's the native ad it has room for.
+    @Test func onlyThePhonesHostsHaveABanner() {
+        #expect(AdPlacement.allCases.filter { $0.format == .banner } == [.hosts])
     }
 
     @Test func aBannerIsKeptAsTheSDKRefreshesIt() async throws {

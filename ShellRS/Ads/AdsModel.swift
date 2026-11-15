@@ -16,12 +16,10 @@ enum AdFormat: Hashable, CaseIterable {
 }
 
 /// Where an ad goes, one each. Never over a terminal or its files. A
-/// phone's pages that are lists of hosts have a banner, a third of a native
-/// ad's height, so as not to push the hosts down; a wide window has room
-/// for a native ad there.
+/// phone's 主机 has a banner, a third of a native ad's height, so as not
+/// to push the hosts down; a wide window has room for a native ad there.
+/// A phone's 状态 has none: it would come between the hosts' cards.
 enum AdPlacement: Hashable, CaseIterable {
-    /// The 状态 tab of a narrow window, after its first host: a banner.
-    case status
     /// A wide window's 状态 page, a card of its grid after the first host.
     case wideStatus
     /// The 主机 tab of a narrow window, after 最近连接: a banner.
@@ -36,7 +34,7 @@ enum AdPlacement: Hashable, CaseIterable {
 
     var format: AdFormat {
         switch self {
-        case .status, .hosts: .banner
+        case .hosts: .banner
         case .wideStatus, .wideHosts, .sessions, .start: .native
         }
     }

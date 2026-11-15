@@ -101,7 +101,7 @@ struct RingTile: View {
             TileLabel(
                 title: Text(verbatim: title), critical: Severity(percent: percent ?? 0) == .critical,
                 swaps: swaps)
-                .frame(maxWidth: diameter + 8)
+                .frame(width: diameter + 8)
         }
         .frame(width: diameter)
         .accessibilityElement(children: .ignore)
@@ -141,7 +141,7 @@ struct LoadTile: View {
                 title: Text("负载"),
                 critical: Severity(percent: values.flatMap { share($0[0]) } ?? 0) == .critical,
                 swaps: swaps)
-                .frame(maxWidth: diameter + 8)
+                .frame(width: diameter + 8)
         }
         .frame(width: diameter)
         .accessibilityElement(children: .ignore)
@@ -176,6 +176,8 @@ private struct TileLabel: View {
             }
             title
                 .lineLimit(1)
+                // 「Memory」 and the like: a little smaller rather than cut.
+                .minimumScaleFactor(0.8)
                 .truncationMode(.middle)
             if swaps {
                 Image(systemName: "arrow.left.arrow.right")
