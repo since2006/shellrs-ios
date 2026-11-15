@@ -148,7 +148,7 @@ xcodebuild -project ShellRS.xcodeproj -scheme ShellRS \
 - `ShellRS/Assets.xcassets/AppIcon.appiconset`：App 图标。`Design/AppIcon.svg` 由电脑版的定稿 `assets/logo/shellrs.svg` 改来：底板放大铺满画布、去掉圆角（iOS 自己切圆角），图案相对底板的大小和位置不变。改了 SVG 就重新出图：`qlmanage -t -s 1024 -o /tmp Design/AppIcon.svg`，再 `magick /tmp/AppIcon.svg.png -alpha off -define png:color-type=2 ShellRS/Assets.xcassets/AppIcon.appiconset/AppIcon.png`（App Store 不收带透明通道的图标）。
 - `ShellRS/Assets.xcassets/OS`：系统图标，和电脑版是同一套 [Simple Icons](https://simpleicons.org)（CC0），按核心的 `HostOs.key` 命名。
 - `ShellRS/Localizable.xcstrings`：全部文案。`ShellRS/InfoPlist.xcstrings`：`Info.plist` 里给用户看的话的英文（要相机权限时说的那句）。
-- `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。
+- `Packages/ShellRSCore`：核心的 Swift 包（xcframework + 生成的接口）。核心自带 SQLite（rusqlite 的 bundled），App 目标的「Other Linker Flags」里多一个 `-lshellrs_mobile`，让它排在谷歌广告 SDK 带来的 `-lsqlite3` 前面：不然链接器把核心的 `sqlite3_*` 都接到系统的 libsqlite3 上，各版 iOS 的 SQLite 不同，Debug 构建（不去掉没用到的代码）还会引用只有 iOS 27 才有的 `sqlite3_set_errmsg`，在 iOS 26 及更早的真机上一启动就被 dyld 终止。
 - `ShellRS/PrivacyInfo.xcprivacy`：App 自己的隐私清单（不跟踪；required-reason API）。
 - `Config`：`ShellRS.xcconfig`（Bundle ID、版本、广告和内购的 ID）、`Info.plist`（含扫配置码要的 `NSCameraUsageDescription`）、`ExportOptions.plist`（上传 App Store 时导出用）；`Local.xcconfig` 不进库。
 - `.github`：CI 和发布的工作流，两者共用的编核心一步（`actions/core`）。
