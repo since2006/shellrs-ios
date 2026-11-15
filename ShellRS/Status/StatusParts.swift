@@ -34,18 +34,8 @@ struct RingGauge: View {
     var lineWidth: CGFloat = 6
 
     var body: some View {
-        let share = min(max((percent ?? 0) / 100, 0), 1)
         ZStack {
-            Circle()
-                .stroke(track, lineWidth: lineWidth)
-            Circle()
-                .trim(from: 0, to: share)
-                .stroke(
-                    Severity(percent: percent ?? 0).color,
-                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
-                )
-                .rotationEffect(.degrees(-90))
-                .animation(.easeInOut(duration: 0.5), value: share)
+            RingArc(percent: percent, lineWidth: lineWidth)
             HStack(alignment: .firstTextBaseline, spacing: 1) {
                 Text(verbatim: percent.map { String(Int($0.rounded())) } ?? "—")
                     .font(.system(size: diameter * 0.3, weight: .semibold, design: .rounded))
@@ -69,33 +59,149 @@ struct RingGauge: View {
     }
 }
 
+/// A share's track and the arc of it filled, from the top, in the colour
+/// of how full it is.
+struct RingArc: View {
+    /// 0 to 100; `nil` until known, an empty track.
+    let percent: Double?
+    let lineWidth: CGFloat
+
+    var body: some View {
+        let share = min(max((percent ?? 0) / 100, 0), 1)
+        ZStack {
+            Circle()
+                .stroke(track, lineWidth: lineWidth)
+            Circle()
+                .trim(from: 0, to: share)
+                .stroke(
+                    Severity(percent: percent ?? 0).color,
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.easeInOut(duration: 0.5), value: share)
+        }
+        .accessibilityHidden(true)
+    }
+}
+
 /// A ring with its name under it, one of the figures a host's card leads
-/// with; a red one is marked as well, not by its colour alone.
+/// with; a red one is marked as well, not by its colour alone. Always as
+/// wide as its ring, so the rings of every card line up.
 struct RingTile: View {
     let title: String
     let percent: Double?
     var diameter: CGFloat = 56
+    /// Tapping it shows something else in its place: say so.
+    var swaps = false
 
     var body: some View {
         VStack(spacing: 6) {
             RingGauge(percent: percent, diameter: diameter)
-            HStack(spacing: 3) {
-                if Severity(percent: percent ?? 0) == .critical {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .foregroundStyle(.red)
-                        .imageScale(.small)
-                }
-                Text(verbatim: title)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: diameter + 16)
+            TileLabel(
+                title: Text(verbatim: title), critical: Severity(percent: percent ?? 0) == .critical,
+                swaps: swaps)
+                .frame(maxWidth: diameter + 8)
         }
+        .frame(width: diameter)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: title))
         .accessibilityValue(Text(verbatim: percent.map(StatusFormat.percent) ?? "—"))
+    }
+}
+
+/// The load over the last one, five and fifteen minutes as three small
+/// rings, each the load's share of the cores, a little wider than one
+/// ring: in a sidebar it still leaves the rings beside it room. The figures
+/// under them in the order `uptime` gives them.
+struct LoadTile: View {
+    let load: LoadAverage?
+    /// The host's cores; 0 when unknown, and the rings stay empty.
+    let cores: Int
+    var swaps = false
+
+    /// The rings' height, the same as a `RingTile`'s.
+    var diameter: CGFloat = 56
+    static let width: CGFloat = 64
+
+    var body: some View {
+        let values = load.map { [$0.one, $0.five, $0.fifteen] }
+        VStack(spacing: 6) {
+            HStack(spacing: 2) {
+                ForEach(0..<3, id: \.self) { index in
+                    let value = values?[index]
+                    VStack(spacing: 5) {
+                        RingArc(percent: value.flatMap(share), lineWidth: 3)
+                            .frame(width: 16, height: 16)
+                        Text(verbatim: value.map(StatusFormat.compactLoad) ?? "—")
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .frame(width: 20)
+                }
+            }
+            .frame(width: Self.width, height: diameter)
+            TileLabel(
+                title: Text("负载"),
+                critical: Severity(percent: values.flatMap { share($0[0]) } ?? 0) == .critical,
+                swaps: swaps)
+                .frame(maxWidth: Self.width)
+        }
+        .frame(width: Self.width)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("负载"))
+        .accessibilityValue(
+            values.map {
+                Text(
+                    "1 分钟 \(StatusFormat.load($0[0]))，5 分钟 \(StatusFormat.load($0[1]))，15 分钟 \(StatusFormat.load($0[2]))"
+                )
+            } ?? Text(verbatim: "—"))
+    }
+
+    /// The load as a share of the cores: 100% when each has a task.
+    private func share(_ load: Double) -> Double? {
+        cores > 0 ? load / Double(cores) * 100 : nil
+    }
+}
+
+/// The name under a tile: a red one marked, and one that swaps for
+/// another on a tap with a mark of that.
+private struct TileLabel: View {
+    let title: Text
+    let critical: Bool
+    let swaps: Bool
+
+    var body: some View {
+        HStack(spacing: 3) {
+            if critical {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
+                    .imageScale(.small)
+            }
+            title
+                .lineLimit(1)
+                .truncationMode(.middle)
+            if swaps {
+                Image(systemName: "arrow.left.arrow.right")
+                    .font(.system(size: 8, weight: .semibold))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+    }
+}
+
+/// A tile that is a button: dimmed while pressed, nothing else, so it
+/// looks the same as the tiles beside it.
+struct TileButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .contentShape(Rectangle())
+            .opacity(configuration.isPressed ? 0.55 : 1)
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
     }
 }
 
@@ -286,6 +392,32 @@ enum StatusFormat {
             return "—"
         }
         return bytes(UInt64(max(bytesPerSecond, 0).rounded())) + "/s"
+    }
+
+    /// The units of `compactRate`.
+    static let rateUnits = ["B/s", "K/s", "M/s", "G/s", "T/s"]
+
+    /// 「900」「B/s」, 「2」「K/s」, 「10.7」「M/s」: a rate in powers of 1024
+    /// as `rate`, in at most four characters, its unit apart to be shown
+    /// smaller. Whole bytes; one decimal under 100, none from it.
+    static func compactRate(_ bytesPerSecond: Double?) -> (number: String, unit: String) {
+        guard let bytesPerSecond else {
+            return ("—", rateUnits[0])
+        }
+        var value = max(bytesPerSecond, 0)
+        var unit = 0
+        // 999.5 rounds to 1000, a fifth character.
+        while value >= 999.5, unit < rateUnits.count - 1 {
+            value /= 1024
+            unit += 1
+        }
+        let decimals = unit > 0 && value < 99.95 ? 0...1 : 0...0
+        return (value.formatted(.number.precision(.fractionLength(decimals))), rateUnits[unit])
+    }
+
+    /// 「0.6」「12」: a load average under a small ring, one decimal under 10.
+    static func compactLoad(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(value < 9.95 ? 1 : 0)))
     }
 
     /// Disks as the Files app sizes them.

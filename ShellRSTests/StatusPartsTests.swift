@@ -41,6 +41,38 @@ struct StatusPartsTests {
         #expect(geometry.height == CGFloat(30))
     }
 
+    @Test func aRateIsAtMostFourCharactersAndItsUnit() {
+        let cases: [(Double?, String, String)] = [
+            (0, "0", "B/s"),
+            (900, "900", "B/s"),
+            (999.4, "999", "B/s"),
+            // Not 「1000 B/s」, five characters.
+            (999.5, "1", "K/s"),
+            (2048, "2", "K/s"),
+            (1.6 * 1024 * 1024, "1.6", "M/s"),
+            (10.74 * 1024 * 1024, "10.7", "M/s"),
+            (99.96 * 1024, "100", "K/s"),
+            (898 * 1024, "898", "K/s"),
+            (999.7 * 1024, "1", "M/s"),
+            (3 * 1024 * 1024 * 1024, "3", "G/s"),
+            (-5, "0", "B/s"),
+            (nil, "—", "B/s"),
+        ]
+        for (bytes, number, unit) in cases {
+            let rate = StatusFormat.compactRate(bytes)
+            #expect(rate.number == number, "\(String(describing: bytes))")
+            #expect(rate.unit == unit, "\(String(describing: bytes))")
+            #expect(rate.number.count <= 4)
+        }
+    }
+
+    @Test func aLoadUnderASmallRingIsShort() {
+        #expect(StatusFormat.compactLoad(0) == "0.0")
+        #expect(StatusFormat.compactLoad(0.64) == "0.6")
+        #expect(StatusFormat.compactLoad(9.96) == "10")
+        #expect(StatusFormat.compactLoad(128.4) == "128")
+    }
+
     @Test func aTapFindsTheCoreUnderIt() {
         let geometry = CoreBars.geometry(width: Self.width, count: 100)
         let column = geometry.bar + 3

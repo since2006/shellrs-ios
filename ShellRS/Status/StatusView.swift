@@ -141,10 +141,24 @@ struct StatusList: View {
     }
 }
 
-/// A host on 状态: its mark and name, how it is doing, its CPU, memory and
-/// main disk as rings, and beside them its network and load.
+/// A host on 状态: its mark and name, how it is doing, its CPU (or its
+/// load), memory and main disk as rings, and beside them its network.
 struct HostStatusCard: View {
     let monitor: HostMonitor
+    /// The load's three rings in the CPU's place, on every card: a tap on
+    /// either swaps them, and it stays so.
+    @AppStorage("statusShowsLoad") private var showsLoad = false
+
+    /// How a card lays out its figures, the first that fits: the network
+    /// beside the rings or under them, the rings as far apart as fits. The
+    /// same on every card in a list, which all make room for three rings.
+    private enum Arrangement: Hashable {
+        case beside(gap: CGFloat)
+        case under(gap: CGFloat)
+    }
+
+    private static let arrangements: [Arrangement] =
+        [22, 14, 8].map(Arrangement.beside) + [22, 14, 10, 6, 2].map(Arrangement.under)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -161,28 +175,31 @@ struct HostStatusCard: View {
                 Spacer(minLength: 0)
             }
             if let snapshot = monitor.snapshot, !hidesFigures {
-                // The figures beside the rings where there is room, under
-                // them in a narrow sidebar.
+                // One list of the arrangements: `ViewThatFits` takes the
+                // ids of both kinds together, and needs each its own.
                 ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .center, spacing: 12) {
-                        rings(snapshot)
-                        Spacer(minLength: 0)
-                        VStack(alignment: .trailing, spacing: 4) {
-                            network(snapshot, axis: .vertical)
-                            load(snapshot)
-                        }
-                        .fixedSize()
-                    }
-                    VStack(alignment: .leading, spacing: 10) {
-                        rings(snapshot)
-                        ViewThatFits(in: .horizontal) {
-                            HStack(spacing: 12) {
-                                network(snapshot, axis: .horizontal)
-                                load(snapshot)
+                    ForEach(Self.arrangements, id: \.self) { arrangement in
+                        switch arrangement {
+                        case .beside(let gap):
+                            HStack(alignment: .center, spacing: 12) {
+                                rings(snapshot, gap: gap)
+                                Spacer(minLength: 0)
+                                VStack(alignment: .trailing, spacing: 4) {
+                                    network(snapshot, axis: .vertical)
+                                    load(snapshot)
+                                }
+                                .fixedSize()
                             }
-                            VStack(alignment: .leading, spacing: 4) {
-                                network(snapshot, axis: .horizontal)
-                                load(snapshot)
+                        case .under(let gap):
+                            // The load under the rates, not beside them: a
+                            // line of both is wider than a sidebar, and would
+                            // count against the rings' gap.
+                            VStack(alignment: .leading, spacing: 10) {
+                                rings(snapshot, gap: gap)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    network(snapshot, axis: .horizontal)
+                                    load(snapshot)
+                                }
                             }
                         }
                     }
@@ -191,17 +208,34 @@ struct HostStatusCard: View {
             }
         }
         .padding(.vertical, 4)
+        .sensoryFeedback(.selection, trigger: showsLoad)
     }
 
-    private func rings(_ snapshot: HostSnapshot) -> some View {
-        HStack(spacing: 14) {
-            RingTile(title: "CPU", percent: snapshot.cpu?.total)
+    /// The rings `gap` apart, taking the room of three so that every card
+    /// in the list chooses the same gap and its rings line up with the
+    /// others'.
+    private func rings(_ snapshot: HostSnapshot, gap: CGFloat) -> some View {
+        let first = showsLoad ? LoadTile.width : 56
+        return HStack(alignment: .top, spacing: gap) {
+            Button {
+                withAnimation(.snappy) {
+                    showsLoad.toggle()
+                }
+            } label: {
+                if showsLoad {
+                    LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
+                } else {
+                    RingTile(title: "CPU", percent: snapshot.cpu?.total, swaps: true)
+                }
+            }
+            .buttonStyle(TileButtonStyle())
+            .accessibilityHint(showsLoad ? Text("轻点改为显示 CPU") : Text("轻点改为显示负载"))
             RingTile(title: String(localized: "内存"), percent: snapshot.memory.percent)
             if let disk = mainDisk {
                 RingTile(title: String(localized: "磁盘 \(disk.mount)"), percent: disk.percent)
             }
         }
-        .fixedSize()
+        .frame(width: first + 2 * 56 + 2 * gap, alignment: .leading)
     }
 
     /// Not connected now: what was read last is no longer the host's.
@@ -243,23 +277,41 @@ struct HostStatusCard: View {
         }
     }
 
+    /// 「↓ 10.7 M/s」, the unit smaller and fainter. As wide whatever the
+    /// rate, its figure right-aligned and its unit left: a rate going from
+    /// 2 K/s to 900 B/s moves nothing, and never wraps.
     private func rate(_ value: Double?, systemImage: String, color: Color) -> some View {
-        HStack(spacing: 3) {
+        let rate = StatusFormat.compactRate(value)
+        return HStack(spacing: 3) {
             Image(systemName: systemImage)
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(color)
-            Text(verbatim: StatusFormat.rate(value))
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                ZStack(alignment: .trailing) {
+                    Text(verbatim: "00.0").hidden()
+                    Text(verbatim: rate.number)
+                }
                 .font(.subheadline.weight(.medium))
                 .monospacedDigit()
+                ZStack(alignment: .leading) {
+                    ForEach(StatusFormat.rateUnits, id: \.self) { unit in
+                        Text(verbatim: unit).hidden()
+                    }
+                    Text(verbatim: rate.unit)
+                }
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            }
         }
         .lineLimit(1)
         .fixedSize()
     }
 
-    /// The last minute's load: the five and fifteen are on the details.
+    /// The last minute's load: the five and fifteen are on the details. Not
+    /// when the load's rings show it.
     @ViewBuilder
     private func load(_ snapshot: HostSnapshot) -> some View {
-        if let load = snapshot.load {
+        if !showsLoad, let load = snapshot.load {
             Text("负载 \(StatusFormat.load(load.one))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
