@@ -6,7 +6,7 @@ import UIKit
 @testable import ShellRS
 
 /// Against a real SSH server, only when one is named: for example the
-/// openssh-server the README starts in Docker. `xcodebuild test` passes
+/// openssh-server docs/DEVELOPMENT.md starts in Docker. `xcodebuild test` passes
 /// `TEST_RUNNER_`-prefixed variables to the tests without the prefix.
 @MainActor
 @Suite(.enabled(if: TestServer.address != nil, "set SHELLRS_TEST_SSH to host:port"))
@@ -67,7 +67,7 @@ struct ServerTests {
     }
 
     /// A key credential logs in with nothing asked but the server's key:
-    /// the server trusts `testKey`, as the README's does.
+    /// the server trusts `testKey`, as docs/DEVELOPMENT.md's does.
     @Test func logsInWithAKeyCredential() async throws {
         let server = try #require(TestServer.address)
         let store = test.core.store()
