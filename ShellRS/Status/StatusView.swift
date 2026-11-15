@@ -33,8 +33,8 @@ struct StatusTab: View {
 
 /// The hosts chosen for 状态, each with its load: tap one for its
 /// details. A card each, in a list on a narrow window, side by side as many
-/// as fit on a wide one; the ad after the first. Its container gives it the
-/// navigation bar.
+/// as fit on a wide one; the ad after the first, a banner on a phone. Its
+/// container gives it the navigation bar.
 struct StatusList: View {
     @Environment(AppModel.self) private var model
     @Environment(\.wideWindow) private var wide
@@ -66,7 +66,7 @@ struct StatusList: View {
                                 .hoverEffect()
                                 .contextMenu { menu(for: host, monitor: monitor) }
                             if index == 0 {
-                                AdGridCard(placement: .status)
+                                AdGridCard(placement: .wideStatus)
                             }
                         }
                     }
@@ -75,7 +75,7 @@ struct StatusList: View {
                 .background(Color(.systemGroupedBackground))
             } else {
                 // A card each, as on a wide window: a section of its own,
-                // which keeps the list's swipe. The ad after the first.
+                // which keeps the list's swipe. The banner after the first.
                 List {
                     ForEach(Array(hosts.enumerated()), id: \.element.publicId) { index, host in
                         let monitor = status.monitor(for: host)
@@ -97,7 +97,8 @@ struct StatusList: View {
                 .listSectionSpacing(.compact)
             }
         }
-        .loadsAd(.status, when: !hosts.isEmpty)
+        .loadsAd(.status, when: !wide && !hosts.isEmpty)
+        .loadsAd(.wideStatus, when: wide && !hosts.isEmpty)
         .overlay {
             if hosts.isEmpty {
                 ContentUnavailableView {

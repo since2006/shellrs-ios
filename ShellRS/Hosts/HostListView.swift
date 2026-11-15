@@ -16,6 +16,7 @@ struct HostListView: View {
 /// container gives it the navigation bar.
 struct HostList: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.wideWindow) private var wide
     /// The groups folded in the search's results, for this search only.
     private var state: HostListState { model.hostListState }
     private var editingHost: HostEditor.Subject? {
@@ -39,7 +40,9 @@ struct HostList: View {
         let isEmpty = hosts.hosts.isEmpty && hosts.groups.isEmpty
         // Not while searching or sorting, nor over 还没有主机.
         let showsAd = !searching && !state.editMode.isEditing && !isEmpty
-        let hasAd = showsAd && model.ads.ad(for: .hosts) != nil
+        // A banner on a phone, a native ad where there is room.
+        let placement = wide ? AdPlacement.wideHosts : .hosts
+        let hasAd = showsAd && model.ads.ad(for: placement) != nil
         List {
             if showsRecent {
                 Section("最近连接") {
@@ -49,7 +52,7 @@ struct HostList: View {
                 }
             }
             if showsAd {
-                AdSection(placement: .hosts)
+                AdSection(placement: placement)
             }
             Section {
                 HostLevel(
@@ -61,7 +64,8 @@ struct HostList: View {
                 }
             }
         }
-        .loadsAd(.hosts, when: showsAd)
+        .loadsAd(.hosts, when: showsAd && !wide)
+        .loadsAd(.wideHosts, when: showsAd && wide)
         .environment(\.editMode, $state.editMode)
         .searchable(text: $state.query, isPresented: $state.searchShown, prompt: "搜索主机或分组")
         // Each search opens every group again, as the desktop's does.
