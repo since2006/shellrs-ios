@@ -55,6 +55,31 @@ struct AdCard: View {
     }
 }
 
+/// The native ad of `placement` as a cell of a grid of cards, as 状态's on
+/// a wide window: a card like the others, as tall as those in its row, the
+/// way to remove the ads at its foot. Nothing while there is no ad.
+struct AdGridCard: View {
+    let placement: AdPlacement
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        if placement.format == .native, let ad = model.ads.ad(for: placement) {
+            VStack(alignment: .leading, spacing: 0) {
+                NativeAdCard(ad: ad)
+                    .id(ad.id)
+                Spacer(minLength: 0)
+                // In line with the ad's picture, inside its padding.
+                RemoveAdsLink()
+                    .padding([.horizontal, .bottom], 12)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(
+                Color(.secondarySystemGroupedBackground),
+                in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+    }
+}
+
 /// 去除广告: the settings, where buying and restoring it are.
 private struct RemoveAdsLink: View {
     @Environment(AppModel.self) private var model

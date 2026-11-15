@@ -32,8 +32,9 @@ struct StatusTab: View {
 }
 
 /// The hosts chosen for 状态, each with its load: tap one for its
-/// details. A list on a narrow window, cards side by side as many as fit on
-/// a wide one. Its container gives it the navigation bar.
+/// details. A card each, in a list on a narrow window, side by side as many
+/// as fit on a wide one; the ad after the first. Its container gives it the
+/// navigation bar.
 struct StatusList: View {
     @Environment(AppModel.self) private var model
     @Environment(\.wideWindow) private var wide
@@ -54,7 +55,7 @@ struct StatusList: View {
                         columns: [GridItem(.adaptive(minimum: Self.cardMinimum), spacing: 16)],
                         spacing: 16
                     ) {
-                        ForEach(hosts, id: \.publicId) { host in
+                        ForEach(Array(hosts.enumerated()), id: \.element.publicId) { index, host in
                             let monitor = status.monitor(for: host)
                             row(for: monitor)
                                 .buttonStyle(.plain)
@@ -64,6 +65,9 @@ struct StatusList: View {
                                 )
                                 .hoverEffect()
                                 .contextMenu { menu(for: host, monitor: monitor) }
+                            if index == 0 {
+                                AdGridCard(placement: .status)
+                            }
                         }
                     }
                     .padding(20)
@@ -91,9 +95,9 @@ struct StatusList: View {
                     }
                 }
                 .listSectionSpacing(.compact)
-                .loadsAd(.status, when: !hosts.isEmpty)
             }
         }
+        .loadsAd(.status, when: !hosts.isEmpty)
         .overlay {
             if hosts.isEmpty {
                 ContentUnavailableView {

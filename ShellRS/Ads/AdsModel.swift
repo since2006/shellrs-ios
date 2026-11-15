@@ -17,7 +17,8 @@ enum AdFormat: Hashable, CaseIterable {
 
 /// Where an ad goes, one each. Never over a terminal or its files.
 enum AdPlacement: Hashable, CaseIterable {
-    /// The 状态 tab of a narrow window, after its first host.
+    /// The 状态 tab or page, after its first host: a section of the list
+    /// of a narrow window, a card of a wide one's grid.
     case status
     /// The 主机 tab or page, after 最近连接: a banner, which takes a third
     /// of a native ad's height above the hosts.
