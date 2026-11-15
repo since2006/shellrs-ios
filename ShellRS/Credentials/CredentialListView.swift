@@ -3,27 +3,18 @@ import SwiftUI
 import UIKit
 
 /// The saved credentials, a username with a password or a private key that
-/// several hosts share: tap one to edit it. Pushed in the settings, which
-/// give it the navigation bar.
+/// several hosts share: tap one to edit it. Pushed in the settings of a
+/// narrow window, a page of its own in a wide one's sidebar: either gives
+/// it the navigation bar.
 struct CredentialList: View {
     @Environment(AppModel.self) private var model
     private var state: CredentialListState { model.credentialListState }
-    /// The editor over the settings sheet of a wide window, which the
-    /// window's own sheet would replace.
-    @State private var nestedEditing: CredentialEditor.Subject?
     private var editing: CredentialEditor.Subject? {
         get {
-            if let nestedEditing { return nestedEditing }
             if case .credential(let subject) = model.sheet { return subject }
             return nil
         }
-        nonmutating set {
-            if model.showingSettings {
-                nestedEditing = newValue
-            } else {
-                model.sheet = newValue.map(AppSheet.credential)
-            }
-        }
+        nonmutating set { model.sheet = newValue.map(AppSheet.credential) }
     }
 
     var body: some View {
@@ -76,12 +67,6 @@ struct CredentialList: View {
             }
         }
         .navigationTitle("凭据")
-        .sheet(item: $nestedEditing) { subject in
-            CredentialEditor(subject: subject)
-                .environment(model)
-        }
-        // Here rather than on the window: over a wide window the settings
-        // are a sheet, which the window's alerts would stay behind.
         .modifier(CredentialListPrompts())
         .toolbar {
             ToolbarItem(placement: .primaryAction) {

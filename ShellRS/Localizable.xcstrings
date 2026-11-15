@@ -1827,16 +1827,6 @@
         }
       }
     },
-    "列表": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        }
-      }
-    },
     "创建": {
       "localizations": {
         "en": {
@@ -2727,16 +2717,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "On another device, scan this QR code or paste the setup code, then enter the sync password."
-          }
-        }
-      }
-    },
-    "在左边点一台主机连接。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap a host on the left to connect."
           }
         }
       }

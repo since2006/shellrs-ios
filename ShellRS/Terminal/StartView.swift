@@ -1,8 +1,8 @@
 import ShellRSCore
 import SwiftUI
 
-/// What a wide window shows with no terminal open: the hosts connected
-/// lately, as the desktop's start page.
+/// A wide window's terminals' page with none open, the page it opens on:
+/// the hosts connected lately, as the desktop's start page.
 struct StartView: View {
     @Environment(AppModel.self) private var model
     @State private var failure: String?
@@ -17,7 +17,7 @@ struct StartView: View {
                 VStack(spacing: 0) {
                     ContentUnavailableView(
                         "没有打开的终端", systemImage: "terminal",
-                        description: Text("在左边点一台主机连接。"))
+                        description: Text("在「主机」里点一台主机连接。"))
                     AdCard(placement: .start)
                         .padding(24)
                         .frame(maxWidth: 720)
@@ -45,7 +45,7 @@ struct StartView: View {
                                 .hoverEffect()
                             }
                         }
-                        Text("在左边点一台主机连接。")
+                        Text("在「主机」里点一台主机连接。")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                         AdCard(placement: .start)

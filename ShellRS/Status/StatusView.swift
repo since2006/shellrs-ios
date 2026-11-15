@@ -1,14 +1,14 @@
 import ShellRSCore
 import SwiftUI
 
-/// What 状态 pushes in a narrow window.
+/// What 状态 pushes.
 enum StatusRoute: Hashable {
     /// A host's details, by its public id.
     case host(String)
 }
 
-/// The 状态 tab of a narrow window: the list in a stack of its own, a
-/// host's details pushed over it.
+/// 状态, a narrow window's tab or a wide one's page: the hosts in a stack
+/// of its own, a host's details pushed over them.
 struct StatusTab: View {
     @Environment(AppModel.self) private var model
 
@@ -32,39 +32,57 @@ struct StatusTab: View {
 }
 
 /// The hosts chosen for 状态, each with its load: tap one for its
-/// details. Its container gives it the navigation bar: the 状态 tab or the
-/// sidebar.
+/// details. A list on a narrow window, cards side by side as many as fit on
+/// a wide one. Its container gives it the navigation bar.
 struct StatusList: View {
     @Environment(AppModel.self) private var model
     @Environment(\.wideWindow) private var wide
     @State private var choosing = false
     @State private var answering: HostMonitor?
 
+    /// The narrowest a card in the grid: its rings with the network beside
+    /// them, and its buttons beside its name.
+    private static let cardMinimum: CGFloat = 320
+
     var body: some View {
         let status = model.status
         let hosts = status.shownHosts
-        List {
-            ForEach(hosts, id: \.publicId) { host in
-                let monitor = status.monitor(for: host)
-                row(for: monitor)
-                    .swipeActions {
-                        Button("移除") {
-                            status.setShown(false, for: host)
-                        }
-                        .tint(.gray)
-                    }
-                    .contextMenu {
-                        Button("连接", systemImage: "terminal") {
-                            connect(host)
-                        }
-                        Button("重新读取", systemImage: "arrow.clockwise") {
-                            monitor.reconnect()
-                        }
-                        Divider()
-                        Button("不在状态页显示", systemImage: "eye.slash") {
-                            status.setShown(false, for: host)
+        Group {
+            if wide {
+                ScrollView {
+                    LazyVGrid(
+                        columns: [GridItem(.adaptive(minimum: Self.cardMinimum), spacing: 16)],
+                        spacing: 16
+                    ) {
+                        ForEach(hosts, id: \.publicId) { host in
+                            let monitor = status.monitor(for: host)
+                            row(for: monitor)
+                                .buttonStyle(.plain)
+                                .contentShape(
+                                    .contextMenuPreview,
+                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                )
+                                .hoverEffect()
+                                .contextMenu { menu(for: host, monitor: monitor) }
                         }
                     }
+                    .padding(20)
+                }
+                .background(Color(.systemGroupedBackground))
+            } else {
+                List {
+                    ForEach(hosts, id: \.publicId) { host in
+                        let monitor = status.monitor(for: host)
+                        row(for: monitor)
+                            .swipeActions {
+                                Button("移除") {
+                                    status.setShown(false, for: host)
+                                }
+                                .tint(.gray)
+                            }
+                            .contextMenu { menu(for: host, monitor: monitor) }
+                    }
+                }
             }
         }
         .overlay {
@@ -108,32 +126,45 @@ struct StatusList: View {
         .onDisappear { status.pageDisappeared() }
     }
 
-    @ViewBuilder
     /// Each a button, its card in the text's colour rather than the
     /// button's tint (which the card sets): not `.tint(.primary)`, which
-    /// what the card presents would take too.
+    /// what the card presents would take too. A button, not a link: the
+    /// card's own buttons take the place of the link's chevron.
     private func row(for monitor: HostMonitor) -> some View {
-        if monitor.isAsking {
-            // The login waits: answer before anything else.
-            Button {
+        Button {
+            if monitor.isAsking {
+                // The login waits: answer before anything else.
                 answering = monitor
-            } label: {
-                HostStatusCard(monitor: monitor)
-            }
-        } else if wide {
-            Button {
-                model.sheet = .hostStatus(monitor.id)
-            } label: {
-                HostStatusCard(monitor: monitor)
-            }
-        } else {
-            // A button, not a link: the card's own buttons take the place
-            // of the link's chevron.
-            Button {
+            } else {
                 model.statusPath.append(.host(monitor.id))
-            } label: {
+            }
+        } label: {
+            if wide {
+                // A card of its own on the grid's background, of the same
+                // height as the others in its row.
+                HostStatusCard(monitor: monitor)
+                    .padding(16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .background(
+                        Color(.secondarySystemGroupedBackground),
+                        in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            } else {
                 HostStatusCard(monitor: monitor)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func menu(for host: Host, monitor: HostMonitor) -> some View {
+        Button("连接", systemImage: "terminal") {
+            connect(host)
+        }
+        Button("重新读取", systemImage: "arrow.clockwise") {
+            monitor.reconnect()
+        }
+        Divider()
+        Button("不在状态页显示", systemImage: "eye.slash") {
+            model.status.setShown(false, for: host)
         }
     }
 

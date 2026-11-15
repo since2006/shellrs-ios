@@ -3,19 +3,17 @@ import Observation
 import ShellRSCore
 import UIKit
 
-/// The app's tabs, on an iPhone or a narrow iPad window. The credentials
-/// are in the settings.
+/// What the window shows: a narrow one's tabs, or the page chosen in the
+/// sidebar of a wide one, as an admin console's menu. A narrow window has
+/// no tab for the credentials: they are in its settings.
 enum AppTab: Hashable {
     case status
     case hosts
+    /// A wide window's terminal tabs, or the hosts connected lately while
+    /// none is open; a narrow window's list of them.
     case terminals
+    case credentials
     case settings
-}
-
-/// The lists the sidebar of a wide window switches between.
-enum SidebarList: Hashable {
-    case hosts
-    case status
 }
 
 /// What a command asks of the host list.
@@ -44,7 +42,8 @@ final class AppModel {
     let ads: AdsModel
     let sync: SyncModel
     let status: StatusModel
-    /// 状态 first, once it has hosts to show; the hosts until then.
+    /// 状态 first, once it has hosts to show; the hosts until then. A wide
+    /// window opens on its terminals: the hosts connected lately.
     var tab = AppTab.hosts
     var settingsPath: [SettingsRoute] = []
     var statusPath: [StatusRoute] = []
@@ -57,21 +56,27 @@ final class AppModel {
             if shownSession !== oldValue {
                 oldValue?.surface.dismissInput()
                 compactTerminalPresented = shownSession != nil
+                // A wide window shows it on its terminals' page.
+                if isWide, shownSession != nil {
+                    tab = .terminals
+                }
             }
         }
     }
     /// Selection survives 收起 and automatic layout changes. Presentation is separate.
     var compactTerminalPresented = false
     private(set) var layout = AppLayout.compact
+    /// Whether the window has been measured: the first time, a wide one
+    /// opens on its terminals.
+    @ObservationIgnored private var laidOut = false
     var sheet: AppSheet?
     let hostListState = HostListState()
     let credentialListState = CredentialListState()
-    /// Whether the window is a wide one: a sidebar and the terminal
-    /// tabs beside it, rather than the iPhone's tabs.
+    /// Whether the window is a wide one: a sidebar and the page chosen in
+    /// it beside, rather than the iPhone's tabs.
     var isWide: Bool { layout.isWide }
-    var sidebarList = SidebarList.hosts
-    /// Whether a wide window shows its sidebar; hidden, the terminal has
-    /// the width.
+    /// Whether a wide window shows its sidebar; hidden, the page has the
+    /// width.
     var sidebarShown = true
     /// Whether a wide window shows the files of the terminal in front
     /// beside it, as the desktop's right sidebar does; a narrow one shows
@@ -96,14 +101,11 @@ final class AppModel {
     /// The hosts whose files are shown, while the app runs: its terminals
     /// do not outlive it either.
     private var filesShown: Set<UInt64> = []
-    /// The settings, over a wide window; a narrow one has a tab for them.
-    var showingSettings = false
 
     /// One stable sheet host outside both layout branches. Authentication can wait
     /// behind an editor, but a fold never answers or cancels its prompt.
     var presentedSheet: AppSheet? {
         if let sheet { return sheet }
-        if showingSettings { return .settings }
         if let session = shownSession, isWide || compactTerminalPresented,
             let prompt = session.prompt
         {
@@ -115,25 +117,30 @@ final class AppModel {
     func dismissSheet() {
         // Authentication has explicit buttons and disallows interactive dismissal.
         // A system presentation update must never be treated as a user cancellation.
-        if sheet != nil {
-            sheet = nil
-        } else if showingSettings {
-            showingSettings = false
-        }
+        sheet = nil
     }
 
     func updateLayout(_ layout: AppLayout) {
         let wasWide = isWide
+        let first = !laidOut
+        laidOut = true
         self.layout = layout
-        if wasWide && !isWide {
-            compactTerminalPresented = shownSession != nil
-        } else if !wasWide && isWide {
-            if shownSession == nil {
-                sidebarList = tab == .status ? .status : .hosts
+        if first, isWide {
+            // As the desktop's start page: the hosts connected lately.
+            tab = .terminals
+        } else if wasWide && !isWide {
+            // The terminal over the tabs only if it was the page shown.
+            compactTerminalPresented = shownSession != nil && tab == .terminals
+            if tab == .credentials {
+                tab = .settings
+                settingsPath = [.credentials]
             }
-            if tab == .settings {
-                showingSettings = true
-                tab = .hosts
+        } else if !wasWide && isWide {
+            if compactTerminalPresented {
+                tab = .terminals
+            } else if tab == .settings, settingsPath.first == .credentials {
+                tab = .credentials
+                settingsPath = []
             }
         }
     }
@@ -149,11 +156,17 @@ final class AppModel {
     }
 
     var sidebarVisible: Bool {
-        layout.showsSidebar(requested: sidebarShown, filesShown: showsFiles)
+        layout.showsSidebar(requested: sidebarShown, filesShown: showsFiles && terminalShown)
+    }
+
+    /// Whether the terminal in front is shown: on a wide window's terminals
+    /// page, or over a narrow window's tabs.
+    var terminalShown: Bool {
+        shownSession != nil && (isWide ? tab == .terminals : compactTerminalPresented)
     }
 
     var filesCoverTerminal: Bool {
-        showsFiles && (isWide || compactTerminalPresented) && !layout.fitsFilesBesideTerminal
+        showsFiles && terminalShown && !layout.fitsFilesBesideTerminal
     }
 
     var terminalInputAllowed: Bool {
@@ -171,8 +184,9 @@ final class AppModel {
 
     func setSidebarVisible(_ visible: Bool) {
         // Automatic space budgeting is temporary, not a change in preference.
-        if !visible, showsFiles, !layout.fitsThreeColumns { return }
-        if visible, showsFiles, !layout.fitsThreeColumns {
+        let filesBeside = showsFiles && terminalShown
+        if !visible, filesBeside, !layout.fitsThreeColumns { return }
+        if visible, filesBeside, !layout.fitsThreeColumns {
             showsFiles = false
         }
         sidebarShown = visible
@@ -281,8 +295,7 @@ final class AppModel {
     }
 
     /// Whether a command may show the host list or the settings now: not
-    /// under the terminal over a narrow window, nor behind the settings
-    /// over a wide one.
+    /// under the terminal over a narrow window, nor behind a sheet.
     var canPresent: Bool {
         presentedSheet == nil && (isWide || !compactTerminalPresented)
     }
@@ -292,25 +305,16 @@ final class AppModel {
         guard canPresent else {
             return
         }
-        if isWide {
-            sidebarList = .hosts
-            sidebarShown = true
-        } else {
-            tab = .hosts
-        }
+        tab = .hosts
         hostListRequest = request
     }
 
-    /// ⌘,: the settings sheet of a wide window, the tab of a narrow one.
+    /// ⌘,: the settings' page or tab.
     func openSettings() {
         guard canPresent else {
             return
         }
-        if isWide {
-            showingSettings = true
-        } else {
-            tab = .settings
-        }
+        tab = .settings
     }
 
     /// 去除广告 under an ad: the settings, where the purchase is.
@@ -328,14 +332,15 @@ final class AppModel {
 
     /// ⌘⌥B: the files beside the terminal in front of a wide window.
     func toggleFiles() {
-        if isWide, shownSession != nil {
+        if isWide, terminalShown {
             showsFiles.toggle()
         }
     }
 
-    /// ⌘W: closes the terminal shown.
+    /// ⌘W: closes the terminal shown, not one behind another page of a
+    /// wide window.
     func closeShown() {
-        if let shownSession {
+        if let shownSession, !isWide || tab == .terminals {
             close(shownSession)
         }
     }
@@ -356,11 +361,7 @@ final class AppModel {
 
     /// Opens the sync page on what sync waits for the user to settle.
     func reviewSync() {
-        if isWide {
-            showingSettings = true
-        } else {
-            tab = .settings
-        }
+        tab = .settings
         settingsPath = [.sync]
         sync.reviewRequested = true
     }
@@ -409,7 +410,10 @@ final class AppModel {
             shownSession = sessions.last ?? shownSession
         } else if sessions.indices.contains(number - 1) {
             shownSession = sessions[number - 1]
+        } else {
+            return
         }
+        terminalsForward()
     }
 
     /// Brings the next tab forward, round to the first.
@@ -426,12 +430,21 @@ final class AppModel {
         guard !sessions.isEmpty else {
             return
         }
+        defer { terminalsForward() }
         guard let index = sessions.firstIndex(where: { $0 === shownSession }) else {
             shownSession = offset > 0 ? sessions.first : sessions.last
             return
         }
         let count = sessions.count
         shownSession = sessions[(index + offset + count) % count]
+    }
+
+    /// A tab chosen by its keys shows on a wide window's terminals' page,
+    /// even the one already in front of it.
+    private func terminalsForward() {
+        if isWide, shownSession != nil {
+            tab = .terminals
+        }
     }
 
     private func end(_ session: TerminalSession) {

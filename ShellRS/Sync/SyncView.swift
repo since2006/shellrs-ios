@@ -43,16 +43,12 @@ struct SyncView: View {
     }
 
     @Environment(AppModel.self) private var model
-    @State private var nestedSheet: Sheet?
     private var sheet: Sheet? {
-        get { nestedSheet }
-        nonmutating set {
-            if model.showingSettings {
-                nestedSheet = newValue
-            } else {
-                model.sheet = newValue.map(AppSheet.sync)
-            }
+        get {
+            if case .sync(let sheet) = model.sheet { return sheet }
+            return nil
         }
+        nonmutating set { model.sheet = newValue.map(AppSheet.sync) }
     }
     @State private var confirmingRejoin = false
     @State private var massDelete: MassDelete?
@@ -91,9 +87,6 @@ struct SyncView: View {
         }
         .navigationTitle("云同步")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $nestedSheet) { sheet in
-            SyncSheetView(sync: sync, sheet: sheet, close: close)
-        }
         .alert("重新加入同步？", isPresented: $confirmingRejoin) {
             Button("重新加入") {
                 sync.rejoin()
@@ -345,10 +338,6 @@ struct SyncView: View {
 
     // MARK: Doing
 
-    private func close() {
-        sheet = nil
-    }
-
     private func reviewLabel(_ attention: Attention) -> LocalizedStringKey {
         switch attention {
         case .needsPassword: "输入密码…"
@@ -481,7 +470,8 @@ private struct DeviceRow: View {
     }
 }
 
-/// The same stable sheet, whether opened from a compact tab or settings modal.
+/// A step of sync over the window, from the settings' tab or page: the
+/// window's sheet, which a change of layout keeps.
 struct SyncSheetView: View {
     let sync: SyncModel
     let sheet: SyncView.Sheet

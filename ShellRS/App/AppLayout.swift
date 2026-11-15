@@ -2,7 +2,8 @@ import SwiftUI
 
 /// Layout belongs to the window's available space, never to a device name or idiom.
 struct AppLayout: Equatable {
-    static let sidebarMinimum = 260.0
+    /// A menu of pages, not the host list it once was.
+    static let sidebarMinimum = 220.0
     static let terminalMinimum = 400.0
     static let filesMinimum = 320.0
     static let divider = 1.0

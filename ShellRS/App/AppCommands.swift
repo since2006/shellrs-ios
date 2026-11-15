@@ -49,7 +49,7 @@ struct AppCommands: Commands {
                 model?.toggleFiles()
             }
             .keyboardShortcut("b", modifiers: [.command, .option])
-            .disabled(model.map { !$0.isWide || $0.shownSession == nil } != false)
+            .disabled(model.map { !$0.isWide || !$0.terminalShown } != false)
             Button("聚焦搜索") {
                 model?.request(.search)
             }
@@ -61,7 +61,7 @@ struct AppCommands: Commands {
                 model?.closeShown()
             }
             .keyboardShortcut("w")
-            .disabled(model?.shownSession == nil)
+            .disabled(model.map { $0.shownSession == nil || ($0.isWide && $0.tab != .terminals) } != false)
             Divider()
             Button("下一个标签") {
                 model?.selectNext()

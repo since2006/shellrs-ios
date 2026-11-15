@@ -1,8 +1,8 @@
 import SwiftUI
 
 extension EnvironmentValues {
-    /// Whether the window is a wide one, its sidebar beside the
-    /// terminals: what is shown over it may want to show otherwise.
+    /// Whether the window is a wide one, its pages in a sidebar: what is
+    /// shown in or over it may want to show otherwise.
     @Entry var wideWindow = false
 }
 

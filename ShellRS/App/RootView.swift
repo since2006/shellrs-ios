@@ -2,9 +2,9 @@ import ShellRSCore
 import SwiftUI
 import UIKit
 
-/// The window: a sidebar and terminal tabs when it is a wide one, the
-/// iPhone's tabs otherwise. The terminals and what is shown are the
-/// model's, so they stay as the window narrows or widens.
+/// The window: a sidebar of pages when it is a wide one, the iPhone's tabs
+/// otherwise. The terminals and what is shown are the model's, so they
+/// stay as the window narrows or widens.
 struct RootView: View {
     @Environment(AppModel.self) private var model
     @Environment(\.scenePhase) private var scenePhase
@@ -137,6 +137,6 @@ private struct ActiveTransferPrompts: ViewModifier {
             WindowTransferPrompts(
                 files: model.shownSession?.files,
                 active: model.showsFiles && model.presentedSheet == nil
-                    && (model.isWide || model.compactTerminalPresented)))
+                    && model.terminalShown))
     }
 }

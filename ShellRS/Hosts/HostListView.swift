@@ -1,7 +1,8 @@
 import ShellRSCore
 import SwiftUI
 
-/// The 主机 tab of a narrow window: the list in a stack of its own.
+/// 主机, a narrow window's tab or a wide one's page: the list in a stack of
+/// its own.
 struct HostListView: View {
     var body: some View {
         NavigationStack {
@@ -12,7 +13,7 @@ struct HostListView: View {
 
 /// The saved hosts as a tree of groups, the latest connected above it: tap
 /// a host to connect, swipe or hold a row for the rest, 排序 to drag. Its
-/// container gives it the navigation bar: the 主机 tab or the sidebar.
+/// container gives it the navigation bar.
 struct HostList: View {
     @Environment(AppModel.self) private var model
     @Environment(\.wideWindow) private var wide
@@ -37,8 +38,8 @@ struct HostList: View {
         let tree = HostTree(groups: hosts.groups, hosts: hosts.hosts, query: state.query)
         let showsRecent = !searching && !state.editMode.isEditing && !hosts.recent.isEmpty
         let isEmpty = hosts.hosts.isEmpty && hosts.groups.isEmpty
-        // Not in a wide window's sidebar, beside the terminal: its start page
-        // has the ad. Nor while searching or sorting, nor over 还没有主机.
+        // Not in a wide window: its terminals' start page has the ad. Nor
+        // while searching or sorting, nor over 还没有主机.
         let showsAd = !wide && !searching && !state.editMode.isEditing && !isEmpty
         let hasAd = showsAd && model.ads.ad(for: .hosts) != nil
         List {

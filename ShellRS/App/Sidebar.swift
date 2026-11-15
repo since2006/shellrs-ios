@@ -1,44 +1,34 @@
 import ShellRSCore
 import SwiftUI
 
-/// The sidebar of a wide window: the hosts or 状态, and the settings below,
-/// where the credentials are.
+/// The sidebar of a wide window: its pages, as an admin console's menu,
+/// and what sync waits for below them.
 struct Sidebar: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        @Bindable var model = model
-        Group {
-            switch model.sidebarList {
-            case .hosts:
-                HostList()
-            case .status:
-                StatusList()
-            }
+        List(
+            selection: Binding(
+                get: { model.tab },
+                set: { if let tab = $0 { model.tab = tab } })
+        ) {
+            Label("状态", systemImage: "gauge.with.dots.needle.50percent")
+                .tag(AppTab.status)
+            Label("主机", systemImage: "server.rack")
+                .tag(AppTab.hosts)
+            Label("终端", systemImage: "terminal")
+                .badge(model.sessions.count)
+                .tag(AppTab.terminals)
+            Label("凭据", systemImage: "key")
+                .tag(AppTab.credentials)
+            Label("设置", systemImage: model.sync.attention == nil ? "gear" : "gear.badge")
+                .symbolRenderingMode(.multicolor)
+                .tag(AppTab.settings)
         }
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(Text(verbatim: "ShellRS"))
         .safeAreaInset(edge: .bottom) {
             if let attention = model.sync.attention {
                 SyncBanner(attention: attention)
-            }
-        }
-        .toolbar {
-            // Along the bottom: the top has the list's own buttons, and no
-            // room left beside them in English.
-            ToolbarItemGroup(placement: .bottomBar) {
-                Picker("列表", selection: $model.sidebarList) {
-                    Text("主机").tag(SidebarList.hosts)
-                    Text("状态").tag(SidebarList.status)
-                }
-                .pickerStyle(.segmented)
-                .fixedSize()
-                Spacer()
-                Button {
-                    model.showingSettings = true
-                } label: {
-                    Label("设置", systemImage: model.sync.attention == nil ? "gear" : "gear.badge")
-                        .symbolRenderingMode(.multicolor)
-                }
             }
         }
     }

@@ -5,17 +5,17 @@ import Testing
 
 struct AppLayoutTests {
     @Test func aSidebarNeedsRoomForBothColumnsAndARegularSizeClass() {
-        #expect(!AppLayout(width: 660, regular: true).isWide)
-        #expect(AppLayout(width: 661, regular: true).isWide)
+        #expect(!AppLayout(width: 620, regular: true).isWide)
+        #expect(AppLayout(width: 621, regular: true).isWide)
         #expect(!AppLayout(width: 1200, regular: false).isWide)
         #expect(!AppLayout(width: .nan, regular: true).isWide)
     }
 
     @Test func filesTemporarilyDisplaceTheSidebarWithoutChangingItsPreference() {
-        let twoColumns = AppLayout(width: 981, regular: true)
+        let twoColumns = AppLayout(width: 941, regular: true)
         #expect(twoColumns.showsSidebar(requested: true, filesShown: false))
         #expect(!twoColumns.showsSidebar(requested: true, filesShown: true))
-        let threeColumns = AppLayout(width: 982, regular: true)
+        let threeColumns = AppLayout(width: 942, regular: true)
         #expect(threeColumns.showsSidebar(requested: true, filesShown: true))
         #expect(!threeColumns.showsSidebar(requested: false, filesShown: true))
         #expect(!AppLayout(width: 720, regular: true).fitsFilesBesideTerminal)

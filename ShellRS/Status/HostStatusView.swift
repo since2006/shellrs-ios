@@ -8,8 +8,6 @@ import SwiftUI
 /// a panel of their own, from the toolbar.
 struct HostStatusView: View {
     let monitor: HostMonitor
-    /// Closes it, when it is shown over a wide window rather than pushed.
-    var done: (() -> Void)?
 
     @Environment(AppModel.self) private var model
     @State private var answering = false
@@ -40,11 +38,6 @@ struct HostStatusView: View {
         .navigationTitle(monitor.host.title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            if let done {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("完成", action: done)
-                }
-            }
             ToolbarItemGroup(placement: .primaryAction) {
                 Button {
                     showsProcesses = true
@@ -389,7 +382,6 @@ struct HostStatusView: View {
 
     private func openTerminal() {
         do {
-            done?()
             try model.connect(monitor.host)
         } catch {
             model.hostListState.failure = Describe.store(error)

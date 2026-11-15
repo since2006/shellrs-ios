@@ -151,22 +151,32 @@ struct AppModelTests {
 
     @Test func commandsShowTheListWhereTheWindowHasIt() async throws {
         model.updateLayout(AppLayout(width: 1200, regular: true))
-        model.sidebarList = .status
+        model.tab = .status
         model.sidebarShown = false
+        // The hosts are a page: the sidebar can stay hidden.
         model.request(.newHost)
-        #expect(model.sidebarList == .hosts)
-        #expect(model.sidebarShown)
         #expect(model.tab == .hosts)
+        #expect(!model.sidebarShown)
         #expect(model.hostListRequest == .newHost)
         model.hostListRequest = nil
 
-        // Not behind the settings.
+        // The settings are a page too, not a sheet in the way.
         model.openSettings()
-        #expect(model.showingSettings)
+        #expect(model.tab == .settings)
+        #expect(model.presentedSheet == nil)
         model.request(.search)
-        #expect(model.hostListRequest == nil)
-        model.showingSettings = false
+        #expect(model.tab == .hosts)
+        #expect(model.hostListRequest == .search)
+        model.hostListRequest = nil
 
+        // Not behind a sheet.
+        model.sheet = .host(.new(group: nil))
+        model.openSettings()
+        #expect(model.tab == .hosts)
+        model.sheet = nil
+
+        model.toggleSidebar()
+        #expect(model.sidebarShown)
         model.toggleSidebar()
         #expect(!model.sidebarShown)
 
@@ -180,7 +190,7 @@ struct AppModelTests {
         model.hostListRequest = nil
         model.openSettings()
         #expect(model.tab == .settings)
-        #expect(!model.showingSettings)
+        #expect(model.presentedSheet == nil)
 
         // Not under the terminal over a narrow window.
         model.tab = .hosts
@@ -234,15 +244,100 @@ struct AppModelTests {
     @Test func syncsReviewOpensWhereTheWindowHasTheSettings() {
         model.updateLayout(AppLayout(width: 1200, regular: true))
         model.reviewSync()
-        #expect(model.showingSettings)
-        #expect(model.tab == .hosts)
+        #expect(model.tab == .settings)
+        #expect(model.presentedSheet == nil)
         #expect(model.settingsPath == [.sync])
 
-        model.showingSettings = false
+        model.tab = .status
         model.settingsPath = []
         model.updateLayout(.compact)
         model.reviewSync()
-        #expect(!model.showingSettings)
+        #expect(model.tab == .settings)
+        #expect(model.settingsPath == [.sync])
+    }
+
+    @Test func aWideWindowOpensOnItsTerminalsAndShowsOneThere() async throws {
+        // 状态 has nothing to show: a narrow window opens on the hosts.
+        #expect(model.tab == .hosts)
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        // The start page, the hosts connected lately.
+        #expect(model.tab == .terminals)
+        #expect(!model.terminalShown)
+
+        // Connecting from another page brings the terminals' page forward.
+        model.tab = .status
+        let a = try await open("a")[0]
+        #expect(model.tab == .terminals)
+        #expect(model.terminalShown)
+
+        // Behind another page, the terminal is neither closed by ⌘W nor
+        // given its files.
+        model.tab = .hosts
+        #expect(!model.terminalShown)
+        model.closeShown()
+        #expect(model.sessions.count == 1)
+        model.toggleFiles()
+        #expect(!model.showsFiles)
+        model.showsFiles = true
+        #expect(!model.filesCoverTerminal)
+        model.showsFiles = false
+
+        // A tab brought forward by its keys comes with its page, even the
+        // one in front.
+        model.select(tab: 1)
+        #expect(model.tab == .terminals)
+        model.tab = .status
+        model.selectNext()
+        #expect(model.shownSession === a)
+        #expect(model.tab == .terminals)
+        model.tab = .status
+        model.select(tab: 5)
+        #expect(model.tab == .status)
+        model.tab = .terminals
+        model.closeShown()
+        #expect(model.sessions.isEmpty)
+        #expect(model.tab == .terminals)
+
+        // Once measured, a window keeps its page as it widens again.
+        model.tab = .status
+        model.updateLayout(.compact)
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        #expect(model.tab == .status)
+    }
+
+    @Test func narrowingFromAnotherPageLeavesTheTerminalBehindTheTabs() async throws {
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        let a = try await open("a")[0]
+        model.tab = .status
+        model.updateLayout(.compact)
+        #expect(!model.compactTerminalPresented)
+        #expect(model.shownSession === a)
+        #expect(model.tab == .status)
+
+        // Shown over the tabs, it is the page a wide window widens to.
+        model.show(a)
+        model.tab = .hosts
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        #expect(model.tab == .terminals)
+        model.updateLayout(.compact)
+        #expect(model.compactTerminalPresented)
+    }
+
+    @Test func theCredentialsAreInTheSettingsOfANarrowWindow() {
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        model.tab = .credentials
+        model.updateLayout(.compact)
+        #expect(model.tab == .settings)
+        #expect(model.settingsPath == [.credentials])
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        #expect(model.tab == .credentials)
+        #expect(model.settingsPath.isEmpty)
+
+        // Sync stays where it was.
+        model.tab = .settings
+        model.settingsPath = [.sync]
+        model.updateLayout(.compact)
+        model.updateLayout(AppLayout(width: 1200, regular: true))
         #expect(model.tab == .settings)
         #expect(model.settingsPath == [.sync])
     }
@@ -311,10 +406,10 @@ struct AppModelTests {
         model.tab = .settings
         model.settingsPath = [.sync]
         model.updateLayout(AppLayout(width: 900, regular: true))
-        #expect(model.showingSettings)
-        #expect(model.presentedSheet?.id == "settings")
+        #expect(model.tab == .settings)
+        #expect(model.presentedSheet == nil)
         model.updateLayout(.compact)
-        #expect(model.presentedSheet?.id == "settings")
+        #expect(model.tab == .settings)
         #expect(model.settingsPath == [.sync])
     }
 }
