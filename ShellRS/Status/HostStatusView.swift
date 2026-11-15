@@ -14,7 +14,6 @@ struct HostStatusView: View {
     @Environment(AppModel.self) private var model
     @State private var processOrder = ProcessOrder.cpu
     @State private var answering = false
-    @State private var showsCores = false
     @State private var showsAllProcesses = false
 
     enum ProcessOrder: Hashable {
@@ -106,32 +105,35 @@ struct HostStatusView: View {
 
     private func cpu(_ snapshot: HostSnapshot) -> some View {
         Section {
+            if let cpu = snapshot.cpu {
+                hero(percent: cpu.total) {
+                    GridRow {
+                        StatTile(title: "用户", value: StatusFormat.percent(cpu.user))
+                        StatTile(title: "系统", value: StatusFormat.percent(cpu.system))
+                    }
+                    GridRow {
+                        StatTile(
+                            title: "I/O 等待", value: StatusFormat.percent(cpu.iowait),
+                            note: cpu.iowait >= 10)
+                        StatTile(
+                            title: "虚拟机窃取", value: StatusFormat.percent(cpu.steal),
+                            note: cpu.steal >= 10)
+                    }
+                }
+            }
             HistoryChart(
                 points: monitor.history,
                 series: [.init(name: "CPU", color: .accentColor, value: { $0.cpu })],
                 percent: true, format: { StatusFormat.percent($0) })
-            if let cpu = snapshot.cpu {
-                MeterRow(title: String(localized: "使用率"), percent: cpu.total)
-                figure("用户", StatusFormat.percent(cpu.user))
-                figure("系统", StatusFormat.percent(cpu.system))
-                figure("I/O 等待", StatusFormat.percent(cpu.iowait), note: cpu.iowait >= 10)
-                figure("虚拟机窃取", StatusFormat.percent(cpu.steal), note: cpu.steal >= 10)
-            }
             if let load = snapshot.load {
-                figure("负载（1、5、15 分钟）", StatusFormat.load(load),
-                       note: snapshot.coreCount > 0 && load.one >= Double(snapshot.coreCount))
+                loadAverage(load, cores: snapshot.coreCount)
                 if let running = load.running, let tasks = load.tasks {
                     figure("进程", String(localized: "\(String(running)) 运行 / 共 \(String(tasks))"))
                 }
             }
             if let cores = snapshot.cpu?.cores, cores.count > 1 {
-                DisclosureGroup(isExpanded: $showsCores) {
-                    ForEach(Array(cores.enumerated()), id: \.offset) { index, load in
-                        MeterRow(title: String(localized: "核 \(String(index))"), percent: load)
-                    }
-                } label: {
-                    Text("每个核")
-                }
+                CoreBars(cores: cores)
+                    .padding(.vertical, 4)
             }
         } header: {
             HStack {
@@ -155,15 +157,20 @@ struct HostStatusView: View {
     private func memory(_ snapshot: HostSnapshot) -> some View {
         let memory = snapshot.memory
         return Section("内存") {
+            hero(percent: memory.percent) {
+                GridRow {
+                    StatTile(title: "已用", value: StatusFormat.bytes(memory.used))
+                    StatTile(title: "总共", value: StatusFormat.bytes(memory.total))
+                }
+                GridRow {
+                    StatTile(title: "可用", value: StatusFormat.bytes(memory.available))
+                    StatTile(title: "缓存", value: StatusFormat.bytes(memory.buffers + memory.cached))
+                }
+            }
             HistoryChart(
                 points: monitor.history,
                 series: [.init(name: String(localized: "内存"), color: .accentColor, value: { $0.memory })],
                 percent: true, format: { StatusFormat.percent($0) })
-            MeterRow(
-                title: String(localized: "物理内存"), percent: memory.percent,
-                detail: "\(StatusFormat.bytes(memory.used)) / \(StatusFormat.bytes(memory.total))")
-            figure("可用", StatusFormat.bytes(memory.available))
-            figure("缓存", StatusFormat.bytes(memory.buffers + memory.cached))
             if memory.swapTotal > 0 {
                 MeterRow(
                     title: String(localized: "交换空间"), percent: memory.swapPercent,
@@ -209,13 +216,14 @@ struct HostStatusView: View {
                     }
                 }
             }
-            if let tcp = snapshot.tcp {
-                if let established = tcp.established {
-                    figure("TCP 已建立连接", established.formatted())
+            if let tcp = snapshot.tcp, tcp.established != nil || tcp.timeWait != nil {
+                Grid(alignment: .leading, horizontalSpacing: 16) {
+                    GridRow {
+                        StatTile(title: "TCP 已建立", value: tcp.established?.formatted() ?? "—")
+                        StatTile(title: "TIME_WAIT", value: tcp.timeWait?.formatted() ?? "—")
+                    }
                 }
-                if let timeWait = tcp.timeWait {
-                    figure("TIME_WAIT", timeWait.formatted())
-                }
+                .padding(.vertical, 2)
             }
         } header: {
             Text("网络")
@@ -237,10 +245,31 @@ struct HostStatusView: View {
             }
             ForEach(snapshot.diskIO ?? [], id: \.name) { disk in
                 LabeledContent {
-                    Text("读 \(StatusFormat.rate(disk.read))  写 \(StatusFormat.rate(disk.written))")
-                        .monospacedDigit()
+                    HStack(spacing: 12) {
+                        Label {
+                            Text(verbatim: StatusFormat.rate(disk.read))
+                        } icon: {
+                            Text("读")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                        Label {
+                            Text(verbatim: StatusFormat.rate(disk.written))
+                        } icon: {
+                            Text("写")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .labelStyle(CompactLabelStyle())
+                    .monospacedDigit()
                 } label: {
-                    Text(verbatim: disk.name)
+                    Label {
+                        Text(verbatim: disk.name)
+                    } icon: {
+                        Image(systemName: "internaldrive")
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
         }
@@ -260,9 +289,13 @@ struct HostStatusView: View {
                 }
                 .pickerStyle(.segmented)
                 .listRowSeparator(.hidden)
-                ForEach(sorted.prefix(showsAllProcesses ? Self.processesMore : Self.processesShown)) {
-                    process in
-                    ProcessRow(process: process)
+                let shown = Array(sorted.prefix(showsAllProcesses ? Self.processesMore : Self.processesShown))
+                // Each bar against the busiest shown, in the order chosen.
+                let measure: (ProcessLoad) -> Double =
+                    processOrder == .cpu ? { $0.cpu ?? 0 } : { Double($0.memory) }
+                let top = shown.map(measure).max() ?? 0
+                ForEach(shown) { process in
+                    ProcessRow(process: process, share: top > 0 ? measure(process) / top : 0)
                 }
                 if processes.count > Self.processesShown {
                     Button(showsAllProcesses ? String(localized: "收起") : String(localized: "显示更多")) {
@@ -325,6 +358,36 @@ struct HostStatusView: View {
 
     // MARK: Parts
 
+    /// What a section leads with, as the desktop's 系统监控 does: the share
+    /// as a ring, and its parts as tiles beside it.
+    private func hero(percent: Double?, @ViewBuilder tiles: () -> some View) -> some View {
+        HStack(spacing: 20) {
+            RingGauge(percent: percent, diameter: 84, lineWidth: 9)
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
+                tiles()
+            }
+        }
+        .padding(.vertical, 6)
+    }
+
+    /// The load over the last one, five and fifteen minutes, marked where
+    /// it is more than the cores can take.
+    private func loadAverage(_ load: LoadAverage, cores: Int) -> some View {
+        let over = { (value: Double) in cores > 0 && value >= Double(cores) }
+        return VStack(alignment: .leading, spacing: 8) {
+            Text("负载")
+                .font(.subheadline)
+            Grid(alignment: .leading, horizontalSpacing: 16) {
+                GridRow {
+                    StatTile(title: "1 分钟", value: StatusFormat.load(load.one), note: over(load.one))
+                    StatTile(title: "5 分钟", value: StatusFormat.load(load.five), note: over(load.five))
+                    StatTile(title: "15 分钟", value: StatusFormat.load(load.fifteen), note: over(load.fifteen))
+                }
+            }
+        }
+        .padding(.vertical, 2)
+    }
+
     /// A figure's row: its name, the value, and a mark when it is worth a
     /// second look.
     private func figure(_ title: LocalizedStringKey, _ value: String, note: Bool = false) -> some View {
@@ -364,30 +427,41 @@ struct HostStatusView: View {
     }
 }
 
-/// A process as the detail page lists it: its name, who runs it, and what
-/// it takes.
+/// A process as the detail page lists it: its name, who runs it, what it
+/// takes, and a bar of that against the busiest shown.
 private struct ProcessRow: View {
     let process: ProcessLoad
+    /// 0 to 1: this one's share of the busiest shown, in the order chosen.
+    let share: Double
 
     var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: process.name)
-                    .lineLimit(1)
-                Text(verbatim: details)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: process.name)
+                        .lineLimit(1)
+                    Text(verbatim: details)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Spacer(minLength: 8)
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(verbatim: process.cpu.map(StatusFormat.percent) ?? "—")
+                        .fontWeight(.medium)
+                    Text(verbatim: StatusFormat.bytes(process.memory))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .monospacedDigit()
             }
-            Spacer(minLength: 8)
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(verbatim: process.cpu.map(StatusFormat.percent) ?? "—")
-                    .foregroundStyle(Severity(percent: process.cpu ?? 0) == .normal ? Color.primary : .orange)
-                Text(verbatim: StatusFormat.bytes(process.memory))
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            GeometryReader { proxy in
+                Capsule()
+                    .fill(Color.accentColor.opacity(0.55))
+                    .frame(width: share > 0 ? max(3, proxy.size.width * min(share, 1)) : 0)
             }
-            .monospacedDigit()
+            .frame(height: 3)
+            .accessibilityHidden(true)
         }
     }
 

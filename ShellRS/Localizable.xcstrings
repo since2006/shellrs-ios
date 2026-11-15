@@ -213,12 +213,42 @@
         }
       }
     },
+    "1 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 min"
+          }
+        }
+      }
+    },
     "1 分钟负载已超过核数，有进程在排队等 CPU 或磁盘。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "The 1-minute load is above the number of cores: processes are waiting for the CPU or the disks."
+          }
+        }
+      }
+    },
+    "15 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "15 min"
+          }
+        }
+      }
+    },
+    "5 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 min"
           }
         }
       }
@@ -463,7 +493,7 @@
         }
       }
     },
-    "TCP 已建立连接": {
+    "TCP 已建立": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1253,16 +1283,6 @@
         }
       }
     },
-    "使用率": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usage"
-          }
-        }
-      }
-    },
     "例如 127.0.0.1": {
       "localizations": {
         "en": {
@@ -1681,6 +1701,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Confirm password"
+          }
+        }
+      }
+    },
+    "写": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write"
           }
         }
       }
@@ -3315,6 +3345,16 @@
         }
       }
     },
+    "已用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used"
+          }
+        }
+      }
+    },
     "已移出": {
       "localizations": {
         "en": {
@@ -3401,6 +3441,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "A forgotten sync password can’t be recovered. Keep it somewhere safe."
+          }
+        }
+      }
+    },
+    "总共": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total"
           }
         }
       }
@@ -4535,12 +4585,12 @@
         }
       }
     },
-    "最近 3 分钟，按住拖动查看每个时刻": {
+    "最忙 核 %@ · %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The last 3 minutes. Touch and drag to read a moment."
+            "value": "Busiest: core %1$@ · %2$@"
           }
         }
       }
@@ -5103,12 +5153,12 @@
         }
       }
     },
-    "核 %@": {
+    "核 %@ · %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Core %@"
+            "value": "Core %1$@ · %2$@"
           }
         }
       }
@@ -5399,16 +5449,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version"
-          }
-        }
-      }
-    },
-    "物理内存": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Physical memory"
           }
         }
       }
@@ -6483,12 +6523,12 @@
         }
       }
     },
-    "读 %@  写 %@": {
+    "读": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Read %1$@  write %2$@"
+            "value": "Read"
           }
         }
       }
@@ -6523,22 +6563,22 @@
         }
       }
     },
+    "负载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load"
+          }
+        }
+      }
+    },
     "负载 %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Load %@"
-          }
-        }
-      }
-    },
-    "负载（1、5、15 分钟）": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load (1, 5, 15 min)"
           }
         }
       }

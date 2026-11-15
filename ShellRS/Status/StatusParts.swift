@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 
 /// How full or busy something is, as the desktop's 系统监控 colours it:
-/// high from 70%, critical from 90%.
+/// green, orange from 70%, red from 90%.
 enum Severity {
     case normal
     case high
@@ -15,10 +15,256 @@ enum Severity {
 
     var color: Color {
         switch self {
-        case .normal: .accentColor
+        case .normal: .green
         case .high: .orange
         case .critical: .red
         }
+    }
+}
+
+/// The track a share fills, the same under every meter, ring and core.
+private let track = Color.secondary.opacity(0.16)
+
+/// A share as a ring, as the desktop's 系统监控 leads with the CPU and the
+/// memory: the arc coloured by how full it is, the figure inside.
+struct RingGauge: View {
+    /// 0 to 100; `nil` until known.
+    let percent: Double?
+    var diameter: CGFloat = 56
+    var lineWidth: CGFloat = 6
+
+    var body: some View {
+        let share = min(max((percent ?? 0) / 100, 0), 1)
+        ZStack {
+            Circle()
+                .stroke(track, lineWidth: lineWidth)
+            Circle()
+                .trim(from: 0, to: share)
+                .stroke(
+                    Severity(percent: percent ?? 0).color,
+                    style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
+                )
+                .rotationEffect(.degrees(-90))
+                .animation(.easeInOut(duration: 0.5), value: share)
+            HStack(alignment: .firstTextBaseline, spacing: 1) {
+                Text(verbatim: percent.map { String(Int($0.rounded())) } ?? "—")
+                    .font(.system(size: diameter * 0.3, weight: .semibold, design: .rounded))
+                    // Digits roll rather than two figures crossfading.
+                    .contentTransition(.numericText(value: percent ?? 0))
+                    .animation(.snappy, value: percent.map { Int($0.rounded()) })
+                if percent != nil {
+                    Text(verbatim: "%")
+                        .font(.system(size: diameter * 0.15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.5)
+            .padding(.horizontal, lineWidth + 3)
+        }
+        .frame(width: diameter, height: diameter)
+        .accessibilityElement(children: .ignore)
+        .accessibilityValue(Text(verbatim: percent.map(StatusFormat.percent) ?? "—"))
+    }
+}
+
+/// A ring with its name under it, one of the figures a host's card leads
+/// with; a red one is marked as well, not by its colour alone.
+struct RingTile: View {
+    let title: String
+    let percent: Double?
+    var diameter: CGFloat = 56
+
+    var body: some View {
+        VStack(spacing: 6) {
+            RingGauge(percent: percent, diameter: diameter)
+            HStack(spacing: 3) {
+                if Severity(percent: percent ?? 0) == .critical {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                        .imageScale(.small)
+                }
+                Text(verbatim: title)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .frame(maxWidth: diameter + 16)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text(verbatim: title))
+        .accessibilityValue(Text(verbatim: percent.map(StatusFormat.percent) ?? "—"))
+    }
+}
+
+/// A share as a thin bar, filled in the colour of how full it is.
+struct ThinMeter: View {
+    /// 0 to 100; `nil` until known.
+    let percent: Double?
+    var height: CGFloat = 6
+
+    var body: some View {
+        let share = min(max((percent ?? 0) / 100, 0), 1)
+        Capsule()
+            .fill(track)
+            .overlay(alignment: .leading) {
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(Severity(percent: percent ?? 0).color)
+                        // A sliver still shows as a dot.
+                        .frame(width: share > 0 ? max(height, proxy.size.width * share) : 0)
+                }
+            }
+            .frame(height: height)
+            .animation(.easeInOut(duration: 0.5), value: share)
+            .accessibilityHidden(true)
+    }
+}
+
+/// A figure as a tile: its name small above, the value below, and a mark
+/// when it is worth a second look.
+struct StatTile: View {
+    let title: LocalizedStringKey
+    let value: String
+    var note = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+            HStack(spacing: 4) {
+                Text(verbatim: value)
+                    .font(.body.weight(.semibold))
+                    .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                if note {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.caption)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+/// Each core's load as a thin column filled from the bottom, as the
+/// desktop draws them: as many to a row as fit, the rows evenly filled, so
+/// a hundred cores take a few rows. A tap on one says which and how busy.
+struct CoreBars: View {
+    /// 0 to 100 each.
+    let cores: [Double]
+    @State private var width: CGFloat = 0
+    @State private var selected: Int?
+
+    private nonisolated static let gap: CGFloat = 3
+    private nonisolated static let rowGap: CGFloat = 6
+    private nonisolated static let height: CGFloat = 30
+    private nonisolated static let narrowest: CGFloat = 6
+    private nonisolated static let widest: CGFloat = 36
+
+    /// How the columns lie in `width`.
+    struct Geometry: Equatable {
+        var bar: CGFloat
+        var perRow: Int
+        var rows: Int
+
+        var height: CGFloat {
+            CGFloat(rows) * CoreBars.height + CGFloat(max(rows - 1, 0)) * CoreBars.rowGap
+        }
+    }
+
+    static func geometry(width: CGFloat, count: Int) -> Geometry {
+        guard count > 0, width > 0 else {
+            return Geometry(bar: narrowest, perRow: max(count, 1), rows: 1)
+        }
+        let fitting = max(1, Int((width + gap) / (narrowest + gap)))
+        // 100 cores at 41 a row are rows of 34, not 41, 41 and 18.
+        let rows = (count + fitting - 1) / fitting
+        let perRow = (count + rows - 1) / rows
+        let bar = min(widest, (width + gap) / CGFloat(perRow) - gap)
+        return Geometry(bar: max(bar, 1), perRow: perRow, rows: rows)
+    }
+
+    var body: some View {
+        let geometry = Self.geometry(width: width, count: cores.count)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("每个核")
+                Spacer(minLength: 8)
+                Text(verbatim: caption)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+            }
+            .font(.subheadline)
+            Canvas { context, _ in
+                for (index, load) in cores.enumerated() {
+                    let column = index % geometry.perRow
+                    let row = index / geometry.perRow
+                    let frame = CGRect(
+                        x: CGFloat(column) * (geometry.bar + Self.gap),
+                        y: CGFloat(row) * (Self.height + Self.rowGap),
+                        width: geometry.bar, height: Self.height)
+                    let radius = min(2, geometry.bar / 2)
+                    let color = Severity(percent: load).color
+                    let faded = selected.map { $0 != index } ?? false
+                    context.opacity = faded ? 0.3 : 1
+                    context.fill(
+                        Path(roundedRect: frame, cornerRadius: radius), with: .color(color.opacity(0.2)))
+                    let filled = frame.height * min(max(load / 100, 0), 1)
+                    if filled > 0 {
+                        let bar = CGRect(
+                            x: frame.minX, y: frame.maxY - filled, width: frame.width, height: filled)
+                        context.fill(Path(roundedRect: bar, cornerRadius: radius), with: .color(color))
+                    }
+                }
+            }
+            .frame(height: geometry.height)
+            .frame(maxWidth: .infinity)
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+            .contentShape(Rectangle())
+            .onTapGesture { location in
+                let index = Self.index(at: location, in: geometry, count: cores.count)
+                selected = index == selected ? nil : index
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("每个核"))
+        .accessibilityValue(Text(verbatim: summary))
+    }
+
+    static func index(at point: CGPoint, in geometry: Geometry, count: Int) -> Int? {
+        let column = Int(point.x / (geometry.bar + gap))
+        let row = Int(point.y / (height + rowGap))
+        let index = row * geometry.perRow + column
+        guard point.x >= 0, point.y >= 0, column < geometry.perRow, index < count else {
+            return nil
+        }
+        return index
+    }
+
+    /// The core tapped, or the busiest.
+    private var caption: String {
+        if let selected, cores.indices.contains(selected) {
+            String(localized: "核 \(String(selected)) · \(StatusFormat.percent(cores[selected]))")
+        } else {
+            summary
+        }
+    }
+
+    /// 「最忙 核 5 · 98.0%」.
+    private var summary: String {
+        guard let busiest = cores.indices.max(by: { cores[$0] < cores[$1] }) else {
+            return ""
+        }
+        return String(
+            localized: "最忙 核 \(String(busiest)) · \(StatusFormat.percent(cores[busiest]))")
     }
 }
 
@@ -54,11 +300,9 @@ enum StatusFormat {
                 allowed: [.days, .hours, .minutes], width: .abbreviated, maximumUnitCount: 2))
     }
 
-    /// 「0.20 · 0.18 · 0.12」: the last one, five and fifteen minutes.
-    static func load(_ load: LoadAverage) -> String {
-        [load.one, load.five, load.fifteen]
-            .map { $0.formatted(.number.precision(.fractionLength(2))) }
-            .joined(separator: " · ")
+    /// 「0.20」: a load average, as `uptime` gives it.
+    static func load(_ value: Double) -> String {
+        value.formatted(.number.precision(.fractionLength(2)))
     }
 }
 
@@ -111,13 +355,7 @@ struct MeterRow: View {
                         .font(.footnote)
                 }
             }
-            // No label: the row above says it, and the linear capacity
-            // style draws one over the bar even with `labelsHidden()`.
-            Gauge(value: min(max(percent ?? 0, 0), 100), in: 0...100) {
-                EmptyView()
-            }
-            .gaugeStyle(.linearCapacity)
-            .tint(severity.color)
+            ThinMeter(percent: percent)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: title))
@@ -174,68 +412,67 @@ struct HistoryChart: View {
     @State private var selected: Date?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Chart {
-                ForEach(series.indices, id: \.self) { index in
-                    let series = series[index]
-                    ForEach(points) { point in
-                        if let value = series.value(point) {
-                            if self.series.count == 1 {
-                                AreaMark(x: .value("时间", point.at), y: .value(series.name, value))
-                                    .foregroundStyle(series.color.opacity(0.12))
-                                    .interpolationMethod(.monotone)
-                            }
-                            LineMark(
-                                x: .value("时间", point.at), y: .value(series.name, value),
-                                series: .value("系列", series.name)
-                            )
-                            .foregroundStyle(by: .value("系列", series.name))
-                            .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
-                            .interpolationMethod(.monotone)
+        Chart {
+            ForEach(series.indices, id: \.self) { index in
+                let series = series[index]
+                ForEach(points) { point in
+                    if let value = series.value(point) {
+                        if self.series.count == 1 {
+                            AreaMark(x: .value("时间", point.at), y: .value(series.name, value))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [series.color.opacity(0.28), series.color.opacity(0.02)],
+                                        startPoint: .top, endPoint: .bottom)
+                                )
+                                .interpolationMethod(.monotone)
                         }
-                    }
-                }
-                if let point = selectedPoint {
-                    RuleMark(x: .value("时间", point.at))
-                        .foregroundStyle(Color.secondary.opacity(0.5))
-                        .lineStyle(StrokeStyle(lineWidth: 1))
-                        .annotation(
-                            position: .top, spacing: 4,
-                            overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
-                        ) {
-                            tooltip(point)
-                        }
-                }
-            }
-            .chartForegroundStyleScale(domain: series.map(\.name), range: series.map(\.color))
-            .chartLegend(series.count > 1 ? .visible : .hidden)
-            .chartLegend(position: .top, alignment: .leading)
-            .chartXAxis(.hidden)
-            .chartXSelection(value: $selected)
-            .chartYScale(domain: percent ? 0...100 : 0...max(peak, 1))
-            .chartYAxis {
-                AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
-                    AxisGridLine()
-                        .foregroundStyle(Color.secondary.opacity(0.25))
-                    AxisValueLabel {
-                        if let value = value.as(Double.self) {
-                            // 0%, 50%, 100%: the axis's steps are round.
-                            Text(
-                                percent
-                                    ? (value / 100).formatted(.percent.precision(.fractionLength(0)))
-                                    : format(value))
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                        }
+                        LineMark(
+                            x: .value("时间", point.at), y: .value(series.name, value),
+                            series: .value("系列", series.name)
+                        )
+                        .foregroundStyle(by: .value("系列", series.name))
+                        .lineStyle(StrokeStyle(lineWidth: 2, lineCap: .round))
+                        .interpolationMethod(.monotone)
                     }
                 }
             }
-            .frame(height: 120)
-            .accessibilityLabel(Text(verbatim: series.map(\.name).joined(separator: ", ")))
-            Text("最近 3 分钟，按住拖动查看每个时刻")
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            if let point = selectedPoint {
+                RuleMark(x: .value("时间", point.at))
+                    .foregroundStyle(Color.secondary.opacity(0.5))
+                    .lineStyle(StrokeStyle(lineWidth: 1))
+                    .annotation(
+                        position: .top, spacing: 4,
+                        overflowResolution: .init(x: .fit(to: .chart), y: .disabled)
+                    ) {
+                        tooltip(point)
+                    }
+            }
         }
+        .chartForegroundStyleScale(domain: series.map(\.name), range: series.map(\.color))
+        .chartLegend(series.count > 1 ? .visible : .hidden)
+        .chartLegend(position: .top, alignment: .leading)
+        .chartXAxis(.hidden)
+        .chartXSelection(value: $selected)
+        .chartYScale(domain: percent ? 0...100 : 0...max(peak, 1))
+        .chartYAxis {
+            AxisMarks(position: .leading, values: .automatic(desiredCount: 3)) { value in
+                AxisGridLine()
+                    .foregroundStyle(Color.secondary.opacity(0.25))
+                AxisValueLabel {
+                    if let value = value.as(Double.self) {
+                        // 0%, 50%, 100%: the axis's steps are round.
+                        Text(
+                            percent
+                                ? (value / 100).formatted(.percent.precision(.fractionLength(0)))
+                                : format(value))
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .frame(height: 120)
+        .accessibilityLabel(Text(verbatim: series.map(\.name).joined(separator: ", ")))
         .padding(.vertical, 4)
     }
 

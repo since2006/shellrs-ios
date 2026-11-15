@@ -141,13 +141,13 @@ struct StatusList: View {
     }
 }
 
-/// A host on 状态: its mark and name, how it is doing, and its CPU, memory
-/// and main disk as a meter list, its network and load below.
+/// A host on 状态: its mark and name, how it is doing, its CPU, memory and
+/// main disk as rings, and beside them its network and load.
 struct HostStatusCard: View {
     let monitor: HostMonitor
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 12) {
                 HostMark(host: monitor.host, dimmed: dimmed)
                 VStack(alignment: .leading, spacing: 2) {
@@ -161,34 +161,47 @@ struct HostStatusCard: View {
                 Spacer(minLength: 0)
             }
             if let snapshot = monitor.snapshot, !hidesFigures {
-                VStack(spacing: 8) {
-                    MeterRow(title: "CPU", percent: snapshot.cpu?.total)
-                    MeterRow(title: String(localized: "内存"), percent: snapshot.memory.percent)
-                    if let disk = mainDisk {
-                        MeterRow(
-                            title: String(localized: "磁盘 \(disk.mount)"), percent: disk.percent)
-                    }
-                }
-                .font(.subheadline)
-                .opacity(dimmed ? 0.5 : 1)
+                // The figures beside the rings where there is room, under
+                // them in a narrow sidebar.
                 ViewThatFits(in: .horizontal) {
-                    HStack(spacing: 12) {
-                        network(snapshot)
+                    HStack(alignment: .center, spacing: 12) {
+                        rings(snapshot)
                         Spacer(minLength: 0)
-                        load(snapshot)
+                        VStack(alignment: .trailing, spacing: 4) {
+                            network(snapshot, axis: .vertical)
+                            load(snapshot)
+                        }
+                        .fixedSize()
                     }
-                    VStack(alignment: .leading, spacing: 4) {
-                        network(snapshot)
-                        load(snapshot)
+                    VStack(alignment: .leading, spacing: 10) {
+                        rings(snapshot)
+                        ViewThatFits(in: .horizontal) {
+                            HStack(spacing: 12) {
+                                network(snapshot, axis: .horizontal)
+                                load(snapshot)
+                            }
+                            VStack(alignment: .leading, spacing: 4) {
+                                network(snapshot, axis: .horizontal)
+                                load(snapshot)
+                            }
+                        }
                     }
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
                 .opacity(dimmed ? 0.5 : 1)
             }
         }
         .padding(.vertical, 4)
+    }
+
+    private func rings(_ snapshot: HostSnapshot) -> some View {
+        HStack(spacing: 14) {
+            RingTile(title: "CPU", percent: snapshot.cpu?.total)
+            RingTile(title: String(localized: "内存"), percent: snapshot.memory.percent)
+            if let disk = mainDisk {
+                RingTile(title: String(localized: "磁盘 \(disk.mount)"), percent: disk.percent)
+            }
+        }
+        .fixedSize()
     }
 
     /// Not connected now: what was read last is no longer the host's.
@@ -210,14 +223,18 @@ struct HostStatusCard: View {
         return disks.first { $0.mount == "/" } ?? disks.max { $0.total < $1.total }
     }
 
+    /// The main interface's rates, down over up beside the rings, side by
+    /// side under them.
     @ViewBuilder
-    private func network(_ snapshot: HostSnapshot) -> some View {
+    private func network(_ snapshot: HostSnapshot, axis: Axis) -> some View {
         if let interface = snapshot.mainInterface {
-            HStack(spacing: 8) {
-                Label(StatusFormat.rate(interface.received), systemImage: "arrow.down")
-                Label(StatusFormat.rate(interface.transmitted), systemImage: "arrow.up")
+            let layout = axis == .vertical
+                ? AnyLayout(VStackLayout(alignment: .trailing, spacing: 4))
+                : AnyLayout(HStackLayout(spacing: 12))
+            layout {
+                rate(interface.received, systemImage: "arrow.down", color: .received)
+                rate(interface.transmitted, systemImage: "arrow.up", color: .transmitted)
             }
-            .labelStyle(CompactLabelStyle())
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(
                 Text(
@@ -226,10 +243,27 @@ struct HostStatusCard: View {
         }
     }
 
+    private func rate(_ value: Double?, systemImage: String, color: Color) -> some View {
+        HStack(spacing: 3) {
+            Image(systemName: systemImage)
+                .font(.caption2.weight(.bold))
+                .foregroundStyle(color)
+            Text(verbatim: StatusFormat.rate(value))
+                .font(.subheadline.weight(.medium))
+                .monospacedDigit()
+        }
+        .lineLimit(1)
+        .fixedSize()
+    }
+
+    /// The last minute's load: the five and fifteen are on the details.
     @ViewBuilder
     private func load(_ snapshot: HostSnapshot) -> some View {
         if let load = snapshot.load {
-            Text("负载 \(StatusFormat.load(load))")
+            Text("负载 \(StatusFormat.load(load.one))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
         }
     }
 }
