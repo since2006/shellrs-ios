@@ -42,6 +42,7 @@ enum HostReading {
         + #"SwapFree:*) echo "$line"; break;; esac; done < /proc/meminfo; "#
         + #"echo @@net; while read -r line; do echo "$line"; done < /proc/net/dev; "#
         + #"echo @@route; while read -r line; do echo "$line"; done < /proc/net/route; "#
+        + #"echo @@diskstats; while read -r line; do echo "$line"; done < /proc/diskstats; "#
 
     /// `df -l` keeps to local file systems, so a dead network mount cannot
     /// hold it up; a `df` without `-l` (BusyBox) runs plain.
@@ -54,8 +55,7 @@ enum HostReading {
     /// Built-ins again, as the desktop's 进程管理: each process's `stat`
     /// line, with its owner's uid from `status`.
     private static let details =
-        #"echo @@diskstats; while read -r line; do echo "$line"; done < /proc/diskstats; "#
-        + #"echo @@snmp; while read -r line; do case "$line" in Tcp:*) echo "$line";; esac; "#
+        #"echo @@snmp; while read -r line; do case "$line" in Tcp:*) echo "$line";; esac; "#
         + #"done < /proc/net/snmp; "#
         + #"echo @@sockstat; while read -r line; do echo "$line"; done < /proc/net/sockstat; "#
         + #"echo @@users; while IFS=: read -r name x uid rest; do echo "$uid $name"; done < /etc/passwd; "#
@@ -313,7 +313,9 @@ enum HostReading {
                 return nil
             }
             // Sectors of 512 bytes, whatever the disk's own.
-            return DiskCounters(name: String(fields[2]), read: read * 512, written: written * 512)
+            return DiskCounters(
+                name: String(fields[2]), read: read * 512, written: written * 512,
+                busy: fields.count > 12 ? UInt64(fields[12]) : nil)
         }
     }
 
@@ -443,7 +445,7 @@ struct RawReading: Equatable, Sendable {
     var defaultRoute: String?
     /// Read every half minute or so.
     var disks: [DiskUsage]?
-    /// The detail page's.
+    /// Every reading's: a card shows how busy the disks are.
     var diskIO: [DiskCounters]?
     var tcp: TcpCounts?
     var users: [UInt32: String]?
@@ -524,11 +526,15 @@ struct DiskUsage: Equatable, Sendable {
     var percent: Double { share(used, of: used + available) }
 }
 
-/// Bytes read from and written to a disk since boot.
+/// Bytes read from and written to a disk since boot, and how long it has
+/// been busy.
 struct DiskCounters: Equatable, Sendable {
     var name: String
     var read: UInt64
     var written: UInt64
+    /// Milliseconds with I/O under way, `iostat`'s base for %util; `nil`
+    /// where the kernel's lines are too short to have it.
+    var busy: UInt64?
 }
 
 struct TcpCounts: Equatable, Sendable {
@@ -568,7 +574,7 @@ struct HostSnapshot: Equatable, Sendable {
     var memory: Memory
     var interfaces: [InterfaceRate]
     var defaultRoute: String?
-    /// The detail page's; `nil` when the reading had none.
+    /// `nil` when the reading had none.
     var diskIO: [DiskRate]?
     var tcp: TcpCounts?
     /// Busiest first; `nil` when the reading had none.
@@ -578,6 +584,12 @@ struct HostSnapshot: Equatable, Sendable {
     /// carried a byte.
     var busyInterfaces: [InterfaceRate] {
         interfaces.filter { !$0.idle }
+    }
+
+    /// How busy the busiest disk was, `iostat`'s %util: a disk near 100%
+    /// is the bottleneck, however little it moves.
+    var diskBusy: Double? {
+        diskIO?.compactMap(\.busy).max()
     }
 
     /// The host's main interface: where the default route goes out, or else
@@ -616,6 +628,8 @@ struct DiskRate: Equatable, Sendable {
     /// Bytes per second.
     var read: Double
     var written: Double
+    /// Percent of the time with I/O under way.
+    var busy: Double? = nil
 }
 
 struct ProcessLoad: Equatable, Sendable, Identifiable {
@@ -695,7 +709,12 @@ struct ReadingTracker: Sendable {
                 else {
                     return nil
                 }
-                return DiskRate(name: disk.name, read: read, written: written)
+                // Milliseconds a second: a tenth of it is the percent.
+                let busy = disk.busy.flatMap { now in
+                    then.busy.flatMap { rate(now, $0, before.1) }
+                }
+                return DiskRate(
+                    name: disk.name, read: read, written: written, busy: busy.map { min($0 / 10, 100) })
             }
         }
         let processes = reading.processes.map { processes in

@@ -117,6 +117,8 @@ struct HostReadingTests {
         #expect(reading.diskIO?.map(\.name) == ["vda", "nvme0n1"])
         #expect(reading.diskIO?.first?.read == 800000 * 512)
         #expect(reading.diskIO?.first?.written == 400000 * 512)
+        // Milliseconds busy, `iostat`'s base for %util.
+        #expect(reading.diskIO?.first?.busy == 8000)
         #expect(reading.tcp == TcpCounts(established: 12, timeWait: 25, inUse: 9))
         #expect(reading.users?[33] == "www-data")
         // Not the kernel thread; a name may hold spaces and parentheses.
@@ -208,6 +210,8 @@ struct HostReadingTests {
         second.cores = [second.cpu]
         second.interfaces[1].received += 4096
         second.diskIO?[0].written += 2 * 1024 * 1024
+        // 700 ms of the 2 seconds.
+        second.diskIO?[0].busy? += 700
         second.processes?[1].ticks += 50
         let snapshot = tracker.update(second, at: start + 2, users: first.users ?? [:])
         let cpu = try #require(snapshot.cpu)
@@ -217,7 +221,8 @@ struct HostReadingTests {
         #expect(cpu.steal == 5)
         #expect(snapshot.mainInterface?.received == 2048)
         #expect(snapshot.mainInterface?.transmitted == 0)
-        #expect(snapshot.diskIO?.first == DiskRate(name: "vda", read: 0, written: 1024 * 1024))
+        #expect(snapshot.diskIO?.first == DiskRate(name: "vda", read: 0, written: 1024 * 1024, busy: 35))
+        #expect(snapshot.diskBusy == 35)
         let busiest = try #require(snapshot.processes?.first)
         #expect(busiest.name == "php-fpm: pool (www)")
         #expect(busiest.user == "www-data")

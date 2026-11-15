@@ -264,7 +264,17 @@ struct HostStatusView: View {
                     .monospacedDigit()
                 } label: {
                     Label {
-                        Text(verbatim: disk.name)
+                        // How busy, as the card's I/O ring has the busiest.
+                        HStack(spacing: 6) {
+                            Text(verbatim: disk.name)
+                            if let busy = disk.busy {
+                                let severity = Severity(percent: busy)
+                                Text("繁忙 \(StatusFormat.percent(busy))")
+                                    .font(.caption)
+                                    .foregroundStyle(severity == .normal ? Color.secondary : severity.color)
+                                    .monospacedDigit()
+                            }
+                        }
                     } icon: {
                         Image(systemName: "internaldrive")
                             .foregroundStyle(.secondary)

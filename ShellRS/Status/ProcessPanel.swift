@@ -10,6 +10,10 @@ struct ProcessPanel: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var order = Order.cpu
+    /// A phone's sheet: two thirds of the screen at first.
+    @State private var detent = Self.twoThirds
+
+    static let twoThirds = PresentationDetent.fraction(2 / 3)
 
     enum Order: Hashable {
         case cpu
@@ -43,7 +47,7 @@ struct ProcessPanel: View {
         // which colours what it holds with the tint.
         .foregroundStyle(Color.primary)
         .frame(minWidth: 320, idealWidth: 420, minHeight: 360, idealHeight: 560)
-        .presentationDetents([.medium, .large])
+        .presentationDetents([Self.twoThirds, .large], selection: $detent)
         .onAppear {
             model.status.pageAppeared()
             monitor.showDetails()

@@ -953,6 +953,16 @@
         }
       }
     },
+    "交换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap"
+          }
+        }
+      }
+    },
     "交换空间": {
       "localizations": {
         "en": {
@@ -6683,6 +6693,46 @@
         }
       }
     },
+    "轻点改为显示交换空间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to show swap"
+          }
+        }
+      }
+    },
+    "轻点改为显示内存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to show memory"
+          }
+        }
+      }
+    },
+    "轻点改为显示磁盘繁忙程度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to show how busy the disks are"
+          }
+        }
+      }
+    },
+    "轻点改为显示磁盘空间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap to show disk space"
+          }
+        }
+      }
+    },
     "轻点改为显示 CPU": {
       "localizations": {
         "en": {
@@ -8079,6 +8129,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Source Code"
+          }
+        }
+      }
+    },
+    "繁忙 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ busy"
           }
         }
       }

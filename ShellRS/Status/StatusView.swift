@@ -155,6 +155,10 @@ struct HostStatusCard: View {
     /// The load's three rings in the CPU's place, on every card: a tap on
     /// either swaps them, and it stays so.
     @AppStorage("statusShowsLoad") private var showsLoad = false
+    /// The swap's ring in the memory's, so too: where there is swap.
+    @AppStorage("statusShowsSwap") private var showsSwap = false
+    /// How busy the disks are in the place of how full the main one is.
+    @AppStorage("statusShowsDiskBusy") private var showsDiskBusy = false
     @State private var showsProcesses = false
     /// Too narrow for the buttons beside the name, as in a sidebar: they go
     /// at the bottom, with the load.
@@ -242,12 +246,12 @@ struct HostStatusCard: View {
         .onGeometryChange(for: Bool.self) { $0.size.width < Self.narrowWidth } action: {
             narrow = $0
         }
-        .sensoryFeedback(.selection, trigger: showsLoad)
+        .sensoryFeedback(.selection, trigger: [showsLoad, showsSwap, showsDiskBusy])
     }
 
     /// The host's processes in a panel, and a terminal on it.
     private var actions: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 4) {
             CardButton(title: "查看进程", systemImage: "list.bullet.rectangle") {
                 showsProcesses = true
             }
@@ -272,28 +276,56 @@ struct HostStatusCard: View {
     /// others'.
     private func rings(_ snapshot: HostSnapshot, gap: CGFloat) -> some View {
         HStack(alignment: .top, spacing: gap) {
-            Button {
-                withAnimation(.snappy) {
-                    showsLoad.toggle()
-                }
-            } label: {
-                // Turned over like a card, every card's together: each
-                // turns with its own animation, whichever card was tapped.
-                Flip(showsBack: showsLoad) {
-                    RingTile(title: "CPU", percent: snapshot.cpu?.total, swaps: true)
-                } back: {
-                    LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
-                }
-                .animation(.easeInOut(duration: 0.5), value: showsLoad)
+            flipping($showsLoad, hints: (Text("轻点改为显示负载"), Text("轻点改为显示 CPU"))) {
+                RingTile(title: "CPU", percent: snapshot.cpu?.total, swaps: true)
+            } back: {
+                LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
             }
-            .buttonStyle(TileButtonStyle())
-            .accessibilityHint(showsLoad ? Text("轻点改为显示 CPU") : Text("轻点改为显示负载"))
-            RingTile(title: String(localized: "内存"), percent: snapshot.memory.percent)
+            let memory = snapshot.memory
+            if memory.swapTotal > 0 {
+                flipping($showsSwap, hints: (Text("轻点改为显示交换空间"), Text("轻点改为显示内存"))) {
+                    RingTile(title: String(localized: "内存"), percent: memory.percent, swaps: true)
+                } back: {
+                    RingTile(title: String(localized: "交换"), percent: memory.swapPercent, swaps: true)
+                }
+            } else {
+                // No swap to show: the memory alone, a tap on it the card's.
+                RingTile(title: String(localized: "内存"), percent: memory.percent)
+            }
             if let disk = mainDisk {
-                RingTile(title: String(localized: "磁盘 \(disk.mount)"), percent: disk.percent)
+                let title = String(localized: "磁盘 \(disk.mount)")
+                if snapshot.diskIO != nil {
+                    flipping(
+                        $showsDiskBusy, hints: (Text("轻点改为显示磁盘繁忙程度"), Text("轻点改为显示磁盘空间"))
+                    ) {
+                        RingTile(title: title, percent: disk.percent, swaps: true)
+                    } back: {
+                        // The busiest disk's: on most hosts, the one there is.
+                        RingTile(title: "I/O", percent: snapshot.diskBusy, swaps: true)
+                    }
+                } else {
+                    RingTile(title: title, percent: disk.percent)
+                }
             }
         }
         .frame(width: 3 * 56 + 2 * gap, alignment: .leading)
+    }
+
+    /// A ring that turns over to another on a tap, like a card: every
+    /// card's together, each with its own animation, whichever was tapped.
+    /// The hints say what a tap shows: the back's, then the front's.
+    private func flipping<Front: View, Back: View>(
+        _ showsBack: Binding<Bool>, hints: (back: Text, front: Text),
+        @ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back
+    ) -> some View {
+        Button {
+            showsBack.wrappedValue.toggle()
+        } label: {
+            Flip(showsBack: showsBack.wrappedValue, front: front, back: back)
+                .animation(.easeInOut(duration: 0.5), value: showsBack.wrappedValue)
+        }
+        .buttonStyle(TileButtonStyle())
+        .accessibilityHint(showsBack.wrappedValue ? hints.front : hints.back)
     }
 
     /// Not connected now: what was read last is no longer the host's.
@@ -365,11 +397,12 @@ struct HostStatusCard: View {
         .fixedSize()
     }
 
-    /// The last minute's load: the five and fifteen are on the details. Not
-    /// when the load's rings show it.
+    /// The last minute's load: the five and fifteen are on the details.
+    /// There with the load's rings too, so that turning them over moves
+    /// nothing else.
     @ViewBuilder
     private func load(_ snapshot: HostSnapshot) -> some View {
-        if !showsLoad, let load = snapshot.load {
+        if let load = snapshot.load {
             Text("负载 \(StatusFormat.load(load.one))")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -378,8 +411,8 @@ struct HostStatusCard: View {
     }
 }
 
-/// One of a card's buttons: an icon in a tinted circle, faint when it
-/// cannot be used.
+/// One of a card's buttons: an icon in the tint, faint when it cannot be
+/// used, a finger's room around it.
 private struct CardButton: View {
     let title: LocalizedStringKey
     let systemImage: String
@@ -389,10 +422,9 @@ private struct CardButton: View {
     var body: some View {
         Button(action: action) {
             Image(systemName: systemImage)
-                .font(.system(size: 14, weight: .semibold))
+                .font(.system(size: 18))
                 .foregroundStyle(Color.accentColor)
-                .frame(width: 34, height: 34)
-                .background(Circle().fill(Color.accentColor.opacity(0.12)))
+                .frame(width: 36, height: 36)
                 .opacity(isEnabled ? 1 : 0.35)
         }
         .buttonStyle(TileButtonStyle())
