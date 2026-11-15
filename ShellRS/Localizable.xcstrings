@@ -593,12 +593,12 @@
         }
       }
     },
-    "上一个标签": {
+    "上一个终端": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Previous tab"
+            "value": "Previous terminal"
           }
         }
       }
@@ -663,12 +663,12 @@
         }
       }
     },
-    "下一个标签": {
+    "下一个终端": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Next tab"
+            "value": "Next terminal"
           }
         }
       }
@@ -1575,36 +1575,6 @@
         }
       }
     },
-    "关闭全部": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close all"
-          }
-        }
-      }
-    },
-    "关闭其他": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close others"
-          }
-        }
-      }
-    },
-    "关闭右侧": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close to the right"
-          }
-        }
-      }
-    },
     "关闭同步": {
       "localizations": {
         "en": {
@@ -1645,22 +1615,12 @@
         }
       }
     },
-    "关闭左侧": {
+    "关闭终端": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Close to the left"
-          }
-        }
-      }
-    },
-    "关闭标签": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close tab"
+            "value": "Close terminal"
           }
         }
       }

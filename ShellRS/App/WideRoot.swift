@@ -2,8 +2,8 @@ import SwiftUI
 
 /// A wide window, as an admin console: what the app has in a sidebar that
 /// can be hidden, the page chosen beside it, each the narrow window's tab
-/// of the same name. Its terminals' page is the terminal tabs, or the hosts
-/// connected lately while none is open.
+/// of the same name. Its terminals' page is the list of them, or the one
+/// chosen until 收起, or the hosts connected lately while none is open.
 struct WideRoot: View {
     @Environment(AppModel.self) private var model
 
@@ -35,7 +35,7 @@ struct WideRoot: View {
         }
         // The page beside the sidebar, never under it.
         .navigationSplitViewStyle(.balanced)
-        // The files of the terminal in front, beside the whole split view:
+        // The files of the terminal shown, beside the whole split view:
         // inside the detail, their bar would merge into the terminal's.
         // Only with a terminal shown: the start page has none to show files of.
         .inspector(

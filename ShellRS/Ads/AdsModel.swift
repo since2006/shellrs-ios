@@ -17,12 +17,15 @@ enum AdFormat: Hashable, CaseIterable {
 
 /// Where an ad goes, one each. Never over a terminal or its files.
 enum AdPlacement: Hashable, CaseIterable {
-    /// The 主机 tab of a narrow window, after 最近连接: a banner, which takes
-    /// a third of a native ad's height above the hosts.
+    /// The 状态 tab of a narrow window, after its first host.
+    case status
+    /// The 主机 tab or page, after 最近连接: a banner, which takes a third
+    /// of a native ad's height above the hosts.
     case hosts
-    /// The 终端 tab of a narrow window, after the terminals.
+    /// The 终端 tab or page, after the terminals.
     case sessions
-    /// A wide window's start page, after the hosts connected lately.
+    /// A wide window's 终端 page with none open, after the hosts connected
+    /// lately.
     case start
 
     var format: AdFormat {

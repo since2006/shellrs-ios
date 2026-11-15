@@ -70,19 +70,28 @@ struct StatusList: View {
                 }
                 .background(Color(.systemGroupedBackground))
             } else {
+                // A card each, as on a wide window: a section of its own,
+                // which keeps the list's swipe. The ad after the first.
                 List {
-                    ForEach(hosts, id: \.publicId) { host in
+                    ForEach(Array(hosts.enumerated()), id: \.element.publicId) { index, host in
                         let monitor = status.monitor(for: host)
-                        row(for: monitor)
-                            .swipeActions {
-                                Button("移除") {
-                                    status.setShown(false, for: host)
+                        Section {
+                            row(for: monitor)
+                                .swipeActions {
+                                    Button("移除") {
+                                        status.setShown(false, for: host)
+                                    }
+                                    .tint(.gray)
                                 }
-                                .tint(.gray)
-                            }
-                            .contextMenu { menu(for: host, monitor: monitor) }
+                                .contextMenu { menu(for: host, monitor: monitor) }
+                        }
+                        if index == 0 {
+                            AdSection(placement: .status)
+                        }
                     }
                 }
+                .listSectionSpacing(.compact)
+                .loadsAd(.status, when: !hosts.isEmpty)
             }
         }
         .overlay {
@@ -183,6 +192,7 @@ struct StatusList: View {
 struct HostStatusCard: View {
     let monitor: HostMonitor
     @Environment(AppModel.self) private var model
+    @Environment(\.wideWindow) private var wide
     /// The load's three rings in the CPU's place, on every card: a tap on
     /// either swaps them, and it stays so.
     @AppStorage("statusShowsLoad") private var showsLoad = false
@@ -196,6 +206,10 @@ struct HostStatusCard: View {
     @State private var narrow = false
 
     private nonisolated static let narrowWidth: CGFloat = 280
+
+    /// The rings' size: a little smaller on a phone's cards, a column of
+    /// them on a narrow screen.
+    private var ring: CGFloat { wide ? 56 : 48 }
 
     /// How a card lays out its figures, the first that fits: the network
     /// beside the rings or under them, the rings as far apart as fits. The
@@ -308,20 +322,24 @@ struct HostStatusCard: View {
     private func rings(_ snapshot: HostSnapshot, gap: CGFloat) -> some View {
         HStack(alignment: .top, spacing: gap) {
             flipping($showsLoad, hints: (Text("轻点改为显示负载"), Text("轻点改为显示 CPU"))) {
-                RingTile(title: "CPU", percent: snapshot.cpu?.total, swaps: true)
+                RingTile(title: "CPU", percent: snapshot.cpu?.total, diameter: ring, swaps: true)
             } back: {
-                LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
+                LoadTile(load: snapshot.load, cores: snapshot.coreCount, diameter: ring, swaps: true)
             }
             let memory = snapshot.memory
             if memory.swapTotal > 0 {
                 flipping($showsSwap, hints: (Text("轻点改为显示交换空间"), Text("轻点改为显示内存"))) {
-                    RingTile(title: String(localized: "内存"), percent: memory.percent, swaps: true)
+                    RingTile(
+                        title: String(localized: "内存"), percent: memory.percent, diameter: ring,
+                        swaps: true)
                 } back: {
-                    RingTile(title: String(localized: "交换"), percent: memory.swapPercent, swaps: true)
+                    RingTile(
+                        title: String(localized: "交换"), percent: memory.swapPercent, diameter: ring,
+                        swaps: true)
                 }
             } else {
                 // No swap to show: the memory alone, a tap on it the card's.
-                RingTile(title: String(localized: "内存"), percent: memory.percent)
+                RingTile(title: String(localized: "内存"), percent: memory.percent, diameter: ring)
             }
             if let disk = mainDisk {
                 let title = String(localized: "磁盘 \(disk.mount)")
@@ -329,17 +347,17 @@ struct HostStatusCard: View {
                     flipping(
                         $showsDiskBusy, hints: (Text("轻点改为显示磁盘繁忙程度"), Text("轻点改为显示磁盘空间"))
                     ) {
-                        RingTile(title: title, percent: disk.percent, swaps: true)
+                        RingTile(title: title, percent: disk.percent, diameter: ring, swaps: true)
                     } back: {
                         // The busiest disk's: on most hosts, the one there is.
-                        RingTile(title: "I/O", percent: snapshot.diskBusy, swaps: true)
+                        RingTile(title: "I/O", percent: snapshot.diskBusy, diameter: ring, swaps: true)
                     }
                 } else {
-                    RingTile(title: title, percent: disk.percent)
+                    RingTile(title: title, percent: disk.percent, diameter: ring)
                 }
             }
         }
-        .frame(width: 3 * 56 + 2 * gap, alignment: .leading)
+        .frame(width: 3 * ring + 2 * gap, alignment: .leading)
     }
 
     /// A ring that turns over to another on a tap, like a card: every

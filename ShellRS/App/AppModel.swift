@@ -9,8 +9,8 @@ import UIKit
 enum AppTab: Hashable {
     case status
     case hosts
-    /// A wide window's terminal tabs, or the hosts connected lately while
-    /// none is open; a narrow window's list of them.
+    /// The terminals open, one of them shown in their place until 收起;
+    /// on a wide window the hosts connected lately while none is open.
     case terminals
     case credentials
     case settings
@@ -21,14 +21,6 @@ enum HostListRequest: Equatable {
     case newHost
     case newGroup
     case search
-}
-
-/// The terminal tabs a tab's menu closes with it, as on the desktop.
-enum TabsAround {
-    case left
-    case right
-    case others
-    case all
 }
 
 /// What the app holds while it runs: the core, the saved hosts, sync and
@@ -47,15 +39,15 @@ final class AppModel {
     var tab = AppTab.hosts
     var settingsPath: [SettingsRoute] = []
     var statusPath: [StatusRoute] = []
-    /// The terminals open, oldest first: the tabs of a wide window.
+    /// The terminals open, oldest first.
     private(set) var sessions: [TerminalSession] = []
-    /// The terminal shown: over everything else in a narrow window, the
-    /// tab in front in a wide one (none: the start page).
+    /// The terminal chosen last: over the tabs of a narrow window, in the
+    /// place of the list on a wide window's terminals' page.
     var shownSession: TerminalSession? {
         didSet {
             if shownSession !== oldValue {
                 oldValue?.surface.dismissInput()
-                compactTerminalPresented = shownSession != nil
+                terminalPresented = shownSession != nil
                 // A wide window shows it on its terminals' page.
                 if isWide, shownSession != nil {
                     tab = .terminals
@@ -63,8 +55,9 @@ final class AppModel {
             }
         }
     }
-    /// Selection survives 收起 and automatic layout changes. Presentation is separate.
-    var compactTerminalPresented = false
+    /// Whether the terminal chosen is shown rather than the list of them,
+    /// in either layout. The choice survives 收起 and changes of layout.
+    var terminalPresented = false
     private(set) var layout = AppLayout.compact
     /// Whether the window has been measured: the first time, a wide one
     /// opens on its terminals.
@@ -78,11 +71,11 @@ final class AppModel {
     /// Whether a wide window shows its sidebar; hidden, the page has the
     /// width.
     var sidebarShown = true
-    /// Whether a wide window shows the files of the terminal in front
-    /// beside it, as the desktop's right sidebar does; a narrow one shows
-    /// them over the terminal when asked. Kept by host as the desktop keeps
-    /// its right sidebar: a tab brought forward shows them if its host's
-    /// were shown, and a host never shown them does not.
+    /// Whether a wide window shows the files of the terminal shown beside
+    /// it, as the desktop's right sidebar does; a narrow one shows them
+    /// over the terminal when asked. Kept by host as the desktop keeps its
+    /// right sidebar: a terminal shown shows them if its host's were shown,
+    /// and a host never shown them does not.
     var showsFiles: Bool {
         get {
             shownSession.map { filesShown.contains($0.host.id) } ?? false
@@ -106,7 +99,7 @@ final class AppModel {
     /// behind an editor, but a fold never answers or cancels its prompt.
     var presentedSheet: AppSheet? {
         if let sheet { return sheet }
-        if let session = shownSession, isWide || compactTerminalPresented,
+        if let session = shownSession, terminalPresented,
             let prompt = session.prompt
         {
             return .login(session, prompt)
@@ -130,13 +123,13 @@ final class AppModel {
             tab = .terminals
         } else if wasWide && !isWide {
             // The terminal over the tabs only if it was the page shown.
-            compactTerminalPresented = shownSession != nil && tab == .terminals
+            terminalPresented = terminalPresented && shownSession != nil && tab == .terminals
             if tab == .credentials {
                 tab = .settings
                 settingsPath = [.credentials]
             }
         } else if !wasWide && isWide {
-            if compactTerminalPresented {
+            if terminalPresented {
                 tab = .terminals
             } else if tab == .settings, settingsPath.first == .credentials {
                 tab = .credentials
@@ -145,24 +138,26 @@ final class AppModel {
         }
     }
 
+    /// Shows `session` in the place of the list, as a tap on it does.
     func show(_ session: TerminalSession) {
         shownSession = session
-        compactTerminalPresented = true
+        terminalsForward()
     }
 
+    /// 收起: back to the list, the terminal still chosen and connected.
     func hideTerminal() {
         shownSession?.surface.dismissInput()
-        compactTerminalPresented = false
+        terminalPresented = false
     }
 
     var sidebarVisible: Bool {
         layout.showsSidebar(requested: sidebarShown, filesShown: showsFiles && terminalShown)
     }
 
-    /// Whether the terminal in front is shown: on a wide window's terminals
-    /// page, or over a narrow window's tabs.
+    /// Whether the terminal chosen is in sight: over a narrow window's
+    /// tabs, or on a wide window's terminals' page.
     var terminalShown: Bool {
-        shownSession != nil && (isWide ? tab == .terminals : compactTerminalPresented)
+        shownSession != nil && terminalPresented && (!isWide || tab == .terminals)
     }
 
     var filesCoverTerminal: Bool {
@@ -297,7 +292,7 @@ final class AppModel {
     /// Whether a command may show the host list or the settings now: not
     /// under the terminal over a narrow window, nor behind a sheet.
     var canPresent: Bool {
-        presentedSheet == nil && (isWide || !compactTerminalPresented)
+        presentedSheet == nil && (isWide || !terminalPresented)
     }
 
     /// Shows the host list, and has it do `request`: ⌘N, ⌘⇧N, ⌘K.
@@ -330,17 +325,17 @@ final class AppModel {
         }
     }
 
-    /// ⌘⌥B: the files beside the terminal in front of a wide window.
+    /// ⌘⌥B: the files beside the terminal shown on a wide window.
     func toggleFiles() {
         if isWide, terminalShown {
             showsFiles.toggle()
         }
     }
 
-    /// ⌘W: closes the terminal shown, not one behind another page of a
-    /// wide window.
+    /// ⌘W: closes the terminal in sight, not one put away or behind
+    /// another page of a wide window.
     func closeShown() {
-        if let shownSession, !isWide || tab == .terminals {
+        if let shownSession, terminalShown {
             close(shownSession)
         }
     }
@@ -366,10 +361,8 @@ final class AppModel {
         sync.reviewRequested = true
     }
 
-    /// Ends `session` and forgets it. Closing the tab in front of a wide
-    /// window brings the one to its right forward, else the one to its
-    /// left, as the desktop's tabs do; a narrow window goes back to the
-    /// list.
+    /// Ends `session` and forgets it. Closing the terminal shown goes back
+    /// to the list, in either layout.
     func close(_ session: TerminalSession) {
         guard let index = sessions.firstIndex(where: { $0 === session }) else {
             return
@@ -377,35 +370,13 @@ final class AppModel {
         end(session)
         sessions.remove(at: index)
         if shownSession === session {
-            shownSession =
-                isWide && !sessions.isEmpty ? sessions[min(index, sessions.count - 1)] : nil
+            shownSession = nil
         }
     }
 
-    /// Closes the tabs to one side of `session`, all but it, or all of
-    /// them, from a tab's menu; `session` comes forward if it stays.
-    func close(_ around: TabsAround, of session: TerminalSession) {
-        guard let index = sessions.firstIndex(where: { $0 === session }) else {
-            return
-        }
-        let closing: [TerminalSession] =
-            switch around {
-            case .left: Array(sessions[..<index])
-            case .right: Array(sessions[(index + 1)...])
-            case .others: sessions.filter { $0 !== session }
-            case .all: sessions
-            }
-        for other in closing {
-            end(other)
-        }
-        sessions.removeAll { open in closing.contains { $0 === open } }
-        shownSession = around == .all ? nil : session
-    }
-
-    /// Brings the `number`th tab forward, from 1: ⌘1 to ⌘8 go to that tab
-    /// and ⌘9 to the last, as in a browser. A tab that is not there does
-    /// nothing.
-    func select(tab number: Int) {
+    /// Shows the `number`th terminal, from 1: ⌘1 to ⌘8 go to that one and
+    /// ⌘9 to the last, as in a browser. One that is not there does nothing.
+    func selectTerminal(_ number: Int) {
         if number == 9 {
             shownSession = sessions.last ?? shownSession
         } else if sessions.indices.contains(number - 1) {
@@ -416,12 +387,12 @@ final class AppModel {
         terminalsForward()
     }
 
-    /// Brings the next tab forward, round to the first.
+    /// Shows the next terminal, round to the first.
     func selectNext() {
         step(by: 1)
     }
 
-    /// Brings the previous tab forward, round to the last.
+    /// Shows the previous terminal, round to the last.
     func selectPrevious() {
         step(by: -1)
     }
@@ -439,10 +410,12 @@ final class AppModel {
         shownSession = sessions[(index + offset + count) % count]
     }
 
-    /// A tab chosen by its keys shows on a wide window's terminals' page,
-    /// even the one already in front of it.
+    /// A terminal chosen is shown, even the one chosen already: over a
+    /// narrow window's tabs, on a wide window's terminals' page.
     private func terminalsForward() {
-        if isWide, shownSession != nil {
+        guard shownSession != nil else { return }
+        terminalPresented = true
+        if isWide {
             tab = .terminals
         }
     }

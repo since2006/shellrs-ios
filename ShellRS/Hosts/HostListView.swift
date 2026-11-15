@@ -16,7 +16,6 @@ struct HostListView: View {
 /// container gives it the navigation bar.
 struct HostList: View {
     @Environment(AppModel.self) private var model
-    @Environment(\.wideWindow) private var wide
     /// The groups folded in the search's results, for this search only.
     private var state: HostListState { model.hostListState }
     private var editingHost: HostEditor.Subject? {
@@ -38,9 +37,8 @@ struct HostList: View {
         let tree = HostTree(groups: hosts.groups, hosts: hosts.hosts, query: state.query)
         let showsRecent = !searching && !state.editMode.isEditing && !hosts.recent.isEmpty
         let isEmpty = hosts.hosts.isEmpty && hosts.groups.isEmpty
-        // Not in a wide window: its terminals' start page has the ad. Nor
-        // while searching or sorting, nor over 还没有主机.
-        let showsAd = !wide && !searching && !state.editMode.isEditing && !isEmpty
+        // Not while searching or sorting, nor over 还没有主机.
+        let showsAd = !searching && !state.editMode.isEditing && !isEmpty
         let hasAd = showsAd && model.ads.ad(for: .hosts) != nil
         List {
             if showsRecent {

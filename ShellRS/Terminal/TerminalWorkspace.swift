@@ -1,52 +1,54 @@
 import ShellRSCore
 import SwiftUI
 
-/// The detail of a wide window: the terminal tabs over the one in front,
-/// or the start page while none is open.
+/// A wide window's terminals' page, as a narrow window's tab: the
+/// terminals open, a tap on one showing it in their place until 收起; the
+/// hosts connected lately while none is open, the page it opens on.
 struct TerminalWorkspace: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {
-        VStack(spacing: 0) {
-            if !model.sessions.isEmpty {
-                UnobscuredArea { TerminalTabs() }
-                    .frame(height: 44)
-                Divider()
-            }
-            if let session = model.shownSession {
+        NavigationStack {
+            if model.terminalShown, let session = model.shownSession {
                 TerminalPane(session: session)
                     // Down past the home indicator, but not under the
                     // sidebar, which floats over the detail's edge.
                     .background(Color.black.ignoresSafeArea(edges: .bottom))
-            } else {
-                StartView()
-            }
-        }
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if let session = model.shownSession {
-                ToolbarItem(placement: .principal) {
-                    TerminalTitle(session: session)
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button("文件", systemImage: model.showsFiles ? "folder.fill" : "folder") {
-                        model.toggleFiles()
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("收起", systemImage: "chevron.down") {
+                                model.hideTerminal()
+                            }
+                        }
+                        ToolbarItem(placement: .principal) {
+                            TerminalTitle(session: session)
+                        }
+                        ToolbarItem(placement: .primaryAction) {
+                            Button("文件", systemImage: model.showsFiles ? "folder.fill" : "folder") {
+                                model.toggleFiles()
+                            }
+                        }
+                        ToolbarItem(placement: .primaryAction) {
+                            TerminalMenu(session: session)
+                        }
                     }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    TerminalMenu(session: session)
-                }
+                    // Shown, it takes the keys, to type in straight away.
+                    .onChange(of: session.id, initial: true) {
+                        model.shownSession?.surface.focusForKeyboard()
+                    }
+            } else if model.sessions.isEmpty {
+                StartView()
+                    .navigationTitle("终端")
+            } else {
+                SessionList()
             }
-        }
-        // A tab brought forward takes the keys, to type in straight away.
-        .onChange(of: model.shownSession?.id, initial: true) {
-            model.shownSession?.surface.focusForKeyboard()
         }
     }
 }
 
-/// The files beside a terminal, on its connection: they follow the tab in
-/// front, each tab's own.
+/// The files beside a terminal, on its connection: they follow the
+/// terminal shown, each its own.
 struct FilesPane: View {
     let session: TerminalSession
     @Environment(AppModel.self) private var model
@@ -64,7 +66,7 @@ struct FilesPane: View {
             FilesView(files: session.openFiles()) {
                 model.showsFiles = false
             }
-            // Another tab's are other files: opened afresh, not these
+            // Another terminal's are other files: opened afresh, not these
             // updated.
             .id(session.id)
         }

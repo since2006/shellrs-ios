@@ -1,50 +1,62 @@
 import ShellRSCore
 import SwiftUI
 
-/// The terminals open: tap one to show it, swipe to close it.
+/// 终端, a narrow window's tab: the list in a stack of its own.
 struct SessionsView: View {
-    @Environment(AppModel.self) private var model
-
     var body: some View {
         NavigationStack {
-            List {
-                ForEach(model.sessions) { session in
-                    Button {
-                        model.show(session)
-                    } label: {
-                        SessionRow(session: session)
-                    }
-                    .tint(.primary)
-                    .swipeActions {
-                        Button("关闭", role: .destructive) {
-                            model.close(session)
-                        }
-                    }
-                }
-                if !model.sessions.isEmpty {
-                    AdSection(placement: .sessions)
-                }
-            }
-            .overlay {
-                if model.sessions.isEmpty {
-                    VStack(spacing: 0) {
-                        ContentUnavailableView(
-                            "没有打开的终端", systemImage: "terminal",
-                            description: Text("在「主机」里点一台主机连接。"))
-                        // Over the plain background of an empty list.
-                        AdCard(placement: .sessions, fill: Color(.secondarySystemBackground))
-                            .padding()
-                    }
-                }
-            }
-            .loadsAd(.sessions)
-            .navigationTitle("终端")
+            SessionList()
         }
     }
 }
 
+/// The terminals open: tap one to show it, swipe or hold it to close it.
+/// Its container gives it the navigation bar.
+struct SessionList: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        List {
+            ForEach(model.sessions) { session in
+                Button {
+                    model.show(session)
+                } label: {
+                    SessionRow(session: session)
+                }
+                .tint(.primary)
+                .swipeActions {
+                    Button("关闭", role: .destructive) {
+                        model.close(session)
+                    }
+                }
+                .contextMenu {
+                    TerminalActions(session: session)
+                }
+            }
+            if !model.sessions.isEmpty {
+                AdSection(placement: .sessions)
+            }
+        }
+        .overlay {
+            if model.sessions.isEmpty {
+                VStack(spacing: 0) {
+                    ContentUnavailableView(
+                        "没有打开的终端", systemImage: "terminal",
+                        description: Text("在「主机」里点一台主机连接。"))
+                    // Over the plain background of an empty list.
+                    AdCard(placement: .sessions, fill: Color(.secondarySystemBackground))
+                        .padding()
+                }
+            }
+        }
+        .loadsAd(.sessions)
+        .navigationTitle("终端")
+    }
+}
+
 /// A terminal in the list: its host's mark, colored while it is online and
-/// gray otherwise, as the desktop's tabs show it.
+/// gray otherwise, as the desktop's tabs show it, and a key while its login
+/// waits for an answer.
 private struct SessionRow: View {
     let session: TerminalSession
 
@@ -58,6 +70,12 @@ private struct SessionRow: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
+            }
+            if session.prompt != nil {
+                Spacer(minLength: 8)
+                Image(systemName: "key.fill")
+                    .foregroundStyle(.orange)
+                    .accessibilityLabel(Text("等待输入"))
             }
         }
         .padding(.vertical, 2)

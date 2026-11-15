@@ -96,7 +96,8 @@ struct RingTile: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            RingGauge(percent: percent, diameter: diameter)
+            // The ring as thick for its size as at 56 points.
+            RingGauge(percent: percent, diameter: diameter, lineWidth: diameter * 6 / 56)
             TileLabel(
                 title: Text(verbatim: title), critical: Severity(percent: percent ?? 0) == .critical,
                 swaps: swaps)
@@ -120,7 +121,8 @@ struct LoadTile: View {
     var diameter: CGFloat = 56
     var swaps = false
 
-    private static let lineWidth: CGFloat = 5
+    /// 5 points at 56, as thick for its size at another.
+    private var lineWidth: CGFloat { diameter * 5 / 56 }
     /// Between one ring and the next inside it.
     private static let gap: CGFloat = 2
 
@@ -129,8 +131,8 @@ struct LoadTile: View {
         VStack(spacing: 6) {
             ZStack {
                 ForEach(0..<3, id: \.self) { index in
-                    let size = diameter - 2 * CGFloat(index) * (Self.lineWidth + Self.gap)
-                    RingArc(percent: values.flatMap { share($0[index]) }, lineWidth: Self.lineWidth)
+                    let size = diameter - 2 * CGFloat(index) * (lineWidth + Self.gap)
+                    RingArc(percent: values.flatMap { share($0[index]) }, lineWidth: lineWidth)
                         .frame(width: size, height: size)
                 }
             }

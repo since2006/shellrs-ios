@@ -22,15 +22,15 @@ struct RootView: View {
                 }
                 .allowsHitTesting(
                     !model.filesCoverTerminal
-                        && (model.isWide || !model.compactTerminalPresented)
+                        && (model.isWide || !model.terminalPresented)
                 )
                 .accessibilityHidden(
                     model.filesCoverTerminal
-                        || (!model.isWide && model.compactTerminalPresented))
+                        || (!model.isWide && model.terminalPresented))
 
                 // A full-window layer, in the same scene as the workspace. Unlike a
                 // modal cover, its teardown cannot race a second terminal presenter.
-                if !model.isWide, model.compactTerminalPresented,
+                if !model.isWide, model.terminalPresented,
                     let session = model.shownSession
                 {
                     TerminalScreen(session: session)
@@ -112,7 +112,7 @@ private struct CompactRoot: View {
             isPresented: Binding(
                 get: {
                     model.sync.notice != nil && !model.sync.pageShown
-                        && !model.compactTerminalPresented && model.presentedSheet == nil
+                        && !model.terminalPresented && model.presentedSheet == nil
                 },
                 set: { if !$0 { model.sync.notice = nil } }),
             presenting: model.sync.notice

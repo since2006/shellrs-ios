@@ -4,8 +4,8 @@ import Testing
 
 @testable import ShellRS
 
-/// A wide window's terminal tabs, as the desktop's tabs behave, and a
-/// narrow window's terminal shown over its tabs.
+/// The terminals: a list of them in either layout, the one chosen shown
+/// over a narrow window's tabs or on a wide window's terminals' page.
 @MainActor
 struct AppModelTests {
     let test: TestCore
@@ -19,7 +19,7 @@ struct AppModelTests {
     }
 
     /// Opens a terminal on each of `names`, saved on a port nothing listens
-    /// on: what the tabs do does not need them connected.
+    /// on: what the list does does not need them connected.
     private func open(_ names: String...) async throws -> [TerminalSession] {
         let port = try closedPort()
         let store = test.core.store()
@@ -36,65 +36,74 @@ struct AppModelTests {
         model.shownSession?.host.name
     }
 
-    @Test func closingTheFrontTabBringsItsNeighbourForward() async throws {
-        model.updateLayout(AppLayout(width: 1200, regular: true))
-        let tabs = try await open("a", "b", "c")
+    @Test(arguments: [AppLayout.compact, AppLayout(width: 1200, regular: true)])
+    func closingTheShownTerminalGoesBackToTheList(layout: AppLayout) async throws {
+        model.updateLayout(layout)
+        let terminals = try await open("a", "b", "c")
         #expect(front == "c")
+        #expect(model.terminalShown)
 
-        model.shownSession = tabs[1]
-        model.close(tabs[1])
+        // One not shown closes without changing the one shown.
+        model.close(terminals[0])
         #expect(front == "c")
-        model.close(tabs[2])
-        #expect(front == "a")
-        // A tab behind closes without changing the one in front.
-        let d = try #require(try await open("d").last)
-        model.close(tabs[0])
-        #expect(front == "d")
-        model.close(d)
+        #expect(model.terminalShown)
+        model.close(terminals[2])
         #expect(model.shownSession == nil)
-        #expect(model.sessions.isEmpty)
-    }
-
-    @Test func closingTheShownTerminalOfANarrowWindowGoesBackToTheList() async throws {
-        model.updateLayout(.compact)
-        let tabs = try await open("a", "b")
-        model.close(tabs[1])
-        #expect(model.shownSession == nil)
-        #expect(model.sessions.map(\.host.name) == ["a"])
-    }
-
-    @Test func aTabsMenuClosesTheOnesAroundIt() async throws {
-        model.updateLayout(AppLayout(width: 1200, regular: true))
-        var tabs = try await open("a", "b", "c", "d")
-        model.close(.left, of: tabs[1])
-        #expect(model.sessions.map(\.host.name) == ["b", "c", "d"])
-        #expect(front == "b")
-        model.close(.right, of: tabs[2])
-        #expect(model.sessions.map(\.host.name) == ["b", "c"])
-        #expect(front == "c")
-
-        tabs = model.sessions
-        model.close(.others, of: tabs[0])
+        #expect(!model.terminalShown)
         #expect(model.sessions.map(\.host.name) == ["b"])
-        model.close(.all, of: tabs[0])
-        #expect(model.sessions.isEmpty)
-        #expect(model.shownSession == nil)
     }
 
-    @Test func numbersAndArrowsPickATab() async throws {
+    @Test func aWideWindowsTerminalsPageIsTheirListUntilOneIsShown() async throws {
+        model.updateLayout(AppLayout(width: 1200, regular: true))
+        let terminals = try await open("a", "b")
+        #expect(model.tab == .terminals)
+        #expect(model.terminalShown)
+
+        // 收起: the list, the terminal still the one chosen and open.
+        model.hideTerminal()
+        #expect(!model.terminalShown)
+        #expect(model.tab == .terminals)
+        #expect(front == "b")
+        // ⌘W and the files are for a terminal in sight.
+        model.closeShown()
+        #expect(model.sessions.count == 2)
+        model.toggleFiles()
+        #expect(!model.showsFiles)
+        // Another page and back: still the list.
+        model.tab = .hosts
+        model.tab = .terminals
+        #expect(!model.terminalShown)
+
+        // A tap on one shows it; the page keeps it through another.
+        model.show(terminals[0])
+        #expect(front == "a")
+        #expect(model.terminalShown)
+        model.tab = .status
+        #expect(!model.terminalShown)
+        model.tab = .terminals
+        #expect(model.terminalShown)
+        // Shown from another page, even the one chosen already.
+        model.hideTerminal()
+        model.tab = .status
+        model.show(terminals[0])
+        #expect(model.tab == .terminals)
+        #expect(model.terminalShown)
+    }
+
+    @Test func numbersAndArrowsPickATerminal() async throws {
         model.updateLayout(AppLayout(width: 1200, regular: true))
         // Nothing open: nothing to pick.
         model.selectNext()
-        model.select(tab: 1)
+        model.selectTerminal(1)
         #expect(model.shownSession == nil)
 
         _ = try await open("a", "b", "c")
-        model.select(tab: 1)
+        model.selectTerminal(1)
         #expect(front == "a")
-        // ⌘9 is the last, as in a browser; a tab not there does nothing.
-        model.select(tab: 9)
+        // ⌘9 is the last, as in a browser; one not there does nothing.
+        model.selectTerminal(9)
         #expect(front == "c")
-        model.select(tab: 5)
+        model.selectTerminal(5)
         #expect(front == "c")
 
         model.selectNext()
@@ -108,6 +117,17 @@ struct AppModelTests {
         model.shownSession = nil
         model.selectPrevious()
         #expect(front == "c")
+        // Put away, the one chosen comes out again.
+        model.hideTerminal()
+        model.selectTerminal(9)
+        #expect(model.terminalShown)
+
+        // Over a narrow window's tabs too.
+        model.updateLayout(.compact)
+        model.hideTerminal()
+        model.selectNext()
+        #expect(front == "a")
+        #expect(model.terminalPresented)
     }
 
     @Test func onlySshConnects() async throws {
@@ -282,16 +302,16 @@ struct AppModelTests {
         #expect(!model.filesCoverTerminal)
         model.showsFiles = false
 
-        // A tab brought forward by its keys comes with its page, even the
-        // one in front.
-        model.select(tab: 1)
+        // A terminal chosen by its keys comes with its page, even the one
+        // chosen already.
+        model.selectTerminal(1)
         #expect(model.tab == .terminals)
         model.tab = .status
         model.selectNext()
         #expect(model.shownSession === a)
         #expect(model.tab == .terminals)
         model.tab = .status
-        model.select(tab: 5)
+        model.selectTerminal(5)
         #expect(model.tab == .status)
         model.tab = .terminals
         model.closeShown()
@@ -310,7 +330,7 @@ struct AppModelTests {
         let a = try await open("a")[0]
         model.tab = .status
         model.updateLayout(.compact)
-        #expect(!model.compactTerminalPresented)
+        #expect(!model.terminalPresented)
         #expect(model.shownSession === a)
         #expect(model.tab == .status)
 
@@ -320,7 +340,7 @@ struct AppModelTests {
         model.updateLayout(AppLayout(width: 1200, regular: true))
         #expect(model.tab == .terminals)
         model.updateLayout(.compact)
-        #expect(model.compactTerminalPresented)
+        #expect(model.terminalPresented)
     }
 
     @Test func theCredentialsAreInTheSettingsOfANarrowWindow() {
@@ -362,7 +382,7 @@ struct AppModelTests {
 
         for _ in 0..<5 {
             model.updateLayout(.compact)
-            #expect(model.compactTerminalPresented)
+            #expect(model.terminalPresented)
             #expect(model.shownSession === session)
             #expect(model.showsFiles)
             model.updateLayout(AppLayout(width: 900, regular: true))
@@ -381,10 +401,10 @@ struct AppModelTests {
         model.updateLayout(.compact)
         model.hideTerminal()
         #expect(model.shownSession === session)
-        #expect(!model.compactTerminalPresented)
+        #expect(!model.terminalPresented)
         #expect(model.canPresent)
         model.show(session)
-        #expect(model.compactTerminalPresented)
+        #expect(model.terminalPresented)
         #expect(!model.canPresent)
     }
 

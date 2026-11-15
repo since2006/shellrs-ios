@@ -57,25 +57,25 @@ struct AppCommands: Commands {
             .disabled(model?.canPresent != true)
         }
         CommandMenu("终端") {
-            Button("关闭标签") {
+            Button("关闭终端") {
                 model?.closeShown()
             }
             .keyboardShortcut("w")
-            .disabled(model.map { $0.shownSession == nil || ($0.isWide && $0.tab != .terminals) } != false)
+            .disabled(model?.terminalShown != true)
             Divider()
-            Button("下一个标签") {
+            Button("下一个终端") {
                 model?.selectNext()
             }
             .keyboardShortcut("]", modifiers: [.command, .shift])
             .disabled(model?.sessions.isEmpty != false)
-            Button("上一个标签") {
+            Button("上一个终端") {
                 model?.selectPrevious()
             }
             .keyboardShortcut("[", modifiers: [.command, .shift])
             .disabled(model?.sessions.isEmpty != false)
             if let model, !model.sessions.isEmpty {
                 Divider()
-                TabCommands(model: model)
+                TerminalCommands(model: model)
             }
             Divider()
             Button("放大字号") {
@@ -99,20 +99,20 @@ struct AppCommands: Commands {
 
 /// The open terminals by name: ⌘1 to ⌘8, and ⌘9 to the last, as in a
 /// browser.
-private struct TabCommands: View {
+private struct TerminalCommands: View {
     let model: AppModel
 
     var body: some View {
         let sessions = model.sessions
         ForEach(Array(sessions.prefix(8).enumerated()), id: \.element.id) { index, session in
             Button(session.host.title) {
-                model.select(tab: index + 1)
+                model.selectTerminal(index + 1)
             }
             .keyboardShortcut(KeyEquivalent(Character(String(index + 1))))
         }
         if sessions.count > 8, let last = sessions.last {
             Button(last.host.title) {
-                model.select(tab: 9)
+                model.selectTerminal(9)
             }
             .keyboardShortcut("9")
         }
