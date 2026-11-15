@@ -109,46 +109,39 @@ struct RingTile: View {
     }
 }
 
-/// The load over the last one, five and fifteen minutes as three small
-/// rings, each the load's share of the cores, a little wider than one
-/// ring: in a sidebar it still leaves the rings beside it room. The figures
-/// under them in the order `uptime` gives them.
+/// The load over the last one, five and fifteen minutes as three rings
+/// one inside the other, the last minute outermost, each the load's share
+/// of the cores: as big as a `RingTile`'s ring, the figures only for
+/// VoiceOver.
 struct LoadTile: View {
     let load: LoadAverage?
     /// The host's cores; 0 when unknown, and the rings stay empty.
     let cores: Int
+    var diameter: CGFloat = 56
     var swaps = false
 
-    /// The rings' height, the same as a `RingTile`'s.
-    var diameter: CGFloat = 56
-    static let width: CGFloat = 64
+    private static let lineWidth: CGFloat = 5
+    /// Between one ring and the next inside it.
+    private static let gap: CGFloat = 2
 
     var body: some View {
         let values = load.map { [$0.one, $0.five, $0.fifteen] }
         VStack(spacing: 6) {
-            HStack(spacing: 2) {
+            ZStack {
                 ForEach(0..<3, id: \.self) { index in
-                    let value = values?[index]
-                    VStack(spacing: 5) {
-                        RingArc(percent: value.flatMap(share), lineWidth: 3)
-                            .frame(width: 16, height: 16)
-                        Text(verbatim: value.map(StatusFormat.compactLoad) ?? "—")
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
-                    }
-                    .frame(width: 20)
+                    let size = diameter - 2 * CGFloat(index) * (Self.lineWidth + Self.gap)
+                    RingArc(percent: values.flatMap { share($0[index]) }, lineWidth: Self.lineWidth)
+                        .frame(width: size, height: size)
                 }
             }
-            .frame(width: Self.width, height: diameter)
+            .frame(width: diameter, height: diameter)
             TileLabel(
                 title: Text("负载"),
                 critical: Severity(percent: values.flatMap { share($0[0]) } ?? 0) == .critical,
                 swaps: swaps)
-                .frame(maxWidth: Self.width)
+                .frame(maxWidth: diameter + 8)
         }
-        .frame(width: Self.width)
+        .frame(width: diameter)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("负载"))
         .accessibilityValue(
@@ -190,6 +183,46 @@ private struct TileLabel: View {
         }
         .font(.caption)
         .foregroundStyle(.secondary)
+    }
+}
+
+/// Two faces of a tile, the back's turned to like a card's: `angle` 0
+/// shows the front, 180 the back, and between them it turns about its
+/// upright. Where motion is reduced, the one fades into the other.
+struct Flip<Front: View, Back: View>: View, Animatable {
+    var angle: Double
+    let front: Front
+    let back: Back
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init(showsBack: Bool, @ViewBuilder front: () -> Front, @ViewBuilder back: () -> Back) {
+        angle = showsBack ? 180 : 0
+        self.front = front()
+        self.back = back()
+    }
+
+    // Not the main actor's: a plain value of a value, as the animation
+    // reads and writes it.
+    nonisolated var animatableData: Double {
+        get { angle }
+        set { angle = newValue }
+    }
+
+    var body: some View {
+        // Past the edge, the back faces us.
+        let backShows = angle >= 90
+        ZStack {
+            front
+                .opacity(reduceMotion ? 1 - angle / 180 : backShows ? 0 : 1)
+                .accessibilityHidden(backShows)
+            back
+                .rotation3DEffect(.degrees(reduceMotion ? 0 : 180), axis: (x: 0, y: 1, z: 0))
+                .opacity(reduceMotion ? angle / 180 : backShows ? 1 : 0)
+                .accessibilityHidden(!backShows)
+        }
+        .rotation3DEffect(
+            .degrees(reduceMotion ? 0 : angle), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
     }
 }
 
@@ -415,10 +448,6 @@ enum StatusFormat {
         return (value.formatted(.number.precision(.fractionLength(decimals))), rateUnits[unit])
     }
 
-    /// 「0.6」「12」: a load average under a small ring, one decimal under 10.
-    static func compactLoad(_ value: Double) -> String {
-        value.formatted(.number.precision(.fractionLength(value < 9.95 ? 1 : 0)))
-    }
 
     /// Disks as the Files app sizes them.
     static func size(_ bytes: UInt64) -> String {
@@ -430,6 +459,25 @@ enum StatusFormat {
         Duration.seconds(Int64(seconds)).formatted(
             .units(
                 allowed: [.days, .hours, .minutes], width: .abbreviated, maximumUnitCount: 2))
+    }
+
+    /// 「12d 6h」「15h 8m」「8m」: an uptime short enough for a card's line,
+    /// whole, in its two biggest units, the second left out when 0.
+    static func shortUptime(_ seconds: TimeInterval) -> String {
+        let minutes = Int(max(seconds, 0)) / 60
+        let days = minutes / (24 * 60)
+        let hours = minutes / 60 % 24
+        let rest = minutes % 60
+        func pair(_ big: Int, _ bigUnit: String, _ small: Int, _ smallUnit: String) -> String {
+            small > 0 ? "\(big)\(bigUnit) \(small)\(smallUnit)" : "\(big)\(bigUnit)"
+        }
+        if days > 0 {
+            return pair(days, "d", hours, "h")
+        }
+        if hours > 0 {
+            return pair(hours, "h", rest, "m")
+        }
+        return "\(rest)m"
     }
 
     /// 「0.20」: a load average, as `uptime` gives it.

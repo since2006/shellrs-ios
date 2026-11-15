@@ -4,26 +4,16 @@ import SwiftUI
 /// A host's details on 状态, as someone looking after it would want them at
 /// a glance: how busy the CPU is and on what, the load, memory and swap,
 /// each network interface and TCP, the disks filling and how hard they
-/// work, the busiest processes, the services that failed, and what the
-/// host is.
+/// work, the services that failed, and what the host is. The processes are
+/// a panel of their own, from the toolbar.
 struct HostStatusView: View {
     let monitor: HostMonitor
     /// Closes it, when it is shown over a wide window rather than pushed.
     var done: (() -> Void)?
 
     @Environment(AppModel.self) private var model
-    @State private var processOrder = ProcessOrder.cpu
     @State private var answering = false
-    @State private var showsAllProcesses = false
-
-    enum ProcessOrder: Hashable {
-        case cpu
-        case memory
-    }
-
-    /// How many of the busiest processes show, until asked for more.
-    private static let processesShown = 8
-    private static let processesMore = 30
+    @State private var showsProcesses = false
 
     var body: some View {
         List {
@@ -35,7 +25,6 @@ struct HostStatusView: View {
                 memory(snapshot)
                 network(snapshot)
                 disks(snapshot)
-                processes(snapshot)
                 services
                 system(snapshot)
             } else if monitor.state == .live || monitor.state == .connecting {
@@ -56,7 +45,17 @@ struct HostStatusView: View {
                     Button("完成", action: done)
                 }
             }
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    showsProcesses = true
+                } label: {
+                    Label("查看进程", systemImage: "list.bullet.rectangle")
+                }
+                .disabled(monitor.state != .live)
+                .popover(isPresented: $showsProcesses) {
+                    ProcessPanel(monitor: monitor)
+                        .environment(model)
+                }
                 Button {
                     openTerminal()
                 } label: {
@@ -69,10 +68,10 @@ struct HostStatusView: View {
         }
         .onAppear {
             model.status.pageAppeared()
-            monitor.detailed = true
+            monitor.showDetails()
         }
         .onDisappear {
-            monitor.detailed = false
+            monitor.hideDetails()
             model.status.pageDisappeared()
         }
     }
@@ -276,45 +275,6 @@ struct HostStatusView: View {
     }
 
     @ViewBuilder
-    private func processes(_ snapshot: HostSnapshot) -> some View {
-        if let processes = snapshot.processes {
-            let sorted =
-                processOrder == .cpu
-                ? processes
-                : processes.sorted { $0.memory > $1.memory }
-            Section {
-                Picker("排列方式", selection: $processOrder) {
-                    Text(verbatim: "CPU").tag(ProcessOrder.cpu)
-                    Text("内存").tag(ProcessOrder.memory)
-                }
-                .pickerStyle(.segmented)
-                .listRowSeparator(.hidden)
-                let shown = Array(sorted.prefix(showsAllProcesses ? Self.processesMore : Self.processesShown))
-                // Each bar against the busiest shown, in the order chosen.
-                let measure: (ProcessLoad) -> Double =
-                    processOrder == .cpu ? { $0.cpu ?? 0 } : { Double($0.memory) }
-                let top = shown.map(measure).max() ?? 0
-                ForEach(shown) { process in
-                    ProcessRow(process: process, share: top > 0 ? measure(process) / top : 0)
-                }
-                if processes.count > Self.processesShown {
-                    Button(showsAllProcesses ? String(localized: "收起") : String(localized: "显示更多")) {
-                        showsAllProcesses.toggle()
-                    }
-                }
-            } header: {
-                HStack {
-                    Text("进程")
-                    Spacer()
-                    Text("共 \(processes.count) 个")
-                }
-            } footer: {
-                Text("CPU 按单个核计，多线程的进程可以超过一个核；内存为常驻内存。")
-            }
-        }
-    }
-
-    @ViewBuilder
     private var services: some View {
         if let failed = monitor.failedUnits {
             Section("服务") {
@@ -424,60 +384,6 @@ struct HostStatusView: View {
         } catch {
             model.hostListState.failure = Describe.store(error)
         }
-    }
-}
-
-/// A process as the detail page lists it: its name, who runs it, what it
-/// takes, and a bar of that against the busiest shown.
-private struct ProcessRow: View {
-    let process: ProcessLoad
-    /// 0 to 1: this one's share of the busiest shown, in the order chosen.
-    let share: Double
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .firstTextBaseline) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: process.name)
-                        .lineLimit(1)
-                    Text(verbatim: details)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                Spacer(minLength: 8)
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(verbatim: process.cpu.map(StatusFormat.percent) ?? "—")
-                        .fontWeight(.medium)
-                    Text(verbatim: StatusFormat.bytes(process.memory))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .monospacedDigit()
-            }
-            GeometryReader { proxy in
-                Capsule()
-                    .fill(Color.accentColor.opacity(0.55))
-                    .frame(width: share > 0 ? max(3, proxy.size.width * min(share, 1)) : 0)
-            }
-            .frame(height: 3)
-            .accessibilityHidden(true)
-        }
-    }
-
-    /// 「PID 4242 · www-data · 4 线程」, and the state when it is one worth
-    /// knowing.
-    private var details: String {
-        var parts = ["PID \(process.pid)", process.user]
-        if process.threads > 1 {
-            parts.append(String(localized: "\(process.threads) 线程"))
-        }
-        switch process.state {
-        case "D": parts.append(String(localized: "等待磁盘"))
-        case "Z": parts.append(String(localized: "僵尸进程"))
-        default: break
-        }
-        return parts.joined(separator: " · ")
     }
 }
 

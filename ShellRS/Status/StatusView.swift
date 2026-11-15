@@ -109,6 +109,9 @@ struct StatusList: View {
     }
 
     @ViewBuilder
+    /// Each a button, its card in the text's colour rather than the
+    /// button's tint (which the card sets): not `.tint(.primary)`, which
+    /// what the card presents would take too.
     private func row(for monitor: HostMonitor) -> some View {
         if monitor.isAsking {
             // The login waits: answer before anything else.
@@ -117,16 +120,18 @@ struct StatusList: View {
             } label: {
                 HostStatusCard(monitor: monitor)
             }
-            .tint(.primary)
         } else if wide {
             Button {
                 model.sheet = .hostStatus(monitor.id)
             } label: {
                 HostStatusCard(monitor: monitor)
             }
-            .tint(.primary)
         } else {
-            NavigationLink(value: StatusRoute.host(monitor.id)) {
+            // A button, not a link: the card's own buttons take the place
+            // of the link's chevron.
+            Button {
+                model.statusPath.append(.host(monitor.id))
+            } label: {
                 HostStatusCard(monitor: monitor)
             }
         }
@@ -141,13 +146,21 @@ struct StatusList: View {
     }
 }
 
-/// A host on 状态: its mark and name, how it is doing, its CPU (or its
-/// load), memory and main disk as rings, and beside them its network.
+/// A host on 状态: its mark and name, how it is doing, its processes and a
+/// terminal a tap away, its CPU (or its load), memory and main disk as
+/// rings, and beside them its network.
 struct HostStatusCard: View {
     let monitor: HostMonitor
+    @Environment(AppModel.self) private var model
     /// The load's three rings in the CPU's place, on every card: a tap on
     /// either swaps them, and it stays so.
     @AppStorage("statusShowsLoad") private var showsLoad = false
+    @State private var showsProcesses = false
+    /// Too narrow for the buttons beside the name, as in a sidebar: they go
+    /// at the bottom, with the load.
+    @State private var narrow = false
+
+    private nonisolated static let narrowWidth: CGFloat = 280
 
     /// How a card lays out its figures, the first that fits: the network
     /// beside the rings or under them, the rings as far apart as fits. The
@@ -172,7 +185,10 @@ struct HostStatusCard: View {
                         .font(.caption)
                         .lineLimit(2)
                 }
-                Spacer(minLength: 0)
+                Spacer(minLength: 8)
+                if !narrow {
+                    actions
+                }
             }
             if let snapshot = monitor.snapshot, !hidesFigures {
                 // One list of the arrangements: `ViewThatFits` takes the
@@ -198,7 +214,9 @@ struct HostStatusCard: View {
                                 rings(snapshot, gap: gap)
                                 VStack(alignment: .leading, spacing: 4) {
                                     network(snapshot, axis: .horizontal)
-                                    load(snapshot)
+                                    if !narrow {
+                                        load(snapshot)
+                                    }
                                 }
                             }
                         }
@@ -206,27 +224,67 @@ struct HostStatusCard: View {
                 }
                 .opacity(dimmed ? 0.5 : 1)
             }
+            if narrow {
+                HStack(spacing: 8) {
+                    if let snapshot = monitor.snapshot, !hidesFigures {
+                        load(snapshot)
+                            .opacity(dimmed ? 0.5 : 1)
+                    }
+                    Spacer(minLength: 0)
+                    actions
+                }
+            }
         }
         .padding(.vertical, 4)
+        // The colour itself: the row's button colours its label with the
+        // tint, and `.primary` would be the tint's.
+        .foregroundStyle(Color.primary)
+        .onGeometryChange(for: Bool.self) { $0.size.width < Self.narrowWidth } action: {
+            narrow = $0
+        }
         .sensoryFeedback(.selection, trigger: showsLoad)
+    }
+
+    /// The host's processes in a panel, and a terminal on it.
+    private var actions: some View {
+        HStack(spacing: 8) {
+            CardButton(title: "查看进程", systemImage: "list.bullet.rectangle") {
+                showsProcesses = true
+            }
+            // Nothing to read on a host not connected, or not Linux.
+            .disabled(monitor.state != .live)
+            .popover(isPresented: $showsProcesses) {
+                ProcessPanel(monitor: monitor)
+                    .environment(model)
+            }
+            CardButton(title: "打开终端", systemImage: "terminal") {
+                do {
+                    try model.connect(monitor.host)
+                } catch {
+                    model.hostListState.failure = Describe.store(error)
+                }
+            }
+        }
     }
 
     /// The rings `gap` apart, taking the room of three so that every card
     /// in the list chooses the same gap and its rings line up with the
     /// others'.
     private func rings(_ snapshot: HostSnapshot, gap: CGFloat) -> some View {
-        let first = showsLoad ? LoadTile.width : 56
-        return HStack(alignment: .top, spacing: gap) {
+        HStack(alignment: .top, spacing: gap) {
             Button {
                 withAnimation(.snappy) {
                     showsLoad.toggle()
                 }
             } label: {
-                if showsLoad {
-                    LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
-                } else {
+                // Turned over like a card, every card's together: each
+                // turns with its own animation, whichever card was tapped.
+                Flip(showsBack: showsLoad) {
                     RingTile(title: "CPU", percent: snapshot.cpu?.total, swaps: true)
+                } back: {
+                    LoadTile(load: snapshot.load, cores: snapshot.coreCount, swaps: true)
                 }
+                .animation(.easeInOut(duration: 0.5), value: showsLoad)
             }
             .buttonStyle(TileButtonStyle())
             .accessibilityHint(showsLoad ? Text("轻点改为显示 CPU") : Text("轻点改为显示负载"))
@@ -235,7 +293,7 @@ struct HostStatusCard: View {
                 RingTile(title: String(localized: "磁盘 \(disk.mount)"), percent: disk.percent)
             }
         }
-        .frame(width: first + 2 * 56 + 2 * gap, alignment: .leading)
+        .frame(width: 3 * 56 + 2 * gap, alignment: .leading)
     }
 
     /// Not connected now: what was read last is no longer the host's.
@@ -320,6 +378,28 @@ struct HostStatusCard: View {
     }
 }
 
+/// One of a card's buttons: an icon in a tinted circle, faint when it
+/// cannot be used.
+private struct CardButton: View {
+    let title: LocalizedStringKey
+    let systemImage: String
+    let action: () -> Void
+    @Environment(\.isEnabled) private var isEnabled
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 34, height: 34)
+                .background(Circle().fill(Color.accentColor.opacity(0.12)))
+                .opacity(isEnabled ? 1 : 0.35)
+        }
+        .buttonStyle(TileButtonStyle())
+        .accessibilityLabel(Text(title))
+    }
+}
+
 /// An icon and its text close together, for figures in a row.
 struct CompactLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
@@ -353,13 +433,27 @@ struct StatusLine: View {
                 Label(problem, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
             } else {
-                HStack(spacing: 4) {
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: 7))
-                        .foregroundStyle(.green)
-                        .accessibilityHidden(true)
-                    Text(online)
-                        .foregroundStyle(.secondary)
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    // Until the CPU is in, which takes a second reading (the
+                    // network's speeds too): what the card has is half of it.
+                    LiveDot(reading: monitor.snapshot?.cpu == nil)
+                        // Its middle about the middle of the text's first line.
+                        .alignmentGuide(.firstTextBaseline) { $0.height + 1 }
+                    // On one line where it fits, else the uptime on a line
+                    // of its own: never broken in the middle of it.
+                    ViewThatFits(in: .horizontal) {
+                        Text(([connection] + uptime).joined(separator: " · "))
+                            .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(connection)
+                                .lineLimit(1)
+                            ForEach(uptime, id: \.self) { uptime in
+                                Text(uptime)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                    .foregroundStyle(.secondary)
                 }
             }
         case .unsupported(let system):
@@ -371,16 +465,21 @@ struct StatusLine: View {
         }
     }
 
-    /// 「在线 · 23 ms · 运行 62 天 3 小时」.
-    private var online: String {
+    /// 「在线 · 23 ms」.
+    private var connection: String {
         var parts = [String(localized: "在线")]
         if let latency = monitor.latency {
             parts.append(String(localized: "\(String(latency)) ms"))
         }
-        if let uptime = monitor.snapshot?.uptime {
-            parts.append(String(localized: "运行 \(StatusFormat.uptime(uptime))"))
-        }
         return parts.joined(separator: " · ")
+    }
+
+    /// 「运行 62d 3h」, once read.
+    private var uptime: [String] {
+        guard let uptime = monitor.snapshot?.uptime else {
+            return []
+        }
+        return [String(localized: "运行 \(StatusFormat.shortUptime(uptime))")]
     }
 
     static func asking(_ prompt: Prompt) -> String {
@@ -394,6 +493,37 @@ struct StatusLine: View {
         case .passphrase:
             String(localized: "需要私钥口令，轻点输入")
         }
+    }
+}
+
+/// The dot before 「在线」: green once the readings are in, orange and
+/// breathing while they are on their way.
+private struct LiveDot: View {
+    let reading: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        if reading {
+            dot(.orange)
+                .phaseAnimator([false, true]) { dot, faint in
+                    dot
+                        .opacity(faint ? 0.25 : 1)
+                        .scaleEffect(faint && !reduceMotion ? 0.7 : 1)
+                } animation: { _ in
+                    .easeInOut(duration: 0.9)
+                }
+                .accessibilityLabel(Text("正在读取…"))
+        } else {
+            dot(.green)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func dot(_ color: Color) -> some View {
+        Image(systemName: "circle.fill")
+            .font(.system(size: 7))
+            .foregroundStyle(color)
     }
 }
 

@@ -66,11 +66,16 @@ struct StatusPartsTests {
         }
     }
 
-    @Test func aLoadUnderASmallRingIsShort() {
-        #expect(StatusFormat.compactLoad(0) == "0.0")
-        #expect(StatusFormat.compactLoad(0.64) == "0.6")
-        #expect(StatusFormat.compactLoad(9.96) == "10")
-        #expect(StatusFormat.compactLoad(128.4) == "128")
+    @Test func anUptimeOnACardIsShortAndWhole() {
+        let minute: Double = 60, hour = 60 * minute, day = 24 * hour
+        #expect(StatusFormat.shortUptime(0) == "0m")
+        #expect(StatusFormat.shortUptime(59) == "0m")
+        #expect(StatusFormat.shortUptime(8 * minute) == "8m")
+        #expect(StatusFormat.shortUptime(15 * hour + 8 * minute) == "15h 8m")
+        #expect(StatusFormat.shortUptime(15 * hour + 30) == "15h")
+        #expect(StatusFormat.shortUptime(12 * day + 6 * hour + 59 * minute) == "12d 6h")
+        #expect(StatusFormat.shortUptime(12 * day + 30 * minute) == "12d")
+        #expect(StatusFormat.shortUptime(400 * day) == "400d")
     }
 
     @Test func aTapFindsTheCoreUnderIt() {

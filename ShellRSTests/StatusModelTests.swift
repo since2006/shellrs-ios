@@ -67,6 +67,24 @@ struct StatusModelTests {
 
     /// A port nothing listens on: the monitor says why in the desktop's
     /// words, and only while a page of 状态 is shown does it try.
+    @Test func theDetailsAreReadWhileAnythingShowsThem() async throws {
+        let host = try await add("web")
+        let status = StatusModel(core: test.core, hosts: hosts, defaults: defaults)
+        let monitor = status.monitor(for: host)
+        #expect(!monitor.detailed)
+        // The details, and the processes over them.
+        monitor.showDetails()
+        monitor.showDetails()
+        monitor.hideDetails()
+        #expect(monitor.detailed, "the details still show")
+        monitor.hideDetails()
+        #expect(!monitor.detailed)
+        // One too many: the next still counts.
+        monitor.hideDetails()
+        monitor.showDetails()
+        #expect(monitor.detailed)
+    }
+
     @Test func aMonitorSaysWhyItCouldNotConnect() async throws {
         let host = try await add("web", port: try closedPort())
         let status = StatusModel(core: test.core, hosts: hosts, defaults: defaults)

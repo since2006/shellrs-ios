@@ -3595,22 +3595,22 @@
         }
       }
     },
+    "按此列从大到小排列": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorts by this column, largest first"
+          }
+        }
+      }
+    },
     "换成新私钥后，要把它的公钥加到这些主机上，它们才能再登录。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "After switching to a new private key, add its public key to these hosts so they can log in again."
-          }
-        }
-      }
-    },
-    "排列方式": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sort By"
           }
         }
       }
@@ -4465,16 +4465,6 @@
         }
       }
     },
-    "显示更多": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show More"
-          }
-        }
-      }
-    },
     "显示配置码…": {
       "localizations": {
         "en": {
@@ -5159,6 +5149,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Review…"
+          }
+        }
+      }
+    },
+    "查看进程": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View Processes"
           }
         }
       }
@@ -6539,6 +6539,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Read"
+          }
+        }
+      }
+    },
+    "读不到进程": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can't Read Processes"
           }
         }
       }

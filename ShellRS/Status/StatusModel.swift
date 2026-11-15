@@ -191,13 +191,24 @@ final class HostMonitor: Identifiable {
     private(set) var history: [Point] = []
     /// Why the last reading failed, the connection still up.
     private(set) var readingProblem: String?
-    /// Whether the detail page is shown: the readings take its parts too.
-    var detailed = false {
-        didSet {
-            if detailed && !oldValue {
-                pause?.cancel()
-            }
+    /// Whether something shows the detail page's parts, the page or its
+    /// processes: the readings take them too.
+    var detailed: Bool {
+        detailViewers > 0
+    }
+    /// How many: the processes can show over the details, or over the list.
+    @ObservationIgnored private var detailViewers = 0
+
+    /// A page of the details appeared: read them now, not at the next turn.
+    func showDetails() {
+        detailViewers += 1
+        if detailViewers == 1 {
+            pause?.cancel()
         }
+    }
+
+    func hideDetails() {
+        detailViewers = max(detailViewers - 1, 0)
     }
 
     /// The host's public id, which never changes.
